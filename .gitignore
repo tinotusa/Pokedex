@@ -1,0 +1,8 @@
+TODO.md
+xcuserdata/
+
+*.xcodeproj/*
+!*.xcodeproj/project. pbxproj
+!*.xcodeproj/xcshareddata/
+!*.XCworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
