@@ -16,6 +16,7 @@ struct Pokemon: Identifiable, Hashable {
     let weight: Int
     let types: [PokemonType]
     let sprites: PokemonSprites
+    let abilities: [PokemonAbility]
 }
 
 // MARK: - Helpers
@@ -23,6 +24,11 @@ extension Pokemon {
     /// The official artwork url for this pokemon's image.
     var officialArtWork: URL? {
         URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/\(id).png")
+    }
+    
+    /// The colour for the pokemon's type.
+    var typeColour: Color {
+        types.first!.colour
     }
     
     /// An example pokemon for xcode previews.
@@ -56,6 +62,7 @@ extension Pokemon: Codable {
         case weight
         case types
         case sprites
+        case abilities
     }
     
     init(from decoder: Decoder) throws {
@@ -81,7 +88,7 @@ extension Pokemon: Codable {
             throw DecodingError.dataCorruptedError(forKey: .height, in: container, debugDescription: "Invalid height.")
         }
         
-        self.weight = try container.decode(Int.self, forKey: .weight)
+        self.weight = Int(Double(try container.decode(Int.self, forKey: .weight)) / 10.0)
         guard weight > 0 else {
             throw DecodingError.dataCorruptedError(forKey: .weight, in: container, debugDescription: "Invalid weight.")
         }
@@ -92,6 +99,11 @@ extension Pokemon: Codable {
         }
         
         self.sprites = try container.decode(PokemonSprites.self, forKey: .sprites)
+        
+        self.abilities = try container.decode([PokemonAbility].self, forKey: .abilities)
+        guard !abilities.isEmpty else {
+            throw DecodingError.dataCorruptedError(forKey: .abilities, in: container, debugDescription: "Invalid abilities array.")
+        }
     }
 }
 

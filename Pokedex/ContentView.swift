@@ -13,27 +13,26 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
+            VStack {
+                SearchBar(placeholder: "Search for pokemon", text: $searchText, results: $pokemon)
+                ScrollView(showsIndicators: false) {
+                    ForEach(pokemon) { pokemon in
+                        NavigationLink(value: pokemon) {
+                            PokemonRow(pokemon: pokemon)
+                        }
+                   }
+                }
+                .scrollDismissesKeyboard(.interactively)
+            }
+            .padding()
+            .background {
                 Color.backgroundColour
                     .ignoresSafeArea()
-                
-                VStack {
-                    SearchBar(placeholder: "Search for pokemon", text: $searchText, results: $pokemon)
-                    ScrollView(showsIndicators: false) {
-                        
-                        ForEach(pokemon) { pokemon in
-                            NavigationLink(value: pokemon) {
-                                PokemonRow(pokemon: pokemon)
-                            }
-                       }
-                    }
-                }
-                .padding()
-                .overlay {
-                    if searchText.isEmpty && pokemon.isEmpty {
-                        Text("Search for a pokemon.")
-                            .foregroundColor(.secondary)
-                    }
+            }
+            .overlay {
+                if searchText.isEmpty && pokemon.isEmpty {
+                    Text("Search for a pokemon.")
+                        .foregroundColor(.secondary)
                 }
             }
             .navigationDestination(for: Pokemon.self) { pokemon in

@@ -16,6 +16,7 @@ struct PokemonTypeTag: View {
             .padding(.horizontal)
             .background(pokemonType.colour)
             .cornerRadius(14)
+            .foregroundColor(.textColour)
     }
 }
 
@@ -24,35 +25,36 @@ struct PokemonRow: View {
     let imageHeight = 150.0
     
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
-            Color(pokemon.types.first!.type.name)
-                .opacity(0.4)
-                .cornerRadius(14)
-                .frame(maxHeight: imageHeight * 0.7)
-            
-            HStack(alignment: .lastTextBaseline) {
-                AsyncImage(url: pokemon.officialArtWork) { image in
-                    image
-                        .resizable()
-                        .frame(width: imageHeight, height: imageHeight)
-                        .scaledToFit()
-                } placeholder: {
-                    ProgressView().progressViewStyle(.circular)
-                }
-                VStack(alignment: .leading) {
-                    Text(pokemon.name.capitalized)
-                        .font(.largeTitle)
-                    Text("#\(pokemon.id)")
-                        .font(.title)
-                    HStack {
-                        ForEach(pokemon.types) { pokemonType in
-                            PokemonTypeTag(pokemonType: pokemonType)
-                        }
+        HStack(alignment: .bottom) {
+            AsyncImage(url: pokemon.officialArtWork) { image in
+                image
+                    .resizable()
+                    .frame(width: imageHeight, height: imageHeight)
+                    .scaledToFit()
+            } placeholder: {
+                ProgressView().progressViewStyle(.circular)
+            }
+            VStack(alignment: .leading) {
+                Text(pokemon.name.capitalized)
+                    .font(.largeTitle)
+                Text("#\(pokemon.id)")
+                    .font(.title)
+                HStack {
+                    ForEach(pokemon.types) { pokemonType in
+                        PokemonTypeTag(pokemonType: pokemonType)
                     }
                 }
-                .foregroundColor(.white)
             }
-            .padding(.bottom, 5)
+            .foregroundColor(.white)
+            .padding()
+            Spacer()
+        }
+        .background {
+            pokemon.typeColour
+                .opacity(0.4)
+                .cornerRadius(14) // TODO: Remove magic numbers
+                .frame(maxHeight: imageHeight * 0.7)
+                .offset(y: 20)
         }
     }
 }

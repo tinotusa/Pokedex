@@ -8,7 +8,8 @@
 import Foundation
 
 final class PokeAPI: ObservableObject {
-    let apiURL = URL(string: "https://pokeapi.co/api/v2")!
+    let pokemonURL = URL(string: "https://pokeapi.co/api/v2/pokemon")!
+    let pokemonSpeciesURL = URL(string: "https://pokeapi.co/api/v2/pokemon-species")!
     var isCached: Bool
     
     init(isCached: Bool = true) {
@@ -19,9 +20,38 @@ final class PokeAPI: ObservableObject {
         }
     }
     
+    private func getData<T>(for type: T.Type, urlRequest: URLRequest) async -> T?
+        where T: Codable
+    {
+        do {
+            let (data, urlResponse) = try await URLSession.shared.data(for: urlRequest)
+            
+            let httpURLResponse = urlResponse as! HTTPURLResponse
+            guard (200 ..< 299).contains(httpURLResponse.statusCode) else {
+                let statusCode = httpURLResponse.statusCode
+                print("Invalid server response code: \(statusCode)")
+                return nil
+            }
+            
+            let decodedData = try JSONDecoder().decode(type, from: data)
+            return decodedData
+        } catch {
+            print("Error in \(#function)\n\(error)")
+        }
+        
+        return nil
+    }
+    
+    func pokemonSpecies(named name: String) async -> PokemonSpecies? {
+        let name = name.lowercased()
+        let speciesURL = pokemonSpeciesURL.appending(path: name)
+        let request = URLRequest(url: speciesURL, cachePolicy: .returnCacheDataElseLoad)
+        return await getData(for: PokemonSpecies.self, urlRequest: request)
+    }
+    
     func pokemon(named name: String) async -> Pokemon? {
         let name = name.lowercased()
-        let pokemonURL = apiURL.appending(path: "pokemon/\(name)")
+        let pokemonURL = pokemonURL.appending(path: name)
         let urlRequest = URLRequest(url: pokemonURL, cachePolicy: .returnCacheDataElseLoad)
 
         do {
