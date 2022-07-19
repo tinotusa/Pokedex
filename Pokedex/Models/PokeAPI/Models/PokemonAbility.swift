@@ -10,7 +10,7 @@ import Foundation
 struct PokemonAbility: Codable, Hashable {
     let isHidden: Bool
     let slot: Int
-    let ability: PokeAPIAbility
+    let ability: AbilityDetails
     
     enum CodingKeys: String, CodingKey {
         case isHidden = "is_hidden"

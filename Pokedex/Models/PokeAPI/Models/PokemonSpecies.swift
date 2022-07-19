@@ -6,6 +6,22 @@
 //
 
 import SwiftUI
+
+struct LanguageDetails: Codable, Hashable {
+    let languageCode: String
+    let url: URL
+    
+    enum CodingKeys: String, CodingKey {
+        case languageCode = "name"
+        case url
+    }
+}
+
+struct Name: Codable, Hashable {
+    let language: LanguageDetails
+    let name: String
+}
+
 /// The pokemon species details.
 struct PokemonSpecies: Codable, Hashable, Identifiable {
     let name: String
@@ -13,7 +29,8 @@ struct PokemonSpecies: Codable, Hashable, Identifiable {
     let flavorTextEntries: [FlavorText]
     let genera: [Genus]
     let genderRate: Int
-    let eggGroups: [PokemonEggGroup]
+    let eggGroups: [EggGroupsDetails]
+    let names: [Name]
 }
 
 extension PokemonSpecies {
@@ -23,13 +40,6 @@ extension PokemonSpecies {
     
     var maleGenderRate: Double {
         (8.0 - Double(genderRate)) / 8.0
-    }
-    
-    var allEggGroups: String {
-        let names = eggGroups.compactMap { eggGroup in
-            eggGroup.name
-        }
-        return ListFormatter.localizedString(byJoining: names)
     }
     
     var aboutText: String {
@@ -45,21 +55,7 @@ extension PokemonSpecies {
         }
         return flavorTextEntries.first!.flavorText
     }
-    
-    var genus: String {
-        let codes = genera.compactMap { element in
-            element.language.name
-        }
-        let uniqueLanguageCodes: Set<String> = Set(codes)
-        let systemLanguageCode = Bundle.preferredLocalizations(from: Array(uniqueLanguageCodes)).first!
-        if let matchingGenera = genera.first(where: { genus in
-            genus.language.name == systemLanguageCode
-        }) {
-            return matchingGenera.genus
-        }
-        return genera.first!.genus
-    }
-    
+
     enum CodingKeys: String, CodingKey {
         case name
         case id
@@ -67,5 +63,6 @@ extension PokemonSpecies {
         case genera
         case genderRate = "gender_rate"
         case eggGroups = "egg_groups"
+        case names
     }
 }

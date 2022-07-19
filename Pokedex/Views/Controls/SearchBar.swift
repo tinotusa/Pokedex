@@ -36,7 +36,7 @@ struct SearchBar: View {
                 search()
             } label: {
                 Image(systemName: "magnifyingglass")
-                    .tint(.gray)
+                    .tint(.grayTextColour)
             }
         }
         .animation(.easeInOut, value: text)

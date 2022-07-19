@@ -2,34 +2,31 @@
 //  PokemonType.swift
 //  Pokedex
 //
-//  Created by Tino on 14/7/2022.
+//  Created by Tino on 18/7/2022.
 //
 
-import SwiftUI
+import Foundation
 
-/// The type of a pokemon
-struct PokemonType: Identifiable, Codable, Hashable {
-    struct APIResourceType: Codable, Hashable {
-        let name: String
-        let url: URL
-        
-        init(name: String, url: URL) {
-            self.name = name
-            self.url = url
-        }
+struct PokemonTypeRelations: Codable, Hashable {
+    let doubleDamageFrom: [APIResourceType]
+    let doubleDamageTo: [APIResourceType]
+    
+    enum CodingKeys: String, CodingKey {
+        case doubleDamageFrom = "double_damage_from"
+        case doubleDamageTo = "double_damage_to"
     }
+}
+
+struct PokemonType: Codable, Hashable, Identifiable {
+    let id: Int
+    let name: String
+    let damageRelations: PokemonTypeRelations
+    let names: [Name]
     
-    let id = UUID().uuidString
-    let slot: Int
-    let type: APIResourceType
-    
-    /// Returns the type colour for the type name.
-    var colour: Color {
-        Color(type.name)
-    }
-    
-    enum CodingKeys: CodingKey {
-        case slot
-        case type
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case damageRelations = "damage_relations"
+        case names
     }
 }

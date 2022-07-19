@@ -8,9 +8,25 @@
 import Foundation
 
 final class PokeAPI: ObservableObject {
-    let pokemonURL = URL(string: "https://pokeapi.co/api/v2/pokemon")!
-    let pokemonSpeciesURL = URL(string: "https://pokeapi.co/api/v2/pokemon-species")!
-    var isCached: Bool
+    enum PokeAPIEndpoint {
+        case pokemon
+        case species
+        case types
+        case eggGroups
+        case ability
+
+        var url: URL {
+            switch self {
+            case .pokemon: return URL(string: "https://pokeapi.co/api/v2/pokemon")!
+            case .species: return URL(string: "https://pokeapi.co/api/v2/pokemon-species")!
+            case .types: return URL(string: "https://pokeapi.co/api/v2/type")!
+            case .eggGroups: return URL(string: "https://pokeapi.co/api/v2/egg-group")!
+            case .ability: return URL(string: "https://pokeapi.co/api/v2/ability")!
+            }
+        }
+    }
+    
+    let isCached: Bool
     
     init(isCached: Bool = true) {
         self.isCached = isCached
@@ -42,16 +58,37 @@ final class PokeAPI: ObservableObject {
         return nil
     }
     
+    func ability(named name: String) async -> Ability? {
+        let name = name.lowercased()
+        let url = PokeAPIEndpoint.ability.url.appending(path: name)
+        let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
+        return await getData(for: Ability.self, urlRequest: request)
+    }
+    
+    func eggGroups(named name: String) async -> EggGroups? {
+        let name = name.lowercased()
+        let eggGroupsURL = PokeAPIEndpoint.eggGroups.url.appending(path: name)
+        let request = URLRequest(url: eggGroupsURL, cachePolicy: .returnCacheDataElseLoad)
+        return await getData(for: EggGroups.self, urlRequest: request)
+    }
+    
+    func pokemonType(named name: String) async -> PokemonType? {
+        let name = name.lowercased()
+        let typeURL = PokeAPIEndpoint.types.url.appending(path: name)
+        let request = URLRequest(url: typeURL, cachePolicy: .returnCacheDataElseLoad)
+        return await getData(for: PokemonType.self, urlRequest: request)
+    }
+    
     func pokemonSpecies(named name: String) async -> PokemonSpecies? {
         let name = name.lowercased()
-        let speciesURL = pokemonSpeciesURL.appending(path: name)
+        let speciesURL = PokeAPIEndpoint.species.url.appending(path: name)
         let request = URLRequest(url: speciesURL, cachePolicy: .returnCacheDataElseLoad)
         return await getData(for: PokemonSpecies.self, urlRequest: request)
     }
     
     func pokemon(named name: String) async -> Pokemon? {
         let name = name.lowercased()
-        let pokemonURL = pokemonURL.appending(path: name)
+        let pokemonURL = PokeAPIEndpoint.pokemon.url.appending(path: name)
         let urlRequest = URLRequest(url: pokemonURL, cachePolicy: .returnCacheDataElseLoad)
 
         do {

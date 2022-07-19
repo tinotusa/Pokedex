@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var searchText = "ditto"
+    @State private var searchText = "dragonite"
     @State private var pokemon: [Pokemon] = []
     
     var body: some View {

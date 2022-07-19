@@ -8,6 +8,11 @@
 import Foundation
 
 struct Genus: Codable, Hashable {
-    let genus: String
-    let language: PokeAPILanguage
+    let name: String
+    let language: LanguageDetails
+    
+    enum CodingKeys: String, CodingKey {
+        case name = "genus"
+        case language
+    }
 }

@@ -11,6 +11,7 @@ extension Color {
     static let backgroundColour = Color("backgroundColour")
     static let searchBarColour = Color("searchBarColour")
     static let textColour = Color("textColour")
+    static let grayTextColour = Color("grayTextColour")
     // Type colours
     static let bug = Color("bug")
     static let dark = Color("dark")

@@ -9,14 +9,34 @@ import SwiftUI
 
 /// A small rounded rectangle with the name and colour of the pokemon's type.
 struct PokemonTypeTag: View {
-    let pokemonType: PokemonType
+    let name: String
+    @EnvironmentObject var pokeAPI: PokeAPI
+    @State private var localizedName: String?
+    init(name: String) {
+        self.name = name
+    }
     
     var body: some View {
-        Text(pokemonType.type.name.capitalized)
+        Text(localizedName ?? name.capitalized)
             .padding(.horizontal)
-            .background(pokemonType.colour)
+            .background(Color(name))
             .cornerRadius(14)
             .foregroundColor(.textColour)
+            .task {
+                localizedName = await getLocalizedName()
+            }
+    }
+    
+    func getLocalizedName() async -> String? {
+        guard let type = await pokeAPI.pokemonType(named: name) else { return "Error" }
+        let availableLanguageCodes = type.names.map { typeName in
+            typeName.language.languageCode
+        }
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
+        let matchingType = type.names.first { typeName in
+            typeName.language.languageCode == deviceLanguageCode
+        }
+        return matchingType?.name
     }
 }
 
@@ -41,7 +61,7 @@ struct PokemonRow: View {
                     .font(.title)
                 HStack {
                     ForEach(pokemon.types) { pokemonType in
-                        PokemonTypeTag(pokemonType: pokemonType)
+                        PokemonTypeTag(name: pokemonType.type.name)
                     }
                 }
             }
@@ -64,5 +84,6 @@ struct PokemonRow_Previews: PreviewProvider {
     
     static var previews: some View {
         PokemonRow(pokemon: pokemon)
+            .environmentObject(PokeAPI())
     }
 }

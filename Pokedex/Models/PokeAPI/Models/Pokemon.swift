@@ -14,13 +14,20 @@ struct Pokemon: Identifiable, Hashable {
     let baseExperience: Int
     let height: Int
     let weight: Int
-    let types: [PokemonType]
+    let types: [PokemonTypeDetails]
     let sprites: PokemonSprites
     let abilities: [PokemonAbility]
+    let stats: [Stat]
 }
 
 // MARK: - Helpers
 extension Pokemon {
+    var totalStats: Int {
+        let statValues = stats.map { stat in
+            stat.baseStat
+        }
+        return statValues.reduce(0, +)
+    }
     /// The official artwork url for this pokemon's image.
     var officialArtWork: URL? {
         URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/\(id).png")
@@ -63,6 +70,7 @@ extension Pokemon: Codable {
         case types
         case sprites
         case abilities
+        case stats
     }
     
     init(from decoder: Decoder) throws {
@@ -88,12 +96,12 @@ extension Pokemon: Codable {
             throw DecodingError.dataCorruptedError(forKey: .height, in: container, debugDescription: "Invalid height.")
         }
         
-        self.weight = Int(Double(try container.decode(Int.self, forKey: .weight)) / 10.0)
+        self.weight = try container.decode(Int.self, forKey: .weight)
         guard weight > 0 else {
             throw DecodingError.dataCorruptedError(forKey: .weight, in: container, debugDescription: "Invalid weight.")
         }
         
-        self.types = try container.decode([PokemonType].self, forKey: .types)
+        self.types = try container.decode([PokemonTypeDetails].self, forKey: .types)
         guard !types.isEmpty else {
             throw DecodingError.dataCorruptedError(forKey: .types, in: container, debugDescription: "Invalid types array.")
         }
@@ -103,6 +111,11 @@ extension Pokemon: Codable {
         self.abilities = try container.decode([PokemonAbility].self, forKey: .abilities)
         guard !abilities.isEmpty else {
             throw DecodingError.dataCorruptedError(forKey: .abilities, in: container, debugDescription: "Invalid abilities array.")
+        }
+        
+        self.stats = try container.decode([Stat].self, forKey: .stats)
+        guard !stats.isEmpty else {
+            throw DecodingError.dataCorruptedError(forKey: .stats, in: container, debugDescription: "Invalid stats array.")
         }
     }
 }
