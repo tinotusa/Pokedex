@@ -20,7 +20,7 @@ enum InfoTab: String, CaseIterable, Identifiable {
 struct PokemonDetail: View {
     @State private var selectedTab: InfoTab = .about
     @StateObject private var viewModel: PokemonDetailViewModel
-    
+    @State private var values = ["fighting", "ground", "flying", "fire", "fighting", "ground", "flying", "fire", "fighting", "ground", "flying", "fire"]
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var pokeAPI: PokeAPI
     
@@ -33,44 +33,42 @@ struct PokemonDetail: View {
     }
     
     var body: some View {
-        ZStack {
+        VStack {
+            header
+            
+            ScrollView(showsIndicators: false) {
+                pokemonInfoBar
+                    .padding(.horizontal)
+                pokemonImage
+                VStack {
+                    tabHeader
+                        .padding(.vertical)
+                    
+                    switch selectedTab {
+                    case .about: aboutTab
+                    case .stats: Text("Stats page")
+                    case .evolutions: Text("Evolutions page")
+                    case .moves: Text("Moves page")
+                    }
+                }
+                .padding()
+                .background {
+                    Color.white
+                        .ignoresSafeArea()
+                }
+                .clipShape(CustomRoundedRectangle(corners: [.allCorners], radius: 24))
+                .shadow(color: .black.opacity(0.5), radius: 5, x: 0, y: 5)
+            }
+            .task {
+                await viewModel.setUp(pokeAPI: pokeAPI)
+            }
+            .toolbar(.hidden)
+        }
+        .background {
             Rectangle()
                 .fill(viewModel.pokemonTypeColour.gradient)
                 .ignoresSafeArea()
-            
-            VStack {
-                header
-                
-                ScrollView(showsIndicators: false) {
-                    pokemonInfoBar
-                        .padding(.horizontal)
-                    pokemonImage
-                    ZStack {
-                        Color.white
-                            .ignoresSafeArea()
-                        
-                        VStack {
-                            tabHeader
-                                .padding(.vertical)
-                            
-                            switch selectedTab {
-                            case .about: aboutTab
-                            case .stats: Text("Stats page")
-                            case .evolutions: Text("Evolutions page")
-                            case .moves: Text("Moves page")
-                            }
-                        }
-                        .padding()
-                    }
-                    .clipShape(CustomRoundedRectangle(corners: [.allCorners], radius: 24))
-                    .shadow(color: .black.opacity(0.5), radius: 5, x: 0, y: 5)
-                }
-                .task {
-                    await viewModel.setUp(pokeAPI: pokeAPI)
-                }
-                .toolbar(.hidden)
-            }
-        }
+    }
     }
     
     func isSelected(tab: InfoTab) -> Bool {
@@ -146,14 +144,12 @@ private extension PokemonDetail {
                 .fontWeight(.medium) // TODO: Make this into a modifier
                 .padding(.vertical, 2)
             
-            ScrollView(.horizontal, showsIndicators: false){
-                HStack {
-                    ForEach(viewModel.doubleDamageTo, id: \.self) { typeName in
-                        Button {
-                            
-                        } label: {
-                            PokemonTypeTag(name: typeName.lowercased())
-                        }
+            WrappingHStack {
+                ForEach(values /*viewModel.doubleDamageTo*/, id: \.self) { typeName in
+                    Button {
+                        
+                    } label: {
+                        PokemonTypeTag(name: typeName.lowercased())
                     }
                 }
             }
@@ -163,18 +159,15 @@ private extension PokemonDetail {
                 .fontWeight(.medium)
                 .padding(.vertical, 2)
             
-            ScrollView(.horizontal, showsIndicators: false){
-                HStack {
-                    ForEach(viewModel.doubleDamageFrom, id: \.self) { typeName in
-                        Button {
-                            
-                        } label: {
-                            PokemonTypeTag(name: typeName.lowercased())
-                        }
+            WrappingHStack { 
+                ForEach(values /*viewModel.doubleDamageFrom*/, id: \.self) { typeName in
+                    Button {
+                        print("Pressed \(typeName)")
+                    } label: {
+                        PokemonTypeTag(name: typeName.lowercased())
                     }
                 }
             }
-            
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
