@@ -130,7 +130,7 @@ extension PokemonDetailModel {
         return Double(pokemonSpecies.genderRate) / 8.0
     }
     
-    /// Array of types this pokemon is strong against
+    /// Array of types this pokemon is strong against.
     var doubleDamageTo: [String] {
         var names = Set<String>()
         for type in types {
@@ -138,9 +138,10 @@ extension PokemonDetailModel {
                 names.insert(doubleDamage.name)
             }
         }
-        return Array(names)
+        return Array(names).sorted()
     }
     
+    /// Array of types this pokemon is weak against.
     var doubleDamageFrom: [String] {
         var names = Set<String>()
         for type in types {
@@ -148,7 +149,7 @@ extension PokemonDetailModel {
                 names.insert(doubleDamageFrom.name)
             }
         }
-        return Array(names)
+        return Array(names).sorted()
     }
 }
 

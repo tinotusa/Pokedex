@@ -9,46 +9,44 @@ import SwiftUI
 
 struct WrappingHStack: Layout {
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
-        return proposal.replacingUnspecifiedDimensions()
+        let containerWidth = proposal.replacingUnspecifiedDimensions().width
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        return layout(sizes: sizes, containerWidth: containerWidth).size
     }
     
-    private func spaces(subviews: Subviews) -> [Double] {
-        subviews.indices.map { index in
-            guard index < subviews.count - 1 else { return 0.0 }
-            return subviews[index].spacing.distance(to: subviews[index + 1].spacing, along: .horizontal)
+    private func layout(sizes: [CGSize], spacing: Double = 10, containerWidth: Double) -> (offsets: [CGPoint], size: CGSize) {
+        var result = [CGPoint]()
+        var currentPosition = CGPoint.zero
+        var lineHeight = 0.0
+        var maxX = 0.0
+        
+        for size in sizes {
+            if currentPosition.x + size.width > containerWidth {
+                currentPosition.x = 0
+                currentPosition.y += lineHeight + spacing
+                lineHeight = 0
+            }
+            
+            result.append(currentPosition)
+            currentPosition.x += size.width
+            maxX = max(maxX, currentPosition.x)
+            currentPosition.x += spacing
+            lineHeight = max(lineHeight, size.height)
         }
+        
+        return (result, CGSize(width: maxX, height: currentPosition.y + lineHeight))
     }
     
     func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
         guard !subviews.isEmpty else { return }
-        
-        var location = CGPoint(
-            x: bounds.minX,
-            y: bounds.midY
-        )
-        let spaces = spaces(subviews: subviews)
-        let maxWidth = bounds.width
-        
-        for index in subviews.indices {
-            let subveiwSize = subviews[index].dimensions(in: proposal)
-            
-            if location.x + subveiwSize.width / 2 + spaces[index] > maxWidth {
-                location.x = bounds.minX
-                location.y += subveiwSize.height + spaces[index]
-                if index == subviews.count - 1 {
-                    location.y += spaces.first!
-                }
-                print("should be onnew line")
-            }
-            location.x += subveiwSize.width / 2
-            
-            subviews[index].place(
-                at: location,
-                anchor: .center,
-                proposal: .unspecified
+        let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
+        let offsets = layout(sizes: sizes, containerWidth: bounds.width).offsets
+        for (offset, subview) in zip(offsets, subviews) {
+            let location = CGPoint(
+                x: offset.x + bounds.minX,
+                y: offset.y + bounds.minY
             )
-            
-            location.x += subveiwSize.width / 2 + spaces[index]
+            subview.place(at: location, proposal: .unspecified)
         }
     }
 }

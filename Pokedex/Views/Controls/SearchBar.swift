@@ -57,7 +57,13 @@ private extension SearchBar {
             if results.contains(pokemon) {
                 return
             }
-            results.append(pokemon)
+            if results.isEmpty {
+                results.insert(pokemon, at: 0)
+            } else {
+                withAnimation {
+                    results.insert(pokemon, at: 0)
+                }
+            }
             text = ""
         }
     }

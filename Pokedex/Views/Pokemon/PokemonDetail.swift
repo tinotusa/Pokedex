@@ -43,12 +43,13 @@ struct PokemonDetail: View {
                 VStack {
                     tabHeader
                         .padding(.vertical)
-                    
-                    switch selectedTab {
-                    case .about: aboutTab
-                    case .stats: Text("Stats page")
-                    case .evolutions: Text("Evolutions page")
-                    case .moves: Text("Moves page")
+                    Group {
+                        switch selectedTab {
+                        case .about: aboutTab
+                        case .stats: Text("Stats page")
+                        case .evolutions: Text("Evolutions page")
+                        case .moves: Text("Moves page")
+                        }
                     }
                 }
                 .padding()
@@ -145,7 +146,7 @@ private extension PokemonDetail {
                 .padding(.vertical, 2)
             
             WrappingHStack {
-                ForEach(values /*viewModel.doubleDamageTo*/, id: \.self) { typeName in
+                ForEach(viewModel.doubleDamageTo, id: \.self) { typeName in
                     Button {
                         
                     } label: {
@@ -159,8 +160,8 @@ private extension PokemonDetail {
                 .fontWeight(.medium)
                 .padding(.vertical, 2)
             
-            WrappingHStack { 
-                ForEach(values /*viewModel.doubleDamageFrom*/, id: \.self) { typeName in
+            WrappingHStack {
+                ForEach(viewModel.doubleDamageFrom, id: \.self) { typeName in
                     Button {
                         print("Pressed \(typeName)")
                     } label: {
