@@ -26,10 +26,6 @@ extension PokemonDetailViewModel {
         model.pokemonImageURL
     }
     
-    var pokemonSeedType: String {
-        model.pokemonSeedType
-    }
-    
     var pokemonName: String {
         model.pokemonName
     }
@@ -48,33 +44,5 @@ extension PokemonDetailViewModel {
     
     var pokemonID: Int {
         model.pokemonID
-    }
-
-    var pokemonHeight: Double {
-        model.pokemonHeight
-    }
-    
-    var pokemonWeight: Double {
-        model.pokemonWeight
-    }
-    
-    var pokemonAbilities: String {
-        model.pokemonAbilities
-    }
-    
-    var pokemonMaleGenderPercentage: Double {
-        model.pokemonMaleGenderPercentage
-    }
-    
-    var pokemonFemaleGenderPercentage: Double {
-        model.pokemonfemaleGenderPercentage
-    }
-    
-    var doubleDamageTo: [String] {
-        model.doubleDamageTo
-    }
-    
-    var doubleDamageFrom: [String] {
-        model.doubleDamageFrom
     }
 }

@@ -18,9 +18,9 @@ enum InfoTab: String, CaseIterable, Identifiable {
 
 /// The detail view for a pokemon.
 struct PokemonDetail: View {
+    private let pokemon: Pokemon
     @State private var selectedTab: InfoTab = .about
     @StateObject private var viewModel: PokemonDetailViewModel
-    @State private var values = ["fighting", "ground", "flying", "fire", "fighting", "ground", "flying", "fire", "fighting", "ground", "flying", "fire"]
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var pokeAPI: PokeAPI
     
@@ -29,6 +29,7 @@ struct PokemonDetail: View {
     private let size = 250.0
     
     init(pokemon: Pokemon) {
+        self.pokemon = pokemon
         _viewModel = StateObject(wrappedValue: PokemonDetailViewModel(pokemon: pokemon))
     }
     
@@ -43,13 +44,11 @@ struct PokemonDetail: View {
                 VStack {
                     tabHeader
                         .padding(.vertical)
-                    Group {
-                        switch selectedTab {
-                        case .about: aboutTab
-                        case .stats: Text("Stats page")
-                        case .evolutions: Text("Evolutions page")
-                        case .moves: Text("Moves page")
-                        }
+                    switch selectedTab {
+                    case .about: AboutTab(pokemon: pokemon)
+                    case .stats: StatsTab(pokemon: pokemon)
+                    case .evolutions: EvolutionsTab(pokemon: pokemon)
+                    case .moves: MovesTab(pokemon: pokemon)
                     }
                 }
                 .padding()
@@ -69,7 +68,7 @@ struct PokemonDetail: View {
             Rectangle()
                 .fill(viewModel.pokemonTypeColour.gradient)
                 .ignoresSafeArea()
-    }
+        }
     }
     
     func isSelected(tab: InfoTab) -> Bool {
@@ -79,98 +78,21 @@ struct PokemonDetail: View {
 
 // MARK: - Subviews
 private extension PokemonDetail {
-    var aboutTab: some View {
-        VStack(alignment: .leading) {
-            Grid(alignment: .topLeading, verticalSpacing: 5) {
-                GridRow {
-                    Text("Species", comment: "Grid row title: The species of the pokemon.")
-                        .foregroundColor(.grayTextColour)
-                    Text(viewModel.pokemonSeedType)
-                        .bold()
-                }
-                GridRow {
-                    Text("Height", comment: "Grid row title: The height of the pokemon.")
-                        .foregroundColor(.grayTextColour)
-                    Text(Measurement(value: Double(viewModel.pokemonHeight), unit: UnitLength.meters).formatted())
-                        .bold()
-                }
-                GridRow {
-                    Text("Weight", comment: "Grid row title: The weight of the pokemon.")
-                        .foregroundColor(.grayTextColour)
-                    Text(Measurement(value: Double(viewModel.pokemonWeight), unit: UnitMass.kilograms).formatted())
-                        .bold()
-                }
-                GridRow {
-                    Text("Abilities", comment: "Grid row title: The default abilities of the pokemon.")
-                        .foregroundColor(.grayTextColour)
-                    Text(viewModel.pokemonAbilities)
-                        .bold()
+    @ViewBuilder
+    func tabMenuButton(tab: InfoTab) -> some View {
+        Text(tab.rawValue.capitalized)
+            .padding(.vertical, 2)
+            .frame(maxWidth: .infinity)
+            .foregroundColor(isSelected(tab: tab) ? .black : .grayTextColour)
+            .background(alignment: .bottom) {
+                if isSelected(tab: tab) {
+                    Rectangle()
+                        .fill(viewModel.pokemonTypeColour)
+                        .frame(height: 2)
+                        .matchedGeometryEffect(id: animationID, in: namespace)
                 }
             }
-            
-            Text("Breeding", comment: "Title: The breeding information for the pokemon.")
-                .font(.title2)
-                .fontWeight(.medium)
-                .padding(.top, 2)
-            
-            Grid(alignment: .bottomLeading, verticalSpacing: 5) {
-                GridRow {
-                    Text("Gender", comment: "Grid row title: The gender percentages for the pokemon (e.g Gender: 85% male 15% female).")
-                        .foregroundColor(.grayTextColour)
-                    HStack(alignment: .lastTextBaseline) {
-                        Text("♂")
-                            .font(.title) // TODO: Make this into a modifier
-                            .foregroundColor(.blue)
-                        Text("\(viewModel.pokemonMaleGenderPercentage.formatted(.percent))")
-                            .bold()
-                    
-                        Text("♀")
-                            .font(.title)
-                            .foregroundColor(.pink)
-                        Text("\(viewModel.pokemonFemaleGenderPercentage.formatted(.percent))")
-                            .bold()
-                    }
-                }
-                
-                GridRow {
-                    Text("Egg groups")
-                        .foregroundColor(.grayTextColour)
-                    Text(viewModel.eggGroupNames)
-                        .bold()
-                }
-            }
-            
-            Text("Strong against", comment: "Title: The pokemon types this pokemon is strong against.")
-                .font(.title2)
-                .fontWeight(.medium) // TODO: Make this into a modifier
-                .padding(.vertical, 2)
-            
-            WrappingHStack {
-                ForEach(viewModel.doubleDamageTo, id: \.self) { typeName in
-                    Button {
-                        
-                    } label: {
-                        PokemonTypeTag(name: typeName.lowercased())
-                    }
-                }
-            }
-            
-            Text("Weak against", comment: "Title: The pokemon types this pokemon is weak against.")
-                .font(.title2)
-                .fontWeight(.medium)
-                .padding(.vertical, 2)
-            
-            WrappingHStack {
-                ForEach(viewModel.doubleDamageFrom, id: \.self) { typeName in
-                    Button {
-                        print("Pressed \(typeName)")
-                    } label: {
-                        PokemonTypeTag(name: typeName.lowercased())
-                    }
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
+            .animation(.spring(), value: selectedTab)
     }
     
     var tabHeader: some View {
@@ -179,23 +101,9 @@ private extension PokemonDetail {
                 Button {
                     selectedTab = tab
                 } label: {
-                    VStack {
-                        Text(tab.rawValue.capitalized)
-                            .padding(.vertical, 2)
-                            .frame(maxWidth: .infinity)
-                            .foregroundColor(isSelected(tab: tab) ? .black : .grayTextColour)
-                            .background(alignment: .bottom) {
-                                if isSelected(tab: tab) {
-                                    Rectangle()
-                                        .fill(viewModel.pokemonTypeColour)
-                                        .frame(height: 2)
-                                        .matchedGeometryEffect(id: animationID, in: namespace)
-                                }
-                            }
-                            .animation(.spring(), value: selectedTab)
-                    }
-                    .fixedSize(horizontal: false, vertical: true)
-                    .contentShape(Rectangle())
+                    tabMenuButton(tab: tab)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .contentShape(Rectangle())
                 }
             }
         }
