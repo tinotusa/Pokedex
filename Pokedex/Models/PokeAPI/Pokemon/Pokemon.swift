@@ -60,6 +60,32 @@ extension Pokemon: SearchByNameOrID {
 
 // MARK: - Helpers
 extension Pokemon {
+    /// Returns the localized name for the pokemon.
+    func localizedName(preferredLanguage: String = "en") async -> String {
+        guard let species = await PokemonSpecies.fromName(name: self.name) else {
+            return "error"
+        }
+        let availableLanguageCodes = species.names.map { name in
+            name.language.name
+        }
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
+        let matchedName = species.names.first { name in
+            name.language.name == deviceLanguageCode
+        }
+        return matchedName?.name ?? self.name
+    }
+    
+    /// Returns an array of all the pokemons types
+    func getTypes() -> [String] {
+        types.map { type in
+            type.type.name
+        }
+    }
+    /// Returns the first types color from xcassets.
+    var primaryTypeColour: Color {
+        Color(types.first!.type.name)
+    }
+    /// The sum of all the pokemons stats.
     var totalStats: Int {
         let statValues = stats.map { stat in
             stat.baseStat

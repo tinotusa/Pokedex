@@ -31,7 +31,8 @@ struct PokemonTypeTag: View {
 struct PokemonRow: View {
     let pokemon: Pokemon
     let imageHeight = 150.0
-    
+    @State private var localizedPokemonName = ""
+    @State private var typeNames = [String]()
     var body: some View {
         HStack(alignment: .bottom) {
             AsyncImage(url: pokemon.officialArtWork) { image in
@@ -43,12 +44,14 @@ struct PokemonRow: View {
                 ProgressView().progressViewStyle(.circular)
             }
             VStack(alignment: .leading) {
-                Text(pokemon.name.capitalized)
+                Text(localizedPokemonName.capitalized)
                     .font(.largeTitle)
                 Text("#\(pokemon.id)")
                     .font(.title)
                 HStack {
-                   
+                    ForEach(typeNames, id: \.self) { typeName in
+                        PokemonTypeTag(name: typeName)
+                    }
                 }
             }
             .foregroundColor(.white)
@@ -56,11 +59,16 @@ struct PokemonRow: View {
             Spacer()
         }
         .background {
-            Color.blue
-                .opacity(0.4)
+            Rectangle()
+                .fill(pokemon.primaryTypeColour.gradient)
+                .opacity(0.75)
                 .cornerRadius(14) // TODO: Remove magic numbers
                 .frame(maxHeight: imageHeight * 0.7)
                 .offset(y: 20)
+        }
+        .task {
+            localizedPokemonName = await pokemon.localizedName()
+            typeNames = pokemon.getTypes()
         }
     }
 }

@@ -23,7 +23,7 @@ struct PokemonDetail: View {
     @StateObject private var viewModel: PokemonDetailViewModel
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var pokeAPI: PokeAPI
-    
+    @State private var localizedPokemonName = ""
     @Namespace private var namespace
     private let animationID = 1
     private let size = 250.0
@@ -35,7 +35,7 @@ struct PokemonDetail: View {
     
     var body: some View {
         VStack {
-        
+            header
             
             ScrollView(showsIndicators: false) {
                 
@@ -60,12 +60,13 @@ struct PokemonDetail: View {
             }
             .task {
                 await viewModel.setUp()
+                localizedPokemonName = await pokemon.localizedName()
             }
             .toolbar(.hidden)
         }
         .background {
             Rectangle()
-                .fill(Color.blue.gradient)
+                .fill(pokemon.primaryTypeColour.gradient)
                 .ignoresSafeArea()
         }
     }
@@ -77,6 +78,21 @@ struct PokemonDetail: View {
 
 // MARK: - Subviews
 private extension PokemonDetail {
+    var header: some View {
+        HeaderBar {
+            dismiss()
+        } content: {
+            Text(localizedPokemonName)
+                .lineLimit(1)
+            Spacer()
+            Button {
+                
+            } label: {
+                Image(systemName: "heart")
+            }
+        }
+        .padding(.horizontal)
+    }
     @ViewBuilder
     func tabMenuButton(tab: InfoTab) -> some View {
         Text(tab.rawValue.capitalized)
@@ -86,7 +102,7 @@ private extension PokemonDetail {
             .background(alignment: .bottom) {
                 if isSelected(tab: tab) {
                     Rectangle()
-                        .fill(Color.blue)
+                        .fill(pokemon.primaryTypeColour)
                         .frame(height: 2)
                         .matchedGeometryEffect(id: animationID, in: namespace)
                 }
