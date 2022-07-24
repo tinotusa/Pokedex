@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct FlavorText: Codable, Hashable {
+struct FlavorText: Codable {
     let flavorText: String
     let language: PokeAPILanguage
     

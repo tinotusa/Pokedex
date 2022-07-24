@@ -30,14 +30,7 @@ final class AboutTabViewModel: ObservableObject {
     var eggGroupNames: String {
         model.eggGroupNames
     }
-    
-    var pokemonTypeColour: Color {
-        model.pokemonTypeColour
-    }
-    
-    var pokemonTypes: [PokemonTypeDetails] {
-        model.pokemonTypes
-    }
+
     
     var pokemonID: Int {
         model.pokemonID
@@ -61,13 +54,5 @@ final class AboutTabViewModel: ObservableObject {
     
     var pokemonFemaleGenderPercentage: Double {
         model.pokemonfemaleGenderPercentage
-    }
-    
-    var doubleDamageTo: [String] {
-        model.doubleDamageTo
-    }
-    
-    var doubleDamageFrom: [String] {
-        model.doubleDamageFrom
     }
 }

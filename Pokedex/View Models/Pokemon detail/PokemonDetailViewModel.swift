@@ -16,30 +16,14 @@ final class PokemonDetailViewModel: ObservableObject {
     }
     
     @MainActor
-    func setUp(pokeAPI: PokeAPI) async {
-        await model.setUp(pokeAPI: pokeAPI)
+    func setUp() async {
+        await model.setUp()
     }
 }
 
 extension PokemonDetailViewModel {
     var pokemonImageURL: URL? {
         model.pokemonImageURL
-    }
-    
-    var pokemonName: String {
-        model.pokemonName
-    }
-    
-    var eggGroupNames: String {
-        model.eggGroupNames
-    }
-    
-    var pokemonTypeColour: Color {
-        model.pokemonTypeColour
-    }
-    
-    var pokemonTypes: [PokemonTypeDetails] {
-        model.pokemonTypes
     }
     
     var pokemonID: Int {

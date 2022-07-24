@@ -35,11 +35,10 @@ struct PokemonDetail: View {
     
     var body: some View {
         VStack {
-            header
+        
             
             ScrollView(showsIndicators: false) {
-                pokemonInfoBar
-                    .padding(.horizontal)
+                
                 pokemonImage
                 VStack {
                     tabHeader
@@ -60,13 +59,13 @@ struct PokemonDetail: View {
                 .shadow(color: .black.opacity(0.5), radius: 5, x: 0, y: 5)
             }
             .task {
-                await viewModel.setUp(pokeAPI: pokeAPI)
+                await viewModel.setUp()
             }
             .toolbar(.hidden)
         }
         .background {
             Rectangle()
-                .fill(viewModel.pokemonTypeColour.gradient)
+                .fill(Color.blue.gradient)
                 .ignoresSafeArea()
         }
     }
@@ -87,7 +86,7 @@ private extension PokemonDetail {
             .background(alignment: .bottom) {
                 if isSelected(tab: tab) {
                     Rectangle()
-                        .fill(viewModel.pokemonTypeColour)
+                        .fill(Color.blue)
                         .frame(height: 2)
                         .matchedGeometryEffect(id: animationID, in: namespace)
                 }
@@ -117,52 +116,13 @@ private extension PokemonDetail {
                 .scaledToFit()
         } placeholder: {
             ZStack {
-                viewModel.pokemonTypeColour
+                Color.blue
                     .opacity(0.7)
                     .frame(width: size, height: size)
                 ProgressView()
                     .progressViewStyle(.circular)
             }
         }
-    }
-    
-    @ViewBuilder
-    var pokemonInfoBar: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Text(viewModel.pokemonName)
-                    .font(.largeTitle)
-                    .bold()
-                Spacer()
-                Text("#\(viewModel.pokemonID)")
-                    .font(.title)
-                    .bold()
-            }
-            HStack {
-                ForEach(viewModel.pokemonTypes) { type in
-                    PokemonTypeTag(name: type.type.name)
-                }
-                Spacer()
-                Text(viewModel.eggGroupNames)
-            }
-        }
-        .foregroundColor(.textColour)
-    }
-    
-    var header: some View {
-        HeaderBar {
-            dismiss()
-        } content: {
-            Text(viewModel.pokemonName)
-                .foregroundColor(.textColour)
-            Spacer()
-            Button {
-                // TODO: - might implement later.
-            } label: {
-                Image(systemName: "heart")
-            }
-        }
-        .padding(.horizontal)
     }
 }
 

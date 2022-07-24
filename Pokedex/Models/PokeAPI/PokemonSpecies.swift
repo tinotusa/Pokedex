@@ -7,23 +7,8 @@
 
 import SwiftUI
 
-struct LanguageDetails: Codable, Hashable {
-    let languageCode: String
-    let url: URL
-    
-    enum CodingKeys: String, CodingKey {
-        case languageCode = "name"
-        case url
-    }
-}
-
-struct Name: Codable, Hashable {
-    let language: LanguageDetails
-    let name: String
-}
-
 /// The pokemon species details.
-struct PokemonSpecies: Codable, Hashable, Identifiable {
+struct PokemonSpecies: Codable, Identifiable {
     let name: String
     let id: Int
     let flavorTextEntries: [FlavorText]
@@ -64,5 +49,9 @@ extension PokemonSpecies {
         case genderRate = "gender_rate"
         case eggGroups = "egg_groups"
         case names
+    }
+    
+    static func fromName(name: String) async -> PokemonSpecies? {
+        return try? await PokeAPI.getData(for: PokemonSpecies.self, fromEndpoint: "pokemon-species/\(name)")
     }
 }

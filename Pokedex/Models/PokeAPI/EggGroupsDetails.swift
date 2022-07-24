@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct EggGroupsDetails: Codable, Hashable {
+struct EggGroupsDetails: Codable {
     let name: String
     let url: URL
 }

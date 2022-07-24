@@ -10,8 +10,7 @@ import SwiftUI
 struct AboutTabModel {
     private let pokemon: Pokemon
     private var pokemonSpecies: PokemonSpecies?
-    private var eggGroups = [EggGroups]()
-    private var pokeAPI: PokeAPI?
+    private var eggGroups = [EggGroup]()
     private var abilities = [Ability]()
     private var types = [PokemonType]()
     
@@ -24,26 +23,26 @@ extension AboutTabModel {
     var pokemonSeedType: String {
         guard let pokemonSpecies else { return "Error" }
         let availableLanguageCodes = pokemonSpecies.genera.map { genera in
-            genera.language.languageCode
+            genera.language.name
         }
         let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
         let genera = pokemonSpecies.genera.first { genera in
-            genera.language.languageCode == deviceLanguageCode
+            genera.language.name == deviceLanguageCode
         }
-        return genera?.name ?? "Unknown"
+        return genera?.genus ?? "Unknown"
     }
     
     /// The localized name for the pokemon.
     var pokemonName: String {
         guard let pokemonSpecies else { return "Error" }
         let availableLanguages = pokemonSpecies.names.map { name in
-            name.language.languageCode
+            name.language.name
         }
         
         let deviceLanguage = Bundle.preferredLocalizations(from: availableLanguages).first!
         
         let pokemonName = pokemonSpecies.names.first(where: { name in
-            name.language.languageCode == deviceLanguage
+            name.language.name == deviceLanguage
         })
         
         return pokemonName?.name ?? self.pokemon.name
@@ -54,11 +53,11 @@ extension AboutTabModel {
         var names = [String]()
         for eggGroup in eggGroups {
             let availableLanguages = eggGroup.names.map { name in
-                name.language.languageCode
+                name.language.name
             }
             let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguages).first!
             let name = eggGroup.names.first { name in
-                name.language.languageCode == deviceLanguageCode
+                name.language.name == deviceLanguageCode
             }
             if let name {
                 names.append(name.name)
@@ -66,16 +65,7 @@ extension AboutTabModel {
         }
         return ListFormatter.localizedString(byJoining: names)
     }
-    
-    /// The colour for this pokemon's type.
-    var pokemonTypeColour: Color {
-        pokemon.typeColour
-    }
-    
-    /// The type(s) for this pokemon (e.g grass).
-    var pokemonTypes: [PokemonTypeDetails] {
-        pokemon.types
-    }
+
     
     /// The number for the pokemon in the pokedex.
     var pokemonID: Int {
@@ -97,11 +87,11 @@ extension AboutTabModel {
         var abilityNames = [String]()
         for ability in abilities {
             let availableLanguageCodes = ability.names.map { name in
-                name.language.languageCode
+                name.language.name
             }
             let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
             let matchingAbility = ability.names.first { abilityName in
-                abilityName.language.languageCode == deviceLanguageCode
+                abilityName.language.name == deviceLanguageCode
             }
             if let matchingAbility {
                 abilityNames.append(matchingAbility.name)
@@ -123,62 +113,25 @@ extension AboutTabModel {
         return Double(pokemonSpecies.genderRate) / 8.0
     }
     
-    /// Array of types this pokemon is strong against.
-    var doubleDamageTo: [String] {
-        var names = Set<String>()
-        for type in types {
-            for doubleDamage in type.damageRelations.doubleDamageTo {
-                names.insert(doubleDamage.name)
-            }
-        }
-        return Array(names).sorted()
-    }
-    
-    /// Array of types this pokemon is weak against.
-    var doubleDamageFrom: [String] {
-        var names = Set<String>()
-        for type in types {
-            for doubleDamageFrom in type.damageRelations.doubleDamageFrom {
-                names.insert(doubleDamageFrom.name)
-            }
-        }
-        return Array(names).sorted()
-    }
 }
 
 // MARK: - Public functions
 extension AboutTabModel {
     /// Sets up the model.
     mutating func setUp(pokeAPI: PokeAPI) async {
-        self.pokeAPI = pokeAPI
-        pokemonSpecies = await pokeAPI.pokemonSpecies(named: pokemon.name)
+        pokemonSpecies = await PokemonSpecies.fromName(name: pokemon.name)
         abilities = await getPokemonAbilities()
-        types = await getTypes()
         await getEggGroups()
     }
 }
 
 // MARK: - Private functions
 private extension AboutTabModel {
-    
-    /// Gets the types for this pokemon.
-    private mutating func getTypes() async -> [PokemonType] {
-        guard let pokeAPI else { return [] }
-        var tempTypes = [PokemonType]()
-        for type in pokemon.types {
-            let typeDetails = await pokeAPI.pokemonType(named: type.type.name)
-            if let typeDetails {
-                tempTypes.append(typeDetails)
-            }
-        }
-        return tempTypes
-    }
     /// Gets the abilities of this pokemon.
     private mutating func getPokemonAbilities() async -> [Ability] {
-        guard let pokeAPI else { return [] }
         var abilities = [Ability]()
         for pokemonAbility in pokemon.abilities {
-            guard let ability = await pokeAPI.ability(named: pokemonAbility.ability.name) else { continue }
+            guard let ability = await Ability.fromName(name: pokemonAbility.ability.name) else { continue }
             abilities.append(ability)
         }
         return abilities
@@ -186,15 +139,11 @@ private extension AboutTabModel {
     
     /// Gets all the egg groups for this pokemon.
     private mutating func getEggGroups() async {
-        guard let pokeAPI else {
-            print("Error in \(#function): PokeAPI is nil.")
-            return
-        }
         if pokemonSpecies == nil {
             return
         }
         for eggGroups in pokemonSpecies!.eggGroups {
-            guard let group = await pokeAPI.eggGroups(named: eggGroups.name) else {
+            guard let group = await EggGroup.fromName(name: eggGroups.name) else {
                 continue
             }
             self.eggGroups.append(group)

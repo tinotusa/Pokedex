@@ -23,20 +23,8 @@ struct PokemonTypeTag: View {
             .cornerRadius(14)
             .foregroundColor(.textColour)
             .task {
-                localizedName = await getLocalizedName()
+                
             }
-    }
-    
-    func getLocalizedName() async -> String? {
-        guard let type = await pokeAPI.pokemonType(named: name) else { return "Error" }
-        let availableLanguageCodes = type.names.map { typeName in
-            typeName.language.languageCode
-        }
-        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
-        let matchingType = type.names.first { typeName in
-            typeName.language.languageCode == deviceLanguageCode
-        }
-        return matchingType?.name
     }
 }
 
@@ -60,9 +48,7 @@ struct PokemonRow: View {
                 Text("#\(pokemon.id)")
                     .font(.title)
                 HStack {
-                    ForEach(pokemon.types) { pokemonType in
-                        PokemonTypeTag(name: pokemonType.type.name)
-                    }
+                   
                 }
             }
             .foregroundColor(.white)
@@ -70,7 +56,7 @@ struct PokemonRow: View {
             Spacer()
         }
         .background {
-            pokemon.typeColour
+            Color.blue
                 .opacity(0.4)
                 .cornerRadius(14) // TODO: Remove magic numbers
                 .frame(maxHeight: imageHeight * 0.7)
