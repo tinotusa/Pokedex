@@ -23,10 +23,6 @@ final class AboutTabViewModel: ObservableObject {
         model.pokemonSeedType
     }
     
-    var pokemonName: String {
-        model.pokemonName
-    }
-    
     var eggGroupNames: String {
         model.eggGroupNames
     }
@@ -53,13 +49,5 @@ final class AboutTabViewModel: ObservableObject {
     
     var pokemonFemaleGenderPercentage: Double {
         model.pokemonfemaleGenderPercentage
-    }
-    
-    var doubleDamageFrom: [`Type`] {
-        model.doubleDamageFrom
-    }
-    
-    var doubleDamageTo: [`Type`] {
-        model.doubleDamageTo
     }
 }

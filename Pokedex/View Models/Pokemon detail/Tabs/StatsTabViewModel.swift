@@ -36,7 +36,27 @@ extension StatsTabViewModel {
         model.defense
     }
     
+    var specialAttack: Int {
+        model.specialAttack
+    }
+    
+    var specialDefense: Int {
+        model.specialDefense
+    }
+    
+    var speed: Int {
+        model.speed
+    }
+    
     var totalStats: Int {
         model.totalStats
+    }
+    
+    var doubleDamageFrom: [`Type`] {
+        model.doubleDamageFrom
+    }
+    
+    var doubleDamageTo: [`Type`] {
+        model.doubleDamageTo
     }
 }

@@ -52,18 +52,23 @@ struct AboutTab: View {
                 GridRow {
                     Text("Gender", comment: "Grid row title: The gender percentages for the pokemon (e.g Gender: 85% male 15% female).")
                         .foregroundColor(.grayTextColour)
-                    HStack(alignment: .lastTextBaseline) {
-                        Text("♂")
-                            .font(.title) // TODO: Make this into a modifier
-                            .foregroundColor(.blue)
-                        Text("\(viewModel.pokemonMaleGenderPercentage.formatted(.percent))")
+                    if viewModel.pokemonFemaleGenderPercentage < 0 {
+                        Text("No gender")
                             .bold()
-                    
-                        Text("♀")
-                            .font(.title)
-                            .foregroundColor(.pink)
-                        Text("\(viewModel.pokemonFemaleGenderPercentage.formatted(.percent))")
-                            .bold()
+                    } else {
+                        HStack(alignment: .lastTextBaseline) {
+                            Text("♂")
+                                .font(.title) // TODO: Make this into a modifier
+                                .foregroundColor(.blue)
+                            Text("\(viewModel.pokemonMaleGenderPercentage.formatted(.percent))")
+                                .bold()
+                            
+                            Text("♀")
+                                .font(.title)
+                                .foregroundColor(.pink)
+                            Text("\(viewModel.pokemonFemaleGenderPercentage.formatted(.percent))")
+                                .bold()
+                        }
                     }
                 }
                 
@@ -74,35 +79,6 @@ struct AboutTab: View {
                         .bold()
                 }
             }
-            
-            Text("Strong against", comment: "Title: The pokemon types this pokemon is strong against.")
-                .font(.title2)
-                .fontWeight(.medium) // TODO: Make this into a modifier
-                .padding(.vertical, 2)
-            
-            WrappingHStack {
-                ForEach(viewModel.doubleDamageTo, id: \.self) { type in
-                    NavigationLink(value: type) {
-                        PokemonTypeTag(name: type.name)
-                    }
-                }
-            }
-            
-            Text("Weak against", comment: "Title: The pokemon types this pokemon is weak against.")
-                .font(.title2)
-                .fontWeight(.medium)
-                .padding(.vertical, 2)
-            
-            WrappingHStack {
-                ForEach(viewModel.doubleDamageFrom, id: \.self) { type in
-                    NavigationLink(value: type) {
-                        PokemonTypeTag(name: type.name)
-                    }
-                }
-            }
-        }
-        .navigationDestination(for: `Type`.self) { type in
-            Text("Looking at: \(type.name)")
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .task {
