@@ -21,7 +21,7 @@ struct `Type`: Codable, Hashable, Identifiable {
     /// The generation this type was introduced in.
     let generation: NamedAPIResource
     /// The class of damage inflicted by this type.
-    let moveDamageClass: NamedAPIResource
+    let moveDamageClass: NamedAPIResource?
     /// The name of this resource listed in different languages.
     let names: [Name]
     /// A list of details of Pokémon that have this type.

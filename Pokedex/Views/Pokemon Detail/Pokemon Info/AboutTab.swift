@@ -81,11 +81,9 @@ struct AboutTab: View {
                 .padding(.vertical, 2)
             
             WrappingHStack {
-                ForEach(viewModel.doubleDamageTo, id: \.self) { typeName in
-                    Button {
-                        
-                    } label: {
-                        PokemonTypeTag(name: typeName.lowercased())
+                ForEach(viewModel.doubleDamageTo, id: \.self) { type in
+                    NavigationLink(value: type) {
+                        PokemonTypeTag(name: type.name)
                     }
                 }
             }
@@ -96,14 +94,15 @@ struct AboutTab: View {
                 .padding(.vertical, 2)
             
             WrappingHStack {
-                ForEach(viewModel.doubleDamageFrom, id: \.self) { typeName in
-                    Button {
-                        print("Pressed \(typeName)")
-                    } label: {
-                        PokemonTypeTag(name: typeName.lowercased())
+                ForEach(viewModel.doubleDamageFrom, id: \.self) { type in
+                    NavigationLink(value: type) {
+                        PokemonTypeTag(name: type.name)
                     }
                 }
             }
+        }
+        .navigationDestination(for: `Type`.self) { type in
+            Text("Looking at: \(type.name)")
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .task {

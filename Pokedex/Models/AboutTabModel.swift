@@ -13,8 +13,8 @@ struct AboutTabModel {
     private(set) var eggGroups = [EggGroup]()
     private(set) var abilities = [Ability]()
     private(set) var types = [`Type`]()
-    private(set) var doubleDamageTo = [String]()
-    private(set) var doubleDamageFrom = [String]()
+    private(set) var doubleDamageTo = [`Type`]()
+    private(set) var doubleDamageFrom = [`Type`]()
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
@@ -161,28 +161,24 @@ private extension AboutTabModel {
     }
     
     /// Gets the types that this pokemon's type is weak against.
-    func doubleDamageFrom() async -> [String] {
-        var results = Set<String>()
+    func doubleDamageFrom() async -> [`Type`] {
+        var results = Set<`Type`>()
         for type in types {
-            let temp = type.damageRelations.doubleDamageFrom.map { damageRelation in
-                damageRelation.name
-            }
-            for item in temp {
-                results.insert(item)
+            for type in type.damageRelations.doubleDamageFrom {
+                guard let type = await `Type`.fromName(name: type.name) else { continue }
+                results.insert(type)
             }
         }
         return Array(results)
     }
     
     /// Gets the types that this pokemon's type is strong against.
-    func doubleDamageTo() async -> [String] {
-        var results = Set<String>()
+    func doubleDamageTo() async -> [`Type`] {
+        var results = Set<`Type`>()
         for type in types {
-            let temp = type.damageRelations.doubleDamageTo.map { damageRelation in
-                damageRelation.name
-            }
-            for item in temp {
-                results.insert(item)
+            for type in type.damageRelations.doubleDamageTo {
+                guard let type = await `Type`.fromName(name: type.name) else { continue }
+                results.insert(type)
             }
         }
         return Array(results)

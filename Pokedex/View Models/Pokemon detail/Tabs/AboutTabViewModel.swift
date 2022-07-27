@@ -55,11 +55,11 @@ final class AboutTabViewModel: ObservableObject {
         model.pokemonfemaleGenderPercentage
     }
     
-    var doubleDamageFrom: [String] {
+    var doubleDamageFrom: [`Type`] {
         model.doubleDamageFrom
     }
     
-    var doubleDamageTo: [String] {
+    var doubleDamageTo: [`Type`] {
         model.doubleDamageTo
     }
 }
