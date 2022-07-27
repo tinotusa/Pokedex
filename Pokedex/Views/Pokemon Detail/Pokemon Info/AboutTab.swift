@@ -9,8 +9,7 @@ import SwiftUI
 
 struct AboutTab: View {
     @StateObject private var viewModel: AboutTabViewModel
-    @EnvironmentObject private var pokeAPI: PokeAPI
-    
+
     init(pokemon: Pokemon) {
         _viewModel = StateObject(wrappedValue: AboutTabViewModel(pokemon: pokemon))
     }
@@ -81,34 +80,34 @@ struct AboutTab: View {
                 .fontWeight(.medium) // TODO: Make this into a modifier
                 .padding(.vertical, 2)
             
-//            WrappingHStack {
-//                ForEach(viewModel.doubleDamageTo, id: \.self) { typeName in
-//                    Button {
-//                        
-//                    } label: {
-//                        PokemonTypeTag(name: typeName.lowercased())
-//                    }
-//                }
-//            }
-//            
+            WrappingHStack {
+                ForEach(viewModel.doubleDamageTo, id: \.self) { typeName in
+                    Button {
+                        
+                    } label: {
+                        PokemonTypeTag(name: typeName.lowercased())
+                    }
+                }
+            }
+            
             Text("Weak against", comment: "Title: The pokemon types this pokemon is weak against.")
                 .font(.title2)
                 .fontWeight(.medium)
                 .padding(.vertical, 2)
             
-//            WrappingHStack {
-//                ForEach(viewModel.doubleDamageFrom, id: \.self) { typeName in
-//                    Button {
-//                        print("Pressed \(typeName)")
-//                    } label: {
-//                        PokemonTypeTag(name: typeName.lowercased())
-//                    }
-//                }
-//            }
+            WrappingHStack {
+                ForEach(viewModel.doubleDamageFrom, id: \.self) { typeName in
+                    Button {
+                        print("Pressed \(typeName)")
+                    } label: {
+                        PokemonTypeTag(name: typeName.lowercased())
+                    }
+                }
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .task {
-            await viewModel.setUp(pokeAPI: pokeAPI)
+            await viewModel.setUp()
         }
     }
 }

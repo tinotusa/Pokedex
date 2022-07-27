@@ -93,6 +93,7 @@ private extension PokemonDetail {
         }
         .padding(.horizontal)
     }
+    
     @ViewBuilder
     func tabMenuButton(tab: InfoTab) -> some View {
         Text(tab.rawValue.capitalized)

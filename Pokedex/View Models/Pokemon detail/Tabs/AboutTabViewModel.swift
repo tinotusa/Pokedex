@@ -15,8 +15,8 @@ final class AboutTabViewModel: ObservableObject {
     }
     
     @MainActor
-    func setUp(pokeAPI: PokeAPI) async {
-        await model.setUp(pokeAPI: pokeAPI)
+    func setUp() async {
+        await model.setUp()
     }
     
     var pokemonSeedType: String {
@@ -31,7 +31,6 @@ final class AboutTabViewModel: ObservableObject {
         model.eggGroupNames
     }
 
-    
     var pokemonID: Int {
         model.pokemonID
     }
@@ -54,5 +53,13 @@ final class AboutTabViewModel: ObservableObject {
     
     var pokemonFemaleGenderPercentage: Double {
         model.pokemonfemaleGenderPercentage
+    }
+    
+    var doubleDamageFrom: [String] {
+        model.doubleDamageFrom
+    }
+    
+    var doubleDamageTo: [String] {
+        model.doubleDamageTo
     }
 }

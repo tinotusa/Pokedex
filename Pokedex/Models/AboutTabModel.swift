@@ -9,10 +9,12 @@ import SwiftUI
 
 struct AboutTabModel {
     private let pokemon: Pokemon
-    private var pokemonSpecies: PokemonSpecies?
-    private var eggGroups = [EggGroup]()
-    private var abilities = [Ability]()
-    private var types = [PokemonType]()
+    private(set) var pokemonSpecies: PokemonSpecies?
+    private(set) var eggGroups = [EggGroup]()
+    private(set) var abilities = [Ability]()
+    private(set) var types = [`Type`]()
+    private(set) var doubleDamageTo = [String]()
+    private(set) var doubleDamageFrom = [String]()
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
@@ -20,6 +22,7 @@ struct AboutTabModel {
 }
 
 extension AboutTabModel {
+    /// The pokemons seed type.
     var pokemonSeedType: String {
         guard let pokemonSpecies else { return "Error" }
         let availableLanguageCodes = pokemonSpecies.genera.map { genera in
@@ -118,17 +121,31 @@ extension AboutTabModel {
 // MARK: - Public functions
 extension AboutTabModel {
     /// Sets up the model.
-    mutating func setUp(pokeAPI: PokeAPI) async {
+    mutating func setUp() async {
         pokemonSpecies = await PokemonSpecies.fromName(name: pokemon.name)
         abilities = await getPokemonAbilities()
+        types = await getTypes()
         await getEggGroups()
+        doubleDamageTo = await doubleDamageTo()
+        doubleDamageFrom = await doubleDamageFrom()
     }
 }
 
 // MARK: - Private functions
 private extension AboutTabModel {
+    /// Gets the types for this pokemon.
+    func getTypes() async -> [`Type`] {
+        var results = [`Type`]()
+        for type in pokemon.types {
+            guard let type = await `Type`.fromName(name: type.type.name) else {
+                continue
+            }
+            results.append(type)
+        }
+        return results
+    }
     /// Gets the abilities of this pokemon.
-    private mutating func getPokemonAbilities() async -> [Ability] {
+    mutating func getPokemonAbilities() async -> [Ability] {
         var abilities = [Ability]()
         for pokemonAbility in pokemon.abilities {
             guard let ability = await Ability.fromName(name: pokemonAbility.ability.name) else { continue }
@@ -138,7 +155,7 @@ private extension AboutTabModel {
     }
     
     /// Gets all the egg groups for this pokemon.
-    private mutating func getEggGroups() async {
+    mutating func getEggGroups() async {
         if pokemonSpecies == nil {
             return
         }
@@ -149,4 +166,33 @@ private extension AboutTabModel {
             self.eggGroups.append(group)
         }
     }
+    
+    /// Gets the types that this pokemon's type is weak against.
+    func doubleDamageFrom() async -> [String] {
+        var results = Set<String>()
+        for type in types {
+            let temp = type.damageRelations.doubleDamageFrom.map { damageRelation in
+                damageRelation.name
+            }
+            for item in temp {
+                results.insert(item)
+            }
+        }
+        return Array(results)
+    }
+    
+    /// Gets the types that this pokemon's type is strong against.
+    func doubleDamageTo() async -> [String] {
+        var results = Set<String>()
+        for type in types {
+            let temp = type.damageRelations.doubleDamageTo.map { damageRelation in
+                damageRelation.name
+            }
+            for item in temp {
+                results.insert(item)
+            }
+        }
+        return Array(results)
+    }
+    
 }
