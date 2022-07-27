@@ -24,6 +24,7 @@ struct PokemonDetail: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var pokeAPI: PokeAPI
     @State private var localizedPokemonName = ""
+    @State private var pokemonSeedType = ""
     @Namespace private var namespace
     private let animationID = 1
     private let size = 250.0
@@ -39,7 +40,10 @@ struct PokemonDetail: View {
             
             ScrollView(showsIndicators: false) {
                 
+                pokemonInfoBar
+                
                 pokemonImage
+                
                 VStack {
                     tabHeader
                         .padding(.vertical)
@@ -61,6 +65,10 @@ struct PokemonDetail: View {
             .task {
                 await viewModel.setUp()
                 localizedPokemonName = await pokemon.localizedName()
+                guard let species = await PokemonSpecies.fromName(name: pokemon.name) else {
+                    return
+                }
+                pokemonSeedType = species.seedType
             }
             .toolbar(.hidden)
         }
@@ -78,12 +86,33 @@ struct PokemonDetail: View {
 
 // MARK: - Subviews
 private extension PokemonDetail {
+    var pokemonInfoBar: some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text(localizedPokemonName)
+                    .font(.largeTitle)
+                    .bold()
+                HStack {
+                    ForEach(pokemon.types, id: \.self) { type in
+                        PokemonTypeTag(name: type.type.name)
+                    }
+                }
+            }
+            Spacer()
+            VStack(alignment: .trailing) {
+                Text(verbatim: "#\(String(format: "%03d", pokemon.id))")
+                    .font(.title)
+                Text(pokemonSeedType)
+                    .font(.title2)
+            }
+        }
+        .foregroundColor(.textColour)
+        .padding(.horizontal)
+    }
     var header: some View {
         HeaderBar {
             dismiss()
         } content: {
-            Text(localizedPokemonName)
-                .lineLimit(1)
             Spacer()
             Button {
                 

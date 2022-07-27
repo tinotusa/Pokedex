@@ -25,14 +25,7 @@ extension AboutTabModel {
     /// The pokemons seed type.
     var pokemonSeedType: String {
         guard let pokemonSpecies else { return "Error" }
-        let availableLanguageCodes = pokemonSpecies.genera.map { genera in
-            genera.language.name
-        }
-        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
-        let genera = pokemonSpecies.genera.first { genera in
-            genera.language.name == deviceLanguageCode
-        }
-        return genera?.genus ?? "Unknown"
+        return pokemonSpecies.seedType
     }
     
     /// The localized name for the pokemon.

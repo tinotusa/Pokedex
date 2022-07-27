@@ -19,6 +19,21 @@ struct PokemonSpecies: Codable, Identifiable {
 }
 
 extension PokemonSpecies {
+    /// Returns the localized seed type name for this pokemon.
+    var seedType: String {
+        let availableLanguageCodes = genera.map { genera in
+            genera.language.name
+        }
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
+        let genera = genera.first { genera in
+            genera.language.name == deviceLanguageCode
+        }
+        if let genera {
+            return genera.genus
+        }
+        return "Unknown"
+    }
+    
     var femaleGenderRate: Double {
         (Double(genderRate) / 8.0)
     }
