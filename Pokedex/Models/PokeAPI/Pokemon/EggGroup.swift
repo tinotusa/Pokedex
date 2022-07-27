@@ -29,12 +29,12 @@ extension EggGroup: Codable {
 }
 
 extension EggGroup: SearchByNameOrID {
-    static func fromName(name: String) async -> EggGroup? {
+    static func from(name: String) async -> EggGroup? {
         try? await PokeAPI.getData(for: EggGroup.self, fromEndpoint: "egg-group/\(name)")
     }
     
-    static func fromID(id: Int) async -> EggGroup? {
+    static func from(id: Int) async -> EggGroup? {
         let idString = "\(id)"
-        return await Self.fromName(name: idString)
+        return await Self.from(name: idString)
     }
 }

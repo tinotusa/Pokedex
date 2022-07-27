@@ -130,7 +130,7 @@ private extension AboutTabModel {
     func getTypes() async -> [`Type`] {
         var results = [`Type`]()
         for type in pokemon.types {
-            guard let type = await `Type`.fromName(name: type.type.name) else {
+            guard let type = await `Type`.from(name: type.type.name) else {
                 continue
             }
             results.append(type)
@@ -141,7 +141,7 @@ private extension AboutTabModel {
     mutating func getPokemonAbilities() async -> [Ability] {
         var abilities = [Ability]()
         for pokemonAbility in pokemon.abilities {
-            guard let ability = await Ability.fromName(name: pokemonAbility.ability.name) else { continue }
+            guard let ability = await Ability.from(name: pokemonAbility.ability.name) else { continue }
             abilities.append(ability)
         }
         return abilities
@@ -153,7 +153,7 @@ private extension AboutTabModel {
             return
         }
         for eggGroups in pokemonSpecies!.eggGroups {
-            guard let group = await EggGroup.fromName(name: eggGroups.name) else {
+            guard let group = await EggGroup.from(name: eggGroups.name) else {
                 continue
             }
             self.eggGroups.append(group)
@@ -165,7 +165,7 @@ private extension AboutTabModel {
         var results = Set<`Type`>()
         for type in types {
             for type in type.damageRelations.doubleDamageFrom {
-                guard let type = await `Type`.fromName(name: type.name) else { continue }
+                guard let type = await `Type`.from(name: type.name) else { continue }
                 results.insert(type)
             }
         }
@@ -177,7 +177,7 @@ private extension AboutTabModel {
         var results = Set<`Type`>()
         for type in types {
             for type in type.damageRelations.doubleDamageTo {
-                guard let type = await `Type`.fromName(name: type.name) else { continue }
+                guard let type = await `Type`.from(name: type.name) else { continue }
                 results.insert(type)
             }
         }

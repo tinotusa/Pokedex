@@ -9,6 +9,6 @@ import Foundation
 
 protocol SearchByNameOrID {
     associatedtype type: Decodable
-    static func fromName(name: String) async -> type?
-    static func fromID(id: Int) async -> type?
+    static func from(name: String) async -> type?
+    static func from(id: Int) async -> type?
 }

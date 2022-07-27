@@ -72,7 +72,7 @@ private extension StatsTabModel {
             stat.stat.name == "attack"
         }
         guard let attackStat else { fatalError("Fatal error in \(#function)\nInvalid pokemon stat") }
-        return await Stat.fromName(name: attackStat.stat.name)
+        return await Stat.from(name: attackStat.stat.name)
     }
     
     func getHPStat() async -> Stat? {
@@ -80,6 +80,6 @@ private extension StatsTabModel {
             stat.stat.name == "hp"
         }
         guard let hpStat else { fatalError("Fatal error in \(#function)\nInvalid pokemon stat") }
-        return await Stat.fromName(name: hpStat.stat.name)
+        return await Stat.from(name: hpStat.stat.name)
     }
 }

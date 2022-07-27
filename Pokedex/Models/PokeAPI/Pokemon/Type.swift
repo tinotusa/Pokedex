@@ -44,10 +44,10 @@ struct `Type`: Codable, Hashable, Identifiable {
 }
 
 extension `Type`: SearchByNameOrID {
-    static func fromName(name: String) async -> `Type`? {
+    static func from(name: String) async -> `Type`? {
         return try? await PokeAPI.getData(for: `Type`.self, fromEndpoint: "type/\(name)")
     }
-    static func fromID(id: Int) async -> `Type`? {
-        return await Self.fromName(name: "\(id)")
+    static func from(id: Int) async -> `Type`? {
+        return await Self.from(name: "\(id)")
     }
 }

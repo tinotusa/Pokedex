@@ -51,7 +51,7 @@ struct SearchBar: View {
 private extension SearchBar {
     func search() {
         Task {
-            guard let pokemon = await Pokemon.fromName(name: text.lowercased()) else {
+            guard let pokemon = await Pokemon.from(name: text.lowercased()) else {
                 return
             }
             if results.contains(pokemon) {

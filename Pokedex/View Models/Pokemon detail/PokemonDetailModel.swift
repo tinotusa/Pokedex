@@ -47,7 +47,7 @@ extension PokemonDetailModel {
     private mutating func getTypes() async -> [`Type`] {
         var tempTypes = [`Type`]()
         for type in pokemon.types {
-            let typeDetails = await `Type`.fromName(name: type.type.name)
+            let typeDetails = await `Type`.from(name: type.type.name)
             if let typeDetails {
                 tempTypes.append(typeDetails)
             }
@@ -61,7 +61,7 @@ extension PokemonDetailModel {
             return
         }
         for eggGroups in pokemonSpecies!.eggGroups {
-            guard let group = await EggGroup.fromName(name: eggGroups.name) else {
+            guard let group = await EggGroup.from(name: eggGroups.name) else {
                 continue
             }
             self.eggGroups.append(group)
