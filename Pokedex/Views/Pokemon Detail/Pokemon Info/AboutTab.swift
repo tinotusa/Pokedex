@@ -52,7 +52,7 @@ struct AboutTab: View {
                 GridRow {
                     Text("Gender", comment: "Grid row title: The gender percentages for the pokemon (e.g Gender: 85% male 15% female).")
                         .foregroundColor(.grayTextColour)
-                    if viewModel.pokemonFemaleGenderPercentage < 0 {
+                    if viewModel.pokemonFemaleGenderPercentage <= 0 {
                         Text("No gender")
                             .bold()
                     } else {

@@ -106,6 +106,7 @@ private extension PokemonDetail {
         .foregroundColor(.textColour)
         .padding(.horizontal)
     }
+    
     var header: some View {
         HeaderBar {
             dismiss()
