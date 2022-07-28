@@ -16,6 +16,8 @@ struct AboutTab: View {
     
     var body: some View {
         VStack(alignment: .leading) {
+            Text(viewModel.pokemonDescription)
+                .padding(.bottom)
             Grid(alignment: .topLeading, verticalSpacing: 5) {
                 GridRow {
                     Text("Species", comment: "Grid row title: The species of the pokemon.")

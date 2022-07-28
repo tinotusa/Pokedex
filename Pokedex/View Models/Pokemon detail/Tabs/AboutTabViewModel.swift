@@ -50,4 +50,21 @@ final class AboutTabViewModel: ObservableObject {
     var pokemonFemaleGenderPercentage: Double {
         model.pokemonfemaleGenderPercentage
     }
+    
+    var pokemonDescription: String {
+        guard let species = model.pokemonSpecies else {
+            return "Error"
+        }
+        let availableLanguages = species.flavorTextEntries.map { entry in
+            entry.language.name
+        }
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguages).first!
+        let matchedEntry = species.flavorTextEntries.first { entry in
+            entry.language.name == deviceLanguageCode
+        }
+        if let matchedEntry {
+            return matchedEntry.flavorText
+        }
+        return "No description available."
+    }
 }
