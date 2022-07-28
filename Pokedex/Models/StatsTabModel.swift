@@ -9,7 +9,6 @@ import SwiftUI
 
 struct StatsTabModel {
     private let pokemon: Pokemon
-    private(set) var pokeAPI: PokeAPI!
     private(set) var hpStat: Stat?
     private(set) var attackStat: Stat?
     private(set) var specialAttackStat: Stat?
@@ -84,8 +83,7 @@ extension StatsTabModel {
 }
 
 extension StatsTabModel {
-    mutating func setUp(pokeAPI: PokeAPI) async {
-        self.pokeAPI = pokeAPI
+    mutating func setUp() async {
         hpStat = await getHPStat()
         attackStat = await getAttackStat()
         specialAttackStat = await getSpecialAttack()

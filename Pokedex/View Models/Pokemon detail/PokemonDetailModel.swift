@@ -9,10 +9,10 @@ import SwiftUI
 
 /// The model for the pokemon detail view.
 struct PokemonDetailModel {
-    private let pokemon: Pokemon
-    private var pokemonSpecies: PokemonSpecies?
-    private var eggGroups = [EggGroup]()
-    private var types = [`Type`]()
+    let pokemon: Pokemon
+    private(set) var pokemonSpecies: PokemonSpecies?
+    private(set) var eggGroups = [EggGroup]()
+    private(set) var types = [`Type`]()
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
@@ -25,7 +25,6 @@ extension PokemonDetailModel {
     var pokemonImageURL: URL? {
         pokemon.officialArtWork
     }
- 
     
     /// The number for the pokemon in the pokedex.
     var pokemonID: Int {

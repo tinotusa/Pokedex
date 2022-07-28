@@ -51,3 +51,11 @@ extension `Type`: SearchByNameOrID {
         return await Self.from(name: "\(id)")
     }
 }
+
+
+// MARK: Comparable conformance
+extension `Type`: Comparable {
+    static func < (lhs: Type, rhs: Type) -> Bool {
+        lhs.id < rhs.id
+    }
+}

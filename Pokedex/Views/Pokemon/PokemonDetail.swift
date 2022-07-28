@@ -18,11 +18,9 @@ enum InfoTab: String, CaseIterable, Identifiable {
 
 /// The detail view for a pokemon.
 struct PokemonDetail: View {
-    private let pokemon: Pokemon
     @State private var selectedTab: InfoTab = .about
     @StateObject private var viewModel: PokemonDetailViewModel
     @Environment(\.dismiss) private var dismiss
-    @EnvironmentObject private var pokeAPI: PokeAPI
     @State private var localizedPokemonName = ""
     @State private var pokemonSeedType = ""
     @Namespace private var namespace
@@ -30,7 +28,6 @@ struct PokemonDetail: View {
     private let size = 250.0
     
     init(pokemon: Pokemon) {
-        self.pokemon = pokemon
         _viewModel = StateObject(wrappedValue: PokemonDetailViewModel(pokemon: pokemon))
     }
     
@@ -48,10 +45,10 @@ struct PokemonDetail: View {
                     tabHeader
                         .padding(.vertical)
                     switch selectedTab {
-                    case .about: AboutTab(pokemon: pokemon)
-                    case .stats: StatsTab(pokemon: pokemon)
-                    case .evolutions: EvolutionsTab(pokemon: pokemon)
-                    case .moves: MovesTab(pokemon: pokemon)
+                    case .about: AboutTab(pokemon: viewModel.pokemon)
+                    case .stats: StatsTab(pokemon: viewModel.pokemon)
+                    case .evolutions: EvolutionsTab(pokemon: viewModel.pokemon)
+                    case .moves: MovesTab(pokemon: viewModel.pokemon)
                     }
                 }
                 .padding()
@@ -64,8 +61,8 @@ struct PokemonDetail: View {
             }
             .task {
                 await viewModel.setUp()
-                localizedPokemonName = await pokemon.localizedName()
-                guard let species = await PokemonSpecies.fromName(name: pokemon.name) else {
+                localizedPokemonName = await viewModel.pokemon.localizedName()
+                guard let species = await PokemonSpecies.fromName(name: viewModel.pokemon.name) else {
                     return
                 }
                 pokemonSeedType = species.seedType
@@ -74,7 +71,7 @@ struct PokemonDetail: View {
         }
         .background {
             Rectangle()
-                .fill(pokemon.primaryTypeColour.gradient)
+                .fill(viewModel.pokemon.primaryTypeColour.gradient)
                 .ignoresSafeArea()
         }
     }
@@ -93,14 +90,14 @@ private extension PokemonDetail {
                     .font(.largeTitle)
                     .bold()
                 HStack {
-                    ForEach(pokemon.types, id: \.self) { type in
+                    ForEach(viewModel.pokemon.types, id: \.self) { type in
                         PokemonTypeTag(name: type.type.name)
                     }
                 }
             }
             Spacer()
             VStack(alignment: .trailing) {
-                Text(verbatim: "#\(String(format: "%03d", pokemon.id))")
+                Text(verbatim: "#\(String(format: "%03d", viewModel.pokemon.id))")
                     .font(.title)
                 Text(pokemonSeedType)
                     .font(.title2)
@@ -132,7 +129,7 @@ private extension PokemonDetail {
             .background(alignment: .bottom) {
                 if isSelected(tab: tab) {
                     Rectangle()
-                        .fill(pokemon.primaryTypeColour)
+                        .fill(viewModel.pokemon.primaryTypeColour)
                         .frame(height: 2)
                         .matchedGeometryEffect(id: animationID, in: namespace)
                 }
@@ -175,6 +172,5 @@ private extension PokemonDetail {
 struct PokemonDetail_Previews: PreviewProvider {
     static var previews: some View {
         PokemonDetail(pokemon: .example)
-            .environmentObject(PokeAPI())
     }
 }

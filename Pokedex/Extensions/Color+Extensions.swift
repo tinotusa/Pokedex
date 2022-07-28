@@ -31,4 +31,11 @@ extension Color {
     static let rock = Color("rock")
     static let steel = Color("steel")
     static let water = Color("water")
+    // stat colours
+    static let hp = Color("hp")
+    static let attack = Color("attack")
+    static let defense = Color("defense")
+    static let specialAttack = Color("specialAttack")
+    static let specialDefense = Color("specialDefense")
+    static let speed = Color("speed")
 }

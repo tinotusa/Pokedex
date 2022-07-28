@@ -6,33 +6,44 @@
 //
 
 import SwiftUI
+import Charts
 
 struct StatsTab: View {
     @StateObject private var viewModel: StatsTabViewModel
-    @EnvironmentObject private var pokeAPI: PokeAPI
     
     init(pokemon: Pokemon) {
         _viewModel = StateObject(wrappedValue: StatsTabViewModel(pokemon: pokemon))
     }
     
     var body: some View {
-        VStack {
-            Grid(alignment: .leading) {
-                Group {
-                    hpGridRow
-                    attackGridRow
-                    defenseGridRow
-                    specialAttackGridRow
-                    specialDefenseGridRow
-                    speedGridRow
-                    totalGridRow
-                }
-                
-                Text("Strong against", comment: "Title: The pokemon types this pokemon is strong against.")
-                    .font(.title2)
-                    .fontWeight(.medium) // TODO: Make this into a modifier
-                    .padding(.vertical, 2)
-                
+        VStack(alignment: .leading) {
+            Chart(viewModel.valuePerStat) {
+                BarMark(
+                    x: .value("Stat", $0.value),
+                    y: .value("Name", $0.name)
+                    
+                )
+                .foregroundStyle(by: .value("Colour", $0.name))
+            }
+            .chartForegroundStyleScale([
+                "HP": Color("hp"),
+                "Attack": Color("attack"),
+                "Defense": Color("defense"),
+                "Sp. Attack": Color("specialAttack"),
+                "Sp. Defense": Color("specialDefense"),
+                "Speed": Color("speed")
+            ])
+            .frame(minHeight: 300)
+            
+            Text("Strong against", comment: "Title: The pokemon types this pokemon is strong against.")
+                .font(.title2)
+                .fontWeight(.medium) // TODO: Make this into a modifier
+                .padding(.vertical, 2)
+            
+            if  viewModel.doubleDamageTo.isEmpty {
+                Text("Not strong against any type.")
+                    .bold()
+            } else {
                 WrappingHStack {
                     ForEach(viewModel.doubleDamageTo, id: \.self) { type in
                         NavigationLink(value: type) {
@@ -40,17 +51,17 @@ struct StatsTab: View {
                         }
                     }
                 }
-                
-                Text("Weak against", comment: "Title: The pokemon types this pokemon is weak against.")
-                    .font(.title2)
-                    .fontWeight(.medium)
-                    .padding(.vertical, 2)
-                
-                WrappingHStack {
-                    ForEach(viewModel.doubleDamageFrom, id: \.self) { type in
-                        NavigationLink(value: type) {
-                            PokemonTypeTag(name: type.name)
-                        }
+            }
+            
+            Text("Weak against", comment: "Title: The pokemon types this pokemon is weak against.")
+                .font(.title2)
+                .fontWeight(.medium)
+                .padding(.vertical, 2)
+            
+            WrappingHStack {
+                ForEach(viewModel.doubleDamageFrom, id: \.self) { type in
+                    NavigationLink(value: type) {
+                        PokemonTypeTag(name: type.name)
                     }
                 }
             }
@@ -59,7 +70,7 @@ struct StatsTab: View {
             Text("Looking at: \(type.name)")
         }
         .task {
-            await viewModel.setUp(pokeAPI: pokeAPI)
+            await viewModel.setUp()
         }
     }
 }
@@ -141,6 +152,5 @@ private extension StatsTab {
 struct StatsTab_Previews: PreviewProvider {
     static var previews: some View {
         StatsTab(pokemon: .example)
-            .environmentObject(PokeAPI())
     }
 }

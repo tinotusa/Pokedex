@@ -29,4 +29,8 @@ extension PokemonDetailViewModel {
     var pokemonID: Int {
         model.pokemonID
     }
+    
+    var pokemon: Pokemon {
+        model.pokemon
+    }
 }
