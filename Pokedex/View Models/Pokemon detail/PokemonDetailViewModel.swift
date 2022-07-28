@@ -9,28 +9,44 @@ import SwiftUI
 
 
 final class PokemonDetailViewModel: ObservableObject {
-    @Published private(set) var model: PokemonDetailModel
+    @Published var pokemon: Pokemon
+    @Published private(set) var pokemonSpecies: PokemonSpecies?
+    @Published private(set) var eggGroups = [EggGroup]()
+    @Published private(set) var types = [`Type`]()
     
     init(pokemon: Pokemon) {
-        model = PokemonDetailModel(pokemon: pokemon)
+        self.pokemon = pokemon
     }
     
+    /// Sets up the model.
     @MainActor
     func setUp() async {
-        await model.setUp()
+        pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
+        types = await getTypes()
+        eggGroups = await pokemonSpecies?.eggGroups() ?? []
     }
 }
 
 extension PokemonDetailViewModel {
+    /// The url for the pokemon's artwork
     var pokemonImageURL: URL? {
-        model.pokemonImageURL
+        pokemon.officialArtWork
     }
     
+    /// The number for the pokemon in the pokedex.
     var pokemonID: Int {
-        model.pokemonID
+        pokemon.id
     }
     
-    var pokemon: Pokemon {
-        model.pokemon
+    /// Gets the types for this pokemon.
+    private func getTypes() async -> [`Type`] {
+        var tempTypes = [`Type`]()
+        for type in pokemon.types {
+            let typeDetails = await `Type`.from(name: type.type.name)
+            if let typeDetails {
+                tempTypes.append(typeDetails)
+            }
+        }
+        return tempTypes
     }
 }

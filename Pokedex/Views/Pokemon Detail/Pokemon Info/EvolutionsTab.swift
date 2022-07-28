@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+final class EvolutionsViewModel: ObservableObject {
+//    private let pokemon: Pokemon
+}
+
 struct EvolutionsTab: View {
     private let pokemon: Pokemon
     

@@ -62,7 +62,7 @@ extension Pokemon: SearchByNameOrID {
 extension Pokemon {
     /// Returns the localized name for the pokemon.
     func localizedName(preferredLanguage: String = "en") async -> String {
-        guard let species = await PokemonSpecies.fromName(name: self.name) else {
+        guard let species = await PokemonSpecies.from(name: self.name) else {
             return "error"
         }
         let availableLanguageCodes = species.names.map { name in
@@ -75,13 +75,14 @@ extension Pokemon {
         return matchedName?.name ?? self.name
     }
     
-    /// Returns an array of all the pokemons types
+    /// Gets the type names for this pokemon's type.
+    /// - returns: an array of strings that contains all of the pokemon's type names.
     func getTypes() -> [String] {
         types.map { type in
             type.type.name
         }
     }
-    /// Returns the first types color from xcassets.
+    /// The first types color from xcassets.
     var primaryTypeColour: Color {
         Color(types.first!.type.name)
     }
@@ -92,6 +93,7 @@ extension Pokemon {
         }
         return statValues.reduce(0, +)
     }
+    
     /// The official artwork url for this pokemon's image.
     var officialArtWork: URL? {
         URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/\(id).png")

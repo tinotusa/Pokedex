@@ -62,7 +62,7 @@ struct PokemonDetail: View {
             .task {
                 await viewModel.setUp()
                 localizedPokemonName = await viewModel.pokemon.localizedName()
-                guard let species = await PokemonSpecies.fromName(name: viewModel.pokemon.name) else {
+                guard let species = await PokemonSpecies.from(name: viewModel.pokemon.name) else {
                     return
                 }
                 pokemonSeedType = species.seedType

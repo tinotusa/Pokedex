@@ -157,7 +157,7 @@ private extension StatsTabViewModel {
                 results.insert(type)
             }
         }
-        return Array(results)
+        return Array(results).sorted()
     }
     
     /// Gets the types that this pokemon's type is strong against.
@@ -169,6 +169,6 @@ private extension StatsTabViewModel {
                 results.insert(type)
             }
         }
-        return Array(results)
+        return Array(results).sorted()
     }
 }

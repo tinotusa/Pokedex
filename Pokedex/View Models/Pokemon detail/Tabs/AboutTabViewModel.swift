@@ -18,10 +18,11 @@ final class AboutTabViewModel: ObservableObject {
     }
     
     /// Sets up the view model.
+    @MainActor
     func setUp() async {
-        pokemonSpecies = await PokemonSpecies.fromName(name: pokemon.name)
+        pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
         abilities = await getPokemonAbilities()
-        await getEggGroups()
+        eggGroups = await pokemonSpecies?.eggGroups() ?? []
     }
 }
 
@@ -125,18 +126,5 @@ private extension AboutTabViewModel {
             abilities.append(ability)
         }
         return abilities
-    }
-    
-    /// Gets all the egg groups for this pokemon.
-    func getEggGroups() async {
-        if pokemonSpecies == nil {
-            return
-        }
-        for eggGroups in pokemonSpecies!.eggGroups {
-            guard let group = await EggGroup.from(name: eggGroups.name) else {
-                continue
-            }
-            self.eggGroups.append(group)
-        }
     }
 }
