@@ -7,8 +7,16 @@
 
 import Foundation
 
-protocol SearchByNameOrID {
+protocol SearchByName {
     associatedtype type: Decodable
     static func from(name: String) async -> type?
+}
+
+protocol SearchByID {
+    associatedtype type: Decodable
     static func from(id: Int) async -> type?
+}
+
+protocol SearchByNameOrID: SearchByName, SearchByID {
+    
 }

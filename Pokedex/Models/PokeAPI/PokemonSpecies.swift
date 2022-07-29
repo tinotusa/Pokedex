@@ -19,10 +19,10 @@ struct PokemonSpecies: Codable, Identifiable {
     /// The chance of this Pokémon being female, in eighths; or -1 for genderless.
     let genderRate: Int
     /// The base capture rate; up to 255. The higher the number, the easier the catch.
-    let captureRate: Int
+    let captureRate: Int?
     /// The happiness when caught by a normal Pokéball; up to 255. The higher the
     /// number, the happier the Pokémon.
-    let baseHappiness: Int
+    let baseHappiness: Int?
     /// Whether or not this is a baby Pokémon.
     let isBaby: Bool
     /// Whether or not this is a legendary Pokémon.
@@ -31,7 +31,7 @@ struct PokemonSpecies: Codable, Identifiable {
     let isMythical: Bool
     /// Initial hatch counter: one must walk 255 × (hatch_counter + 1) steps before this
     /// Pokémon's egg hatches, unless utilizing bonuses like Flame Body's.
-    let hatchCounter: Int
+    let hatchCounter: Int?
     /// Whether or not this Pokémon has visual gender differences.
     let hasGenderDifferences: Bool
     /// Whether or not this Pokémon has multiple forms and can switch between them.
@@ -47,9 +47,9 @@ struct PokemonSpecies: Codable, Identifiable {
     /// The shape of this Pokémon for Pokédex search.
     let shape: NamedAPIResource
     /// The Pokémon species that evolves into this Pokemon_species.
-    let evolvesFromSpecies: NamedAPIResource
+    let evolvesFromSpecies: NamedAPIResource?
     /// The evolution chain this Pokémon species is a member of.
-    let evolutionChain: APIResource
+    let evolutionChain: APIResource?
     /// The habitat this Pokémon species can be encountered in.
     let habitat: NamedAPIResource?
     /// The generation this Pokémon species was introduced in.

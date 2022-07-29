@@ -14,7 +14,7 @@ struct Pokemon: Identifiable, Hashable {
     /// The name for this resource.
     let name: String
     /// The base experience gained for defeating this Pokémon.
-    let baseExperience: Int
+    let baseExperience: Int?
     /// The height of this Pokémon in decimetres.
     let height: Int
     /// Set for exactly one Pokémon used as the default for each species.
