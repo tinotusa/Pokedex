@@ -87,7 +87,7 @@ extension PokemonSpecies {
         let availableLanguageCodes = genera.map { genera in
             genera.language.name
         }
-        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
         let genera = genera.first { genera in
             genera.language.name == deviceLanguageCode
         }
@@ -113,7 +113,7 @@ extension PokemonSpecies {
             flavorText.language.name
         }
         let uniqueLanguageCodes = Set(availableLanguageCodes)
-        let systemLanguageCode = Bundle.preferredLocalizations(from: Array(uniqueLanguageCodes)).first!
+        let systemLanguageCode = Bundle.preferredLocalizations(from: Array(uniqueLanguageCodes), forPreferences: nil).first!
         if let matchingFlavorText = flavorTextEntries.first(where: {  flavorText in
             flavorText.language.name == systemLanguageCode
         }) {
@@ -153,7 +153,7 @@ extension PokemonSpecies {
     }
 }
 
-// conformance
+// MARK: - SearchByNameOrID conformance
 extension PokemonSpecies: SearchByNameOrID {
     static func from(name: String) async -> PokemonSpecies? {
         var name = name
@@ -165,5 +165,13 @@ extension PokemonSpecies: SearchByNameOrID {
     
     static func from(id: Int) async -> PokemonSpecies? {
         return await from(name: "\(id)")
+    }
+}
+
+
+// MARK: Helper computed properties
+extension PokemonSpecies {
+    var localizedName: String {
+        return names.localizedName ?? "Error"
     }
 }

@@ -52,15 +52,7 @@ final class StatsTabViewModel: ObservableObject {
 extension StatsTabViewModel {
     var hpStatName: String {
         guard let hpStat else { return "Error" }
-        let availableLanguageCodes = hpStat.names.map { name in
-            name.language.name
-        }
-        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
-        let matchingName = hpStat.names.first { name in
-            return name.language.name == deviceLanguageCode
-        }
-        guard let matchingName else { return "Error" }
-        return matchingName.name
+        return hpStat.names.localizedName ?? "Error"
     }
     
     var hp: Int {

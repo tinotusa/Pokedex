@@ -7,22 +7,106 @@
 
 import SwiftUI
 
-final class EvolutionsTabViewModel: ObservableObject {
-    private let pokemon: Pokemon
-    @Published private(set) var pokemonSpecies: PokemonSpecies?
-    @Published private(set) var evolutionChain: EvolutionChain?
+final class EvolutionTriggerEventsViewViewModel: ObservableObject {
+    let evolutionDetail: EvolutionDetail
+    @Published var localizedEvolutionTriggerName: String?
     
-    init(pokemon: Pokemon) {
-        self.pokemon = pokemon
+    init(evolutionDetail: EvolutionDetail) {
+        self.evolutionDetail = evolutionDetail
+    }
+    
+    var wrappedLocalizedEvolutionTriggerName: String {
+        localizedEvolutionTriggerName ?? evolutionDetail.trigger.name
+    }
+    
+    func item() {
+        
     }
     
     @MainActor
     func setUp() async {
-        pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
-        guard let evolutionChainURL = pokemonSpecies?.evolutionChain?.url else {
-            return
+        localizedEvolutionTriggerName = await getLocalizedTriggerName()
+    }
+    
+    func getLocalizedTriggerName() async -> String {
+        guard let trigger = await EvolutionTrigger.from(name: evolutionDetail.trigger.name) else {
+            return evolutionDetail.trigger.name
         }
-        evolutionChain = try? await PokeAPI.getData(for: EvolutionChain.self, url: evolutionChainURL)
+        return trigger.names.localizedName ?? evolutionDetail.trigger.name
+    }
+}
+
+struct EvolutionTriggerEventsView: View {
+    @StateObject private var viewModel: EvolutionTriggerEventsViewViewModel
+    
+    init(evolutionDetail: EvolutionDetail) {
+        _viewModel = StateObject(wrappedValue: EvolutionTriggerEventsViewViewModel(evolutionDetail: evolutionDetail))
+    }
+    
+    var body: some View {
+        VStack {
+            Text(
+                "Evolution trigger: \(viewModel.wrappedLocalizedEvolutionTriggerName)",
+                comment: "Evolution trigger is the action that causes the pokemon to evolve."
+            )
+            if let item = viewModel.item {
+                item.name
+            }
+        }
+        .task {
+            await viewModel.setUp()
+        }
+    }
+}
+
+struct EvolutionChainView: View {
+    let chain: ChainLink
+    let size = 200.0
+    @StateObject var viewModel: EvolutionChainViewViewModel
+    
+    init(chain: ChainLink) {
+        self.chain = chain
+        _viewModel = StateObject(wrappedValue: EvolutionChainViewViewModel(chainLink: chain))
+    }
+    
+    var body: some View {
+        NavigationLink(value: viewModel.pokemon) {
+            VStack {
+                if let evolutionDetails = chain.evolutionDetails, !evolutionDetails.isEmpty {
+                    Text("Trigger: \(viewModel.localizedEvolutionTriggerName)", comment: "The action that makes the pokemon evolve")
+                    Text("\(evolutionDetails.first!.minLevel ?? 0)")
+                }
+                HStack {
+                    Text(viewModel.localizedPokemonName)
+                    if let pokemon = viewModel.pokemon {
+                        Text("(#\(pokemon.id))")
+                    }
+                }
+                HStack{
+                    AsyncImage(url: viewModel.pokemonImageURL) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: size, height: size)
+                    } placeholder: {
+                        ProgressView()
+                            .frame(width: size, height: size)
+                    }
+                    ForEach(viewModel.chainLink.evolutionDetails ?? [], id: \.self) { evolutionDetail in
+                        EvolutionTriggerEventsView(evolutionDetail: evolutionDetail)
+                    }
+                }
+                HStack {
+                    ForEach(viewModel.pokemon?.types ?? [], id: \.self) { type in
+                        PokemonTypeTag(name: type.type.name)
+                    }
+                }
+            }
+        }
+        .buttonStyle(.plain)
+        .task {
+            await viewModel.setUp()
+        }
     }
 }
 
@@ -35,26 +119,16 @@ struct EvolutionsTab: View {
     
     var body: some View {
         VStack {
-            ForEach(viewModel.evolutionChain?.allEvolutions() ?? [], id: \.self) { chain in
-                Text(chain.species.name)
-                ForEach(chain.evolutionDetails ?? [], id: \.self) { evolutionDetail in
-                    if let minLevel = evolutionDetail.minLevel {
-                        Text("Evolves at: \(minLevel)")
-                    }
-                    if let item = evolutionDetail.item {
-                        Text("Evolves with: \(item.name)")
-                    }
-                    if let heldItem = evolutionDetail.heldItem {
-                        Text("Evolves with: \(heldItem.name)")
-                    }
-                    if let minHappiness = evolutionDetail.minHappiness {
-                        Text("Min happiness: \(minHappiness)")
-                    }
-                    if !evolutionDetail.timeOfDay.isEmpty {
-                        Text("Time: \(evolutionDetail.timeOfDay)")
-                    }
-                    
+            if let evolutionChain = viewModel.evolutionChain {
+                ForEach(evolutionChain.allEvolutions(), id: \.self) { chain in
+                    EvolutionChainView(chain: chain)
                 }
+            } else {
+                Text(
+                    "This Pokemon has no evolutions.",
+                    comment: "Placeholder text to show that this pokemon cannot change into another one."
+                )
+                .foregroundColor(.secondary)
             }
         }
         .task {

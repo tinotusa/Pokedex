@@ -23,8 +23,13 @@ struct PokemonTypeTag: View {
             .cornerRadius(14)
             .foregroundColor(.textColour)
             .task {
-                
+                localizedName = await localizedType()
             }
+    }
+    
+    func localizedType() async -> String {
+        guard let type = await `Type`.from(name: name) else { return name }
+        return type.names.localizedName ?? name
     }
 }
 

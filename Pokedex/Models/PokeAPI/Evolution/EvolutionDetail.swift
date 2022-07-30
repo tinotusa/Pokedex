@@ -77,3 +77,8 @@ struct EvolutionDetail: Codable, Hashable {
         case turnUpsideDown = "turn_upside_down"
     }
 }
+
+// MARK: - Computed properties
+extension EvolutionDetail {
+    
+}

@@ -65,14 +65,7 @@ extension Pokemon {
         guard let species = await PokemonSpecies.from(name: self.name) else {
             return "error"
         }
-        let availableLanguageCodes = species.names.map { name in
-            name.language.name
-        }
-        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
-        let matchedName = species.names.first { name in
-            name.language.name == deviceLanguageCode
-        }
-        return matchedName?.name ?? self.name
+        return species.localizedName
     }
     
     /// Gets the type names for this pokemon's type.

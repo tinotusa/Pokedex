@@ -37,15 +37,10 @@ extension AboutTabViewModel {
     var eggGroupNames: String {
         var names = [String]()
         for eggGroup in eggGroups {
-            let availableLanguages = eggGroup.names.map { name in
-                name.language.name
-            }
-            let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguages).first!
-            let name = eggGroup.names.first { name in
-                name.language.name == deviceLanguageCode
-            }
-            if let name {
-                names.append(name.name)
+            if let name = eggGroup.names.localizedName{
+                names.append(name)
+            } else {
+                names.append(eggGroup.name)
             }
         }
         return ListFormatter.localizedString(byJoining: names)
@@ -70,15 +65,8 @@ extension AboutTabViewModel {
     var pokemonAbilities: String {
         var abilityNames = [String]()
         for ability in abilities {
-            let availableLanguageCodes = ability.names.map { name in
-                name.language.name
-            }
-            let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes).first!
-            let matchingAbility = ability.names.first { abilityName in
-                abilityName.language.name == deviceLanguageCode
-            }
-            if let matchingAbility {
-                abilityNames.append(matchingAbility.name)
+            if let name = ability.names.localizedName {
+                abilityNames.append(name)
             } else {
                 abilityNames.append(ability.name)
             }
@@ -102,17 +90,8 @@ extension AboutTabViewModel {
         guard let species = pokemonSpecies else {
             return "Error"
         }
-        let availableLanguages = species.flavorTextEntries.map { entry in
-            entry.language.name
-        }
-        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguages).first!
-        let matchedEntry = species.flavorTextEntries.first { entry in
-            entry.language.name == deviceLanguageCode
-        }
-        if let matchedEntry {
-            return matchedEntry.flavorText
-        }
-        return "No description available."
+        let description = species.names.localizedName
+        return description ?? "No description available."
     }
 }
 
