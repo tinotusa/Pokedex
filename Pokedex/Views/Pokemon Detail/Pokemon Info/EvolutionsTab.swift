@@ -15,7 +15,7 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
     @Published private(set) var localizedKnownMoveName: String?
     @Published private(set) var localizedKnownMoveType: String?
     @Published private(set) var localizedLocationName: String?
-    
+    @Published private(set) var localizedPartySpeciesName: String?
     init(evolutionDetail: EvolutionDetail) {
         self.evolutionDetail = evolutionDetail
     }
@@ -28,6 +28,7 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
         localizedKnownMoveName = await getLocalizedKnownMove()
         localizedKnownMoveType = await getLocalizedKnowMoveType()
         localizedLocationName = await getLocalizedLocationName()
+        localizedPartySpeciesName = await getLocalizedPartySpeciesName()
     }
     
     func getLocalizedTriggerName() async -> String? {
@@ -68,6 +69,12 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
         let location = await Location.from(name: locationResource.name)
         return location?.names.localizedName
     }
+    
+    func getLocalizedPartySpeciesName() async -> String? {
+        guard let partySpecies = evolutionDetail.partySpecies else { return nil }
+        let pokemonSpecies = await PokemonSpecies.from(name: partySpecies.name)
+        return pokemonSpecies?.names.localizedName
+    }
 }
 
 struct EvolutionTriggerEventsView: View {
@@ -78,7 +85,7 @@ struct EvolutionTriggerEventsView: View {
     }
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             Text(
                 "Evolution trigger: \(viewModel.localizedEvolutionTriggerName ?? "Error")",
                 comment: "Evolution trigger is the action that causes the pokemon to evolve."
@@ -118,7 +125,9 @@ struct EvolutionTriggerEventsView: View {
             if viewModel.evolutionDetail.needsOverworldRain {
                 Text("Needs overworld rain.")
             }
-//
+            if let pokemonSpecies = viewModel.localizedPartySpeciesName {
+                Text("Party must have: \(pokemonSpecies)")
+            }
         }
         .task {
             await viewModel.setUp()
