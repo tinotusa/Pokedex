@@ -17,6 +17,7 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
     @Published private(set) var localizedLocationName: String?
     @Published private(set) var localizedPartySpeciesName: String?
     @Published private(set) var localizedPartyTypeName: String?
+    @Published private(set) var localizedTradeSpeciesName: String?
     
     init(evolutionDetail: EvolutionDetail) {
         self.evolutionDetail = evolutionDetail
@@ -32,6 +33,7 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
         localizedLocationName = await getLocalizedLocationName()
         localizedPartySpeciesName = await getLocalizedPartySpeciesName()
         localizedPartyTypeName = await getLocalizedPartyTypeName()
+        localizedTradeSpeciesName = await getLocalizedTradeSpecies()
     }
     
     func getLocalizedTriggerName() async -> String? {
@@ -83,6 +85,12 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
         guard let partyType = evolutionDetail.partyType else { return nil }
         let type = await `Type`.from(name: partyType.name)
         return type?.names.localizedName
+    }
+    
+    func getLocalizedTradeSpecies() async -> String? {
+        guard let tradeSpecies = evolutionDetail.tradeSpecies else { return nil }
+        let pokemonSpecies = await PokemonSpecies.from(name: tradeSpecies.name)
+        return pokemonSpecies?.names.localizedName
     }
 }
 
@@ -151,6 +159,9 @@ struct EvolutionTriggerEventsView: View {
             }
             if let timeOfDay = viewModel.evolutionDetail.timeOfDay, !timeOfDay.isEmpty {
                 Text("Evolve during: \(timeOfDay)")
+            }
+            if let tradeSpeciesName = viewModel.localizedTradeSpeciesName {
+                Text("Trade: \(tradeSpeciesName)")
             }
         }
         .task {
