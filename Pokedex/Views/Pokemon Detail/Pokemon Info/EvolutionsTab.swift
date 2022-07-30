@@ -9,9 +9,10 @@ import SwiftUI
 
 final class EvolutionTriggerEventsViewViewModel: ObservableObject {
     let evolutionDetail: EvolutionDetail
-    @Published var localizedEvolutionTriggerName: String?
-    @Published var localizedItemName: String?
-    @Published var localizedHeldItemName: String?
+    @Published private(set) var localizedEvolutionTriggerName: String?
+    @Published private(set) var localizedItemName: String?
+    @Published private(set) var localizedHeldItemName: String?
+    @Published private(set) var localizedKnownMoveName: String?
     
     init(evolutionDetail: EvolutionDetail) {
         self.evolutionDetail = evolutionDetail
@@ -22,6 +23,7 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
         localizedEvolutionTriggerName = await getLocalizedTriggerName()
         localizedItemName = await getLocalizedItemName()
         localizedHeldItemName = await getLocalizedHeldItemName()
+        localizedKnownMoveName = await getLocalizedKnownMove()
     }
     
     func getLocalizedTriggerName() async -> String? {
@@ -45,10 +47,10 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
         return item?.names.localizedName
     }
     
-    // TODO: finish me
     func getLocalizedKnownMove() async -> String? {
         guard let knownMove = evolutionDetail.knownMove else { return nil }
-        return "TODO"
+        let move = await Move.from(name: knownMove.name)
+        return move?.names.localizedName
     }
 }
 
@@ -65,16 +67,18 @@ struct EvolutionTriggerEventsView: View {
                 "Evolution trigger: \(viewModel.localizedEvolutionTriggerName ?? "Error")",
                 comment: "Evolution trigger is the action that causes the pokemon to evolve."
             )
-            if let name = viewModel.localizedItemName {
-                Text("Item: \(name)", comment: "The item required to level up the pokemon.")
+            if let itemName = viewModel.localizedItemName {
+                Text("Item: \(itemName)", comment: "The item required to level up the pokemon.")
             }
             if let gender = viewModel.evolutionDetail.gender {
                 Text("Gender: \(gender)", comment: "The gender the pokemon must be in inorder to evolve.")
             }
-            if let name = viewModel.localizedHeldItemName {
-                Text("Held item: \(name)", comment: "The name of the held item.")
+            if let heldItemName = viewModel.localizedHeldItemName {
+                Text("Held item: \(heldItemName)", comment: "The name of the held item.")
             }
-            
+            if let knownMoveName = viewModel.localizedKnownMoveName {
+                Text("Known move: \(knownMoveName)")
+            }
         }
         .task {
             await viewModel.setUp()
