@@ -17,9 +17,9 @@ struct Item: Codable, Hashable, Identifiable {
     /// The power of the move Fling when used with this item.
     let flingPower: Int
     /// The effect of the move Fling when used with this item.
-    let flingEffect: NamedAPIResource
+    let flingEffect: NamedAPIResource?
     /// A list of attributes this item has.
-    let attributes: NamedAPIResource
+    let attributes: [NamedAPIResource]
     /// The category of items this item falls into.
     let category: NamedAPIResource
     /// The effect of this ability listed in different languages.
@@ -35,7 +35,7 @@ struct Item: Codable, Hashable, Identifiable {
     /// A list of Pokémon that might be found in the wild holding this item.
     let heldByPokemon: [ItemHolderPokemon]
     /// An evolution chain this item requires to produce a bay during mating.
-    let babyTriggerFor: APIResource
+    let babyTriggerFor: APIResource?
     /// A list of the machines related to this item.
     let machines: [MachineVersionDetail]
     
@@ -58,7 +58,7 @@ struct Item: Codable, Hashable, Identifiable {
     }
 }
 
-// MARK:
+// MARK: - SearchByNameOrID conformance
 extension Item: SearchByNameOrID {
     static func from(name: String) async -> Item? {
         return try? await PokeAPI.getData(for: Item.self, fromEndpoint: "item/\(name)")

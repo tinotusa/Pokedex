@@ -10,29 +10,45 @@ import SwiftUI
 final class EvolutionTriggerEventsViewViewModel: ObservableObject {
     let evolutionDetail: EvolutionDetail
     @Published var localizedEvolutionTriggerName: String?
+    @Published var localizedItemName: String?
+    @Published var localizedHeldItemName: String?
     
     init(evolutionDetail: EvolutionDetail) {
         self.evolutionDetail = evolutionDetail
     }
     
-    var wrappedLocalizedEvolutionTriggerName: String {
-        localizedEvolutionTriggerName ?? evolutionDetail.trigger.name
-    }
-    
-    func item() {
-        
-    }
-    
     @MainActor
     func setUp() async {
         localizedEvolutionTriggerName = await getLocalizedTriggerName()
+        localizedItemName = await getLocalizedItemName()
+        localizedHeldItemName = await getLocalizedHeldItemName()
     }
     
-    func getLocalizedTriggerName() async -> String {
+    func getLocalizedTriggerName() async -> String? {
         guard let trigger = await EvolutionTrigger.from(name: evolutionDetail.trigger.name) else {
-            return evolutionDetail.trigger.name
+            return nil
         }
-        return trigger.names.localizedName ?? evolutionDetail.trigger.name
+        return trigger.names.localizedName
+    }
+    
+    func getLocalizedHeldItemName() async -> String? {
+        guard let heldItem = evolutionDetail.heldItem else { return nil }
+        let item = await Item.from(name: heldItem.name)
+        return item?.names.localizedName
+    }
+    
+    func getLocalizedItemName() async -> String? {
+        guard let evolutionItem = evolutionDetail.item else {
+            return nil
+        }
+        let item = await Item.from(name: evolutionItem.name)
+        return item?.names.localizedName
+    }
+    
+    // TODO: finish me
+    func getLocalizedKnownMove() async -> String? {
+        guard let knownMove = evolutionDetail.knownMove else { return nil }
+        return "TODO"
     }
 }
 
@@ -46,12 +62,19 @@ struct EvolutionTriggerEventsView: View {
     var body: some View {
         VStack {
             Text(
-                "Evolution trigger: \(viewModel.wrappedLocalizedEvolutionTriggerName)",
+                "Evolution trigger: \(viewModel.localizedEvolutionTriggerName ?? "Error")",
                 comment: "Evolution trigger is the action that causes the pokemon to evolve."
             )
-//            if let item = viewModel.item {
-//                item.name
-//            }
+            if let name = viewModel.localizedItemName {
+                Text("Item: \(name)", comment: "The item required to level up the pokemon.")
+            }
+            if let gender = viewModel.evolutionDetail.gender {
+                Text("Gender: \(gender)", comment: "The gender the pokemon must be in inorder to evolve.")
+            }
+            if let name = viewModel.localizedHeldItemName {
+                Text("Held item: \(name)", comment: "The name of the held item.")
+            }
+            
         }
         .task {
             await viewModel.setUp()
@@ -61,7 +84,7 @@ struct EvolutionTriggerEventsView: View {
 
 struct EvolutionChainView: View {
     let chain: ChainLink
-    let size = 200.0
+    let size = 170.0
     @StateObject var viewModel: EvolutionChainViewViewModel
     
     init(chain: ChainLink) {
@@ -72,10 +95,6 @@ struct EvolutionChainView: View {
     var body: some View {
         NavigationLink(value: viewModel.pokemon) {
             VStack {
-                if let evolutionDetails = chain.evolutionDetails, !evolutionDetails.isEmpty {
-                    Text("Trigger: \(viewModel.localizedEvolutionTriggerName)", comment: "The action that makes the pokemon evolve")
-                    Text("\(evolutionDetails.first!.minLevel ?? 0)")
-                }
                 HStack {
                     Text(viewModel.localizedPokemonName)
                     if let pokemon = viewModel.pokemon {
@@ -126,7 +145,7 @@ struct EvolutionsTab: View {
             } else {
                 Text(
                     "This Pokemon has no evolutions.",
-                    comment: "Placeholder text to show that this pokemon cannot change into another one."
+                    comment: "Placeholder text to show that this pokemon cannot evolve into another one."
                 )
                 .foregroundColor(.secondary)
             }
