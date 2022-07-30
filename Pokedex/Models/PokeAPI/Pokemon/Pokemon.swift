@@ -94,15 +94,7 @@ extension Pokemon {
     
     /// An example pokemon for xcode previews.
     static var example: Pokemon {
-        let examplePokemonURL = Bundle.main.url(forResource: "ExamplePokemonJSON", withExtension: nil)!
-        do {
-            let data = try Data(contentsOf: examplePokemonURL)
-            let pokemon = try JSONDecoder().decode(Pokemon.self, from: data)
-            return pokemon
-        } catch {
-            print("Error")
-        }
-        fatalError("Couldn't read the default pokemon json file")
+        return Bundle.main.getData(for: Pokemon.self, fromFileNamed: "ExamplePokemonJSON")
     }
 }
 

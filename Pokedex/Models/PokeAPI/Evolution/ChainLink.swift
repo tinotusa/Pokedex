@@ -24,3 +24,24 @@ struct ChainLink: Codable, Hashable {
         case evolvesTo = "evolves_to"
     }
 }
+
+extension Bundle {
+    func getData<T: Decodable>(for type: T.Type, fromFileNamed filename: String) -> T {
+        let url = Self.main.url(forResource: filename, withExtension: nil)!
+        do {
+            let data = try Data(contentsOf: url)
+            let decodedData = try JSONDecoder().decode(T.self, from: data)
+            return decodedData
+        } catch {
+            print("Error in \(#function)\n\(error)")
+        }
+        fatalError("Couldn't read the file at \(filename) json file")
+    }
+}
+
+extension ChainLink {
+    static var example: ChainLink {
+        let evolutionChain = Bundle.main.getData(for: EvolutionChain.self, fromFileNamed: "EvolutionChain_ExampleJSON")
+        return evolutionChain.chain
+    }
+}

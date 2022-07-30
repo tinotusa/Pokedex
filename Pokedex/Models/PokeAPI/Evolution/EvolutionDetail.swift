@@ -78,7 +78,3 @@ struct EvolutionDetail: Codable, Hashable {
     }
 }
 
-// MARK: - Computed properties
-extension EvolutionDetail {
-    
-}
