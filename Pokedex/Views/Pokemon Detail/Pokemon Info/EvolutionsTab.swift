@@ -14,6 +14,7 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
     @Published private(set) var localizedHeldItemName: String?
     @Published private(set) var localizedKnownMoveName: String?
     @Published private(set) var localizedKnownMoveType: String?
+    @Published private(set) var localizedLocationName: String?
     
     init(evolutionDetail: EvolutionDetail) {
         self.evolutionDetail = evolutionDetail
@@ -26,6 +27,7 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
         localizedHeldItemName = await getLocalizedHeldItemName()
         localizedKnownMoveName = await getLocalizedKnownMove()
         localizedKnownMoveType = await getLocalizedKnowMoveType()
+        localizedLocationName = await getLocalizedLocationName()
     }
     
     func getLocalizedTriggerName() async -> String? {
@@ -60,6 +62,12 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
         let moveType = await `Type`.from(name: knownMoveType.name)
         return moveType?.names.localizedName
     }
+    
+    func getLocalizedLocationName() async -> String? {
+        guard let locationResource = evolutionDetail.location else { return nil }
+        let location = await Location.from(name: locationResource.name)
+        return location?.names.localizedName
+    }
 }
 
 struct EvolutionTriggerEventsView: View {
@@ -89,6 +97,9 @@ struct EvolutionTriggerEventsView: View {
             }
             if let knownMoveTypeName = viewModel.localizedKnownMoveType {
                 Text("Move type: \(knownMoveTypeName)")
+            }
+            if let locationName = viewModel.localizedLocationName {
+                Text("Location: \(locationName)")
             }
         }
         .task {
