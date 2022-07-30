@@ -149,6 +149,9 @@ struct EvolutionTriggerEventsView: View {
                     Text("Required stat: Attack < Defense")
                 }
             }
+            if let timeOfDay = viewModel.evolutionDetail.timeOfDay, !timeOfDay.isEmpty {
+                Text("Evolve during: \(timeOfDay)")
+            }
         }
         .task {
             await viewModel.setUp()
