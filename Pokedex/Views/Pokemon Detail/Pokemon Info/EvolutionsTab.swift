@@ -104,8 +104,8 @@ struct EvolutionTriggerEventsView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(
-                "Evolution trigger: \(viewModel.localizedEvolutionTriggerName ?? "Error")",
-                comment: "Evolution trigger is the action that causes the pokemon to evolve."
+                "Trigger: \(viewModel.localizedEvolutionTriggerName ?? "Error")",
+                comment: "Trigger is the action that causes the pokemon to evolve."
             )
             Group {
                 if let itemName = viewModel.localizedItemName {
@@ -139,32 +139,34 @@ struct EvolutionTriggerEventsView: View {
                     Text("Min affection: \(minAffection)")
                 }
             }
-            if viewModel.evolutionDetail.needsOverworldRain {
-                Text("Needs overworld rain.")
-            }
-            if let partySpeciesName = viewModel.localizedPartySpeciesName {
-                Text("Party must have: \(partySpeciesName)")
-            }
-            if let partyType = viewModel.localizedPartyTypeName {
-                Text("Party must have type: \(partyType)")
-            }
-            if let relativePhysicalStats = viewModel.evolutionDetail.relativePhysicalStats {
-                if relativePhysicalStats == 1 {
-                    Text("Required stat: Attack > Defense")
-                } else if relativePhysicalStats == 0 {
-                    Text("Required stat: Attack = Defense")
-                } else if relativePhysicalStats == -1 {
-                    Text("Required stat: Attack < Defense")
+            Group {
+                if viewModel.evolutionDetail.needsOverworldRain {
+                    Text("Needs overworld rain.")
                 }
-            }
-            if let timeOfDay = viewModel.evolutionDetail.timeOfDay, !timeOfDay.isEmpty {
-                Text("Evolve during: \(timeOfDay)")
-            }
-            if let tradeSpeciesName = viewModel.localizedTradeSpeciesName {
-                Text("Trade: \(tradeSpeciesName)")
-            }
-            if viewModel.evolutionDetail.turnUpsideDown {
-                Text("Turn 3DS upside down during level up.")
+                if let partySpeciesName = viewModel.localizedPartySpeciesName {
+                    Text("Party must have: \(partySpeciesName)")
+                }
+                if let partyType = viewModel.localizedPartyTypeName {
+                    Text("Party must have type: \(partyType)")
+                }
+                if let relativePhysicalStats = viewModel.evolutionDetail.relativePhysicalStats {
+                    if relativePhysicalStats == 1 {
+                        Text("Required stat: Attack > Defense")
+                    } else if relativePhysicalStats == 0 {
+                        Text("Required stat: Attack = Defense")
+                    } else if relativePhysicalStats == -1 {
+                        Text("Required stat: Attack < Defense")
+                    }
+                }
+                if let timeOfDay = viewModel.evolutionDetail.timeOfDay, !timeOfDay.isEmpty {
+                    Text("Evolve during: \(timeOfDay)")
+                }
+                if let tradeSpeciesName = viewModel.localizedTradeSpeciesName {
+                    Text("Trade: \(tradeSpeciesName)")
+                }
+                if viewModel.evolutionDetail.turnUpsideDown {
+                    Text("Turn 3DS upside down during level up.")
+                }
             }
         }
         .task {
@@ -202,8 +204,12 @@ struct EvolutionChainView: View {
                         ProgressView()
                             .frame(width: size, height: size)
                     }
-                    ForEach(viewModel.chainLink.evolutionDetails ?? [], id: \.self) { evolutionDetail in
-                        EvolutionTriggerEventsView(evolutionDetail: evolutionDetail)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack {
+                            ForEach(viewModel.chainLink.evolutionDetails ?? [], id: \.self) { evolutionDetail in
+                                EvolutionTriggerEventsView(evolutionDetail: evolutionDetail)
+                            }
+                        }
                     }
                 }
                 HStack {
@@ -212,6 +218,15 @@ struct EvolutionChainView: View {
                     }
                 }
             }
+            .padding()
+            .background(.white)
+            .cornerRadius(24)
+            .shadow(
+                color: .black.opacity(0.6),
+                radius: 5,
+                x: 0,
+                y: 6
+            )
         }
         .buttonStyle(.plain)
         .task {
