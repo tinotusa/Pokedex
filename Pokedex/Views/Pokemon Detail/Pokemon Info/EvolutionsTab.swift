@@ -49,9 +49,9 @@ struct EvolutionTriggerEventsView: View {
                 "Evolution trigger: \(viewModel.wrappedLocalizedEvolutionTriggerName)",
                 comment: "Evolution trigger is the action that causes the pokemon to evolve."
             )
-            if let item = viewModel.item {
-                item.name
-            }
+//            if let item = viewModel.item {
+//                item.name
+//            }
         }
         .task {
             await viewModel.setUp()
