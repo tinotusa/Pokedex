@@ -140,7 +140,15 @@ struct EvolutionTriggerEventsView: View {
             if let partyType = viewModel.localizedPartyTypeName {
                 Text("Party must have type: \(partyType)")
             }
-            
+            if let relativePhysicalStats = viewModel.evolutionDetail.relativePhysicalStats {
+                if relativePhysicalStats == 1 {
+                    Text("Required stat: Attack > Defense")
+                } else if relativePhysicalStats == 0 {
+                    Text("Required stat: Attack = Defense")
+                } else if relativePhysicalStats == -1 {
+                    Text("Required stat: Attack < Defense")
+                }
+            }
         }
         .task {
             await viewModel.setUp()
