@@ -57,3 +57,14 @@ struct Item: Codable, Hashable, Identifiable {
         case machines
     }
 }
+
+// MARK:
+extension Item: SearchByNameOrID {
+    static func from(name: String) async -> Item? {
+        return try? await PokeAPI.getData(for: Item.self, fromEndpoint: "item/\(name)")
+    }
+    
+    static func from(id: Int) async -> Item? {
+        return await from(name: "\(id)")
+    }
+}
