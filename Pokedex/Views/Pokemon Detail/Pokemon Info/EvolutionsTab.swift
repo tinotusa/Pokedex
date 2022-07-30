@@ -83,24 +83,42 @@ struct EvolutionTriggerEventsView: View {
                 "Evolution trigger: \(viewModel.localizedEvolutionTriggerName ?? "Error")",
                 comment: "Evolution trigger is the action that causes the pokemon to evolve."
             )
-            if let itemName = viewModel.localizedItemName {
-                Text("Item: \(itemName)", comment: "The item required to level up the pokemon.")
+            Group {
+                if let itemName = viewModel.localizedItemName {
+                    Text("Item: \(itemName)", comment: "The item required to level up the pokemon.")
+                }
+                if let gender = viewModel.evolutionDetail.gender {
+                    Text("Gender: \(gender)", comment: "The gender the pokemon must be in inorder to evolve.")
+                }
+                if let heldItemName = viewModel.localizedHeldItemName {
+                    Text("Held item: \(heldItemName)", comment: "The name of the held item.")
+                }
+                if let knownMoveName = viewModel.localizedKnownMoveName {
+                    Text("Known move: \(knownMoveName)")
+                }
+                if let knownMoveTypeName = viewModel.localizedKnownMoveType {
+                    Text("Move type: \(knownMoveTypeName)")
+                }
+                if let locationName = viewModel.localizedLocationName {
+                    Text("Location: \(locationName)")
+                }
+                if let minLevel = viewModel.evolutionDetail.minLevel {
+                    Text("Min level: \(minLevel)")
+                }
+                if let minHappiness = viewModel.evolutionDetail.minHappiness {
+                    Text("Min happiness: \(minHappiness)")
+                }
+                if let minBeauty = viewModel.evolutionDetail.minBeauty {
+                    Text("Min beauty: \(minBeauty)")
+                }
+                if let minAffection = viewModel.evolutionDetail.minAffection {
+                    Text("Min affection: \(minAffection)")
+                }
             }
-            if let gender = viewModel.evolutionDetail.gender {
-                Text("Gender: \(gender)", comment: "The gender the pokemon must be in inorder to evolve.")
+            if viewModel.evolutionDetail.needsOverworldRain {
+                Text("Needs overworld rain.")
             }
-            if let heldItemName = viewModel.localizedHeldItemName {
-                Text("Held item: \(heldItemName)", comment: "The name of the held item.")
-            }
-            if let knownMoveName = viewModel.localizedKnownMoveName {
-                Text("Known move: \(knownMoveName)")
-            }
-            if let knownMoveTypeName = viewModel.localizedKnownMoveType {
-                Text("Move type: \(knownMoveTypeName)")
-            }
-            if let locationName = viewModel.localizedLocationName {
-                Text("Location: \(locationName)")
-            }
+//
         }
         .task {
             await viewModel.setUp()
