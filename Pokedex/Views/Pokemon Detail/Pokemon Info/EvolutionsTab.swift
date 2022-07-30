@@ -16,6 +16,8 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
     @Published private(set) var localizedKnownMoveType: String?
     @Published private(set) var localizedLocationName: String?
     @Published private(set) var localizedPartySpeciesName: String?
+    @Published private(set) var localizedPartyTypeName: String?
+    
     init(evolutionDetail: EvolutionDetail) {
         self.evolutionDetail = evolutionDetail
     }
@@ -29,6 +31,7 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
         localizedKnownMoveType = await getLocalizedKnowMoveType()
         localizedLocationName = await getLocalizedLocationName()
         localizedPartySpeciesName = await getLocalizedPartySpeciesName()
+        localizedPartyTypeName = await getLocalizedPartyTypeName()
     }
     
     func getLocalizedTriggerName() async -> String? {
@@ -74,6 +77,12 @@ final class EvolutionTriggerEventsViewViewModel: ObservableObject {
         guard let partySpecies = evolutionDetail.partySpecies else { return nil }
         let pokemonSpecies = await PokemonSpecies.from(name: partySpecies.name)
         return pokemonSpecies?.names.localizedName
+    }
+    
+    func getLocalizedPartyTypeName() async -> String? {
+        guard let partyType = evolutionDetail.partyType else { return nil }
+        let type = await `Type`.from(name: partyType.name)
+        return type?.names.localizedName
     }
 }
 
@@ -125,9 +134,13 @@ struct EvolutionTriggerEventsView: View {
             if viewModel.evolutionDetail.needsOverworldRain {
                 Text("Needs overworld rain.")
             }
-            if let pokemonSpecies = viewModel.localizedPartySpeciesName {
-                Text("Party must have: \(pokemonSpecies)")
+            if let partySpeciesName = viewModel.localizedPartySpeciesName {
+                Text("Party must have: \(partySpeciesName)")
             }
+            if let partyType = viewModel.localizedPartyTypeName {
+                Text("Party must have type: \(partyType)")
+            }
+            
         }
         .task {
             await viewModel.setUp()
