@@ -90,8 +90,14 @@ extension AboutTabViewModel {
         guard let species = pokemonSpecies else {
             return "Error"
         }
-        let description = species.names.localizedName
-        return description ?? "No description available."
+        let availableLangaugeCodes = species.flavorTextEntries.map { entry in
+            entry.language.name
+        }
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLangaugeCodes, forPreferences: nil).first!
+        let flavorText = species.flavorTextEntries.first { entry in
+            entry.language.name == deviceLanguageCode
+        }
+        return flavorText?.flavorText ?? String(localized: "No description available.")
     }
 }
 
