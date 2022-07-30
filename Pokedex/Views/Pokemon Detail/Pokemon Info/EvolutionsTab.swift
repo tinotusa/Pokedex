@@ -163,6 +163,9 @@ struct EvolutionTriggerEventsView: View {
             if let tradeSpeciesName = viewModel.localizedTradeSpeciesName {
                 Text("Trade: \(tradeSpeciesName)")
             }
+            if viewModel.evolutionDetail.turnUpsideDown {
+                Text("Turn 3DS upside down during level up.")
+            }
         }
         .task {
             await viewModel.setUp()
