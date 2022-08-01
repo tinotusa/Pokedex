@@ -36,10 +36,12 @@ struct EvolutionChainCardView: View {
                         ProgressView()
                             .frame(width: size, height: size)
                     }
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack {
-                            ForEach(viewModel.chainLink.evolutionDetails ?? [], id: \.self) { evolutionDetail in
-                                EvolutionRequirementsSidebarView(evolutionDetail: evolutionDetail)
+                    if let evolutionDetails = viewModel.chainLink.evolutionDetails, !evolutionDetails.isEmpty {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack {
+                                ForEach(viewModel.chainLink.evolutionDetails ?? [], id: \.self) { evolutionDetail in
+                                    EvolutionRequirementsSidebarView(evolutionDetail: evolutionDetail)
+                                }
                             }
                         }
                     }
@@ -50,6 +52,7 @@ struct EvolutionChainCardView: View {
                     }
                 }
             }
+            .frame(maxWidth: .infinity)
             .padding()
             .background(.white)
             .cornerRadius(24)
