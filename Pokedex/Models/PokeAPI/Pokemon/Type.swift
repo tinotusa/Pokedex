@@ -47,6 +47,7 @@ extension `Type`: SearchByNameOrID {
     static func from(name: String) async -> `Type`? {
         return try? await PokeAPI.getData(for: `Type`.self, fromEndpoint: "type/\(name)")
     }
+    
     static func from(id: Int) async -> `Type`? {
         return await Self.from(name: "\(id)")
     }

@@ -12,9 +12,9 @@ struct EvolutionChainCardView: View {
     let size = 170.0
     @StateObject var viewModel: EvolutionChainViewViewModel
     
-    init(chain: ChainLink) {
+    init(chain: ChainLink, pokemon: Pokemon) {
         self.chain = chain
-        _viewModel = StateObject(wrappedValue: EvolutionChainViewViewModel(chainLink: chain))
+        _viewModel = StateObject(wrappedValue: EvolutionChainViewViewModel(chainLink: chain, pokemon: pokemon))
     }
     
     var body: some View {
@@ -47,7 +47,7 @@ struct EvolutionChainCardView: View {
                     }
                 }
                 HStack {
-                    ForEach(viewModel.pokemon?.types ?? [], id: \.self) { type in
+                    ForEach(viewModel.pokemon.types, id: \.self) { type in
                         PokemonTypeTag(name: type.type.name)
                     }
                 }
@@ -73,7 +73,7 @@ struct EvolutionChainCardView: View {
 struct EvolutionChainCardView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            EvolutionChainCardView(chain: .example)
+            EvolutionChainCardView(chain: .example, pokemon: .example)
         }
     }
 }

@@ -47,6 +47,7 @@ struct PokemonRow: View {
                     .scaledToFit()
             } placeholder: {
                 ProgressView().progressViewStyle(.circular)
+                    .frame(width: imageHeight, height: imageHeight)
             }
             VStack(alignment: .leading) {
                 Text(localizedPokemonName.capitalized)

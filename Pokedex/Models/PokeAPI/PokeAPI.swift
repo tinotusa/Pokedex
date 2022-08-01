@@ -32,7 +32,7 @@ final class PokeAPI: ObservableObject {
                 throw PokeAPIError.failedToGetHTTPURLResponse
             }
             guard (200 ..< 299).contains(httpResponse.statusCode) else {
-                print("Error server status code: \(httpResponse.statusCode)")
+                print("Error server status code: \(httpResponse.statusCode). From endpoint: \(endpoint)")
                 throw PokeAPIError.invalidResponseStatusCode(code: httpResponse.statusCode)
             }
             let decodedData = try JSONDecoder().decode(T.self, from: data)

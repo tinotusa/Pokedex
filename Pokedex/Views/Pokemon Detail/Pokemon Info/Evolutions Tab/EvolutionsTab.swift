@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct EvolutionsTab: View {
+    private let pokemon: Pokemon
     @StateObject private var viewModel: EvolutionsTabViewModel
     
     init(pokemon: Pokemon) {
+        self.pokemon = pokemon
         _viewModel = StateObject(wrappedValue: EvolutionsTabViewModel(pokemon: pokemon))
     }
     
@@ -18,7 +20,7 @@ struct EvolutionsTab: View {
         VStack(alignment: .leading, spacing: 20) {
             if let evolutionChain = viewModel.evolutionChain {
                 ForEach(evolutionChain.allEvolutions(), id: \.self) { chain in
-                    EvolutionChainCardView(chain: chain)
+                    EvolutionChainCardView(chain: chain, pokemon: pokemon)
                 }
             } else {
                 Text(
