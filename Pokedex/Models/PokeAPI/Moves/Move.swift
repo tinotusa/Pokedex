@@ -13,7 +13,7 @@ struct Move: Codable, Hashable, Identifiable {
     /// The name for this resource.
     let name: String
     /// The percent value of how likely this move is to be successful.
-    let accuracy: Int
+    let accuracy: Int?
     /// The percent value of how likely it is this moves effect will happen.
     let effectChance: Int?
     /// Power points. The number of times this move can be used.
@@ -22,13 +22,13 @@ struct Move: Codable, Hashable, Identifiable {
     let priority: Int
     /// The base power of this move with a value of 0 if it does not have a base power.
     /// See [Bulbapedia](http://bulbapedia.bulbagarden.net/wiki/Priority) for greater detail.
-    let power: Int
+    let power: Int?
     /// A detail of normal and super contest combos that require this move.
-    let contestCombos: ContestComboSets
+    let contestCombos: ContestComboSets?
     /// The type of appeal this move gives a Pokémon when used in a contest.
-    let contestType: NamedAPIResource
+    let contestType: NamedAPIResource?
     /// The effect the move has when used in a contest.
-    let contestEffect: APIResource
+    let contestEffect: APIResource?
     /// The type of damage the move inflicts on the target, e.g. physical.
     let damageClass: NamedAPIResource
     /// The effect of this move listed in different languages.
@@ -52,7 +52,7 @@ struct Move: Codable, Hashable, Identifiable {
     /// A list of stats this moves effects and how much it effects them.
     let statChanges: [MoveStatChange]
     /// The effect the move has when used in a super contest.
-    let superContestEffect: APIResource
+    let superContestEffect: APIResource?
     /// The type of target that will receive the effects of the attack.
     let target: NamedAPIResource
     /// The elemental type of this move.
@@ -89,10 +89,25 @@ struct Move: Codable, Hashable, Identifiable {
 // MARK: - SearchByNameOrID conformance
 extension Move: SearchByNameOrID {
     static func from(name: String) async -> Move? {
-        return try? await PokeAPI.getData(for: Move.self, fromEndpoint: "move\(name)")
+        return try? await PokeAPI.getData(for: Move.self, fromEndpoint: "move/\(name)")
     }
     
     static func from(id: Int) async -> Move? {
         return await from(name: "\(id)")
+    }
+}
+
+// MARK: - Comparable conformance
+extension Move: Comparable {
+    static func < (lhs: Move, rhs: Move) -> Bool {
+        lhs.id < rhs.id
+    }
+}
+
+
+// MARK: - Helpers
+extension Move {
+    static var example: Move {
+        Bundle.main.getData(for: Move.self, fromFileNamed: "Move_ExampleJSON")
     }
 }
