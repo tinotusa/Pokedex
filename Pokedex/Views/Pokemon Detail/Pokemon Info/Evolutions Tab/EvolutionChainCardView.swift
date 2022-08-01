@@ -27,15 +27,8 @@ struct EvolutionChainCardView: View {
                     }
                 }
                 HStack{
-                    AsyncImage(url: viewModel.pokemonImageURL) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: size, height: size)
-                    } placeholder: {
-                        ProgressView()
-                            .frame(width: size, height: size)
-                    }
+                    PokemonImage(url: viewModel.pokemonImageURL, imageSize: size)
+                    
                     if let evolutionDetails = viewModel.chainLink.evolutionDetails, !evolutionDetails.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {

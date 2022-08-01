@@ -39,7 +39,7 @@ struct PokemonDetail: View {
                 
                 pokemonInfoBar
                 
-                pokemonImage
+                PokemonImage(url: viewModel.pokemon.officialArtWork, imageSize: size)
                 
                 VStack {
                     tabHeader
@@ -148,23 +148,6 @@ private extension PokemonDetail {
                         .fixedSize(horizontal: false, vertical: true)
                         .contentShape(Rectangle())
                 }
-            }
-        }
-    }
-    
-    var pokemonImage: some View {
-        AsyncImage(url: viewModel.pokemonImageURL) { image in
-            image
-                .resizable()
-                .frame(width: size, height: size)
-                .scaledToFit()
-        } placeholder: {
-            ZStack {
-                Color.blue
-                    .opacity(0.7)
-                    .frame(width: size, height: size)
-                ProgressView()
-                    .progressViewStyle(.circular)
             }
         }
     }
