@@ -8,43 +8,34 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var searchText = "dragonite"
-    @State private var pokemon: [Pokemon] = []
+    @State private var selectedTab: Tab = .home
+    
+    enum Tab {
+        case home
+        case settings
+    }
     
     var body: some View {
-        NavigationStack {
-            VStack {
-                SearchBar(placeholder: "Search for pokemon", text: $searchText, results: $pokemon)
-                ScrollView(showsIndicators: false) {
-                    ForEach(pokemon) { pokemon in
-                        NavigationLink(value: pokemon) {
-                            PokemonRow(pokemon: pokemon)
-                        }
-                   }
+        TabView(selection: $selectedTab) {
+            HomeView()
+                .tag(Tab.home)
+                .tabItem {
+                    Label("Home", systemImage: "house")
                 }
-                .scrollDismissesKeyboard(.interactively)
-            }
-            .padding()
-            .background {
-                Color.backgroundColour
-                    .ignoresSafeArea()
-            }
-            .overlay {
-                if searchText.isEmpty && pokemon.isEmpty {
-                    Text("Search for a pokemon.")
-                        .foregroundColor(.secondary)
+            
+            SettingsView()
+                .tag(Tab.settings)
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape")
                 }
-            }
-            .navigationDestination(for: Pokemon.self) { pokemon in
-                PokemonDetail(pokemon: pokemon)
-            }
         }
+        
+        
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
-            .environmentObject(PokeAPI())
     }
 }
