@@ -14,7 +14,7 @@ struct EvolutionChainCardView: View {
     
     init(chain: ChainLink, pokemon: Pokemon) {
         self.chain = chain
-        _viewModel = StateObject(wrappedValue: EvolutionChainViewViewModel(chainLink: chain, pokemon: pokemon))
+        _viewModel = StateObject(wrappedValue: EvolutionChainViewViewModel(chainLink: chain))
     }
     
     var body: some View {
@@ -28,7 +28,6 @@ struct EvolutionChainCardView: View {
                 }
                 HStack{
                     PokemonImage(url: viewModel.pokemonImageURL, imageSize: size)
-                    
                     if let evolutionDetails = viewModel.chainLink.evolutionDetails, !evolutionDetails.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
@@ -40,7 +39,7 @@ struct EvolutionChainCardView: View {
                     }
                 }
                 HStack {
-                    ForEach(viewModel.pokemon.types, id: \.self) { type in
+                    ForEach(viewModel.pokemon?.types ?? [], id: \.self) { type in
                         PokemonTypeTag(name: type.type.name)
                     }
                 }
@@ -57,9 +56,6 @@ struct EvolutionChainCardView: View {
             )
         }
         .buttonStyle(.plain)
-        .task {
-            await viewModel.setUp()
-        }
     }
 }
 

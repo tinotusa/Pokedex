@@ -10,6 +10,7 @@ import SwiftUI
 struct EvolutionsTab: View {
     private let pokemon: Pokemon
     @StateObject private var viewModel: EvolutionsTabViewModel
+    @State private var evolutionChain: EvolutionChain?
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
@@ -18,7 +19,7 @@ struct EvolutionsTab: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            if let evolutionChain = viewModel.evolutionChain {
+            if let evolutionChain = viewModel.evolutionChain, !evolutionChain.chain.evolvesTo.isEmpty {
                 ForEach(evolutionChain.allEvolutions(), id: \.self) { chain in
                     EvolutionChainCardView(chain: chain, pokemon: pokemon)
                 }
@@ -29,9 +30,6 @@ struct EvolutionsTab: View {
                 )
                 .foregroundColor(.secondary)
             }
-        }
-        .task {
-            await viewModel.setUp()
         }
     }
 }

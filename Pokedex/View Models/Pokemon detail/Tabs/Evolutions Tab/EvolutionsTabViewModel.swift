@@ -12,16 +12,15 @@ final class EvolutionsTabViewModel: ObservableObject {
     @Published private(set) var pokemonSpecies: PokemonSpecies?
     @Published private(set) var evolutionChain: EvolutionChain?
     
+    @MainActor
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
-    }
-    
-    @MainActor
-    func setUp() async {
-        pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
-        guard let evolutionChainURL = pokemonSpecies?.evolutionChain?.url else {
-            return
+        Task {
+            pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
+            guard let evolutionChainURL = pokemonSpecies?.evolutionChain?.url else {
+                return
+            }
+            evolutionChain = try? await PokeAPI.getData(for: EvolutionChain.self, url: evolutionChainURL)
         }
-        evolutionChain = try? await PokeAPI.getData(for: EvolutionChain.self, url: evolutionChainURL)
     }
 }
