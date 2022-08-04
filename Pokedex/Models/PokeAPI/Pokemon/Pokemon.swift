@@ -50,7 +50,7 @@ struct Pokemon: Identifiable, Hashable {
 // MARK: - SearchByNameOrID conformance
 extension Pokemon: SearchByNameOrID {
     static func from(name: String) async -> Pokemon? {
-        try? await PokeAPI.getData(for: Pokemon.self, fromEndpoint: "pokemon/\(name)")
+        try? await PokeAPI.shared.getData(for: Pokemon.self, fromEndpoint: "pokemon/\(name)")
     }
     
     static func from(id: Int) async -> Pokemon? {
@@ -98,10 +98,10 @@ extension Pokemon {
     }
 }
 
-// MARK: - Equatable conformance
-extension Pokemon: Equatable {
-    static func ==(lhs: Pokemon, rhs: Pokemon) -> Bool {
-        lhs.id == rhs.id
+// MARK: - Comparable conformance
+extension Pokemon: Comparable {
+    static func <(lhs: Pokemon, rhs: Pokemon) -> Bool {
+        lhs.id < rhs.id
     }
 }
 

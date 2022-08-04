@@ -25,7 +25,7 @@ struct Stat: Codable, Identifiable {
 
 extension Stat: SearchByNameOrID {
     static func from(name: String) async -> Stat? {
-        try? await PokeAPI.getData(for: Stat.self, fromEndpoint: "stat/\(name)")
+        try? await PokeAPI.shared.getData(for: Stat.self, fromEndpoint: "stat/\(name)")
     }
     
     static func from(id: Int) async -> Stat? {

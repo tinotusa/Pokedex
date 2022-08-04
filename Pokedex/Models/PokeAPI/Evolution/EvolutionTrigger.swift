@@ -28,7 +28,7 @@ struct EvolutionTrigger: Codable, Hashable, Identifiable {
 // MARK: SearchByNameOrID conformance
 extension EvolutionTrigger: SearchByNameOrID {
     static func from(name: String) async -> EvolutionTrigger? {
-        return try? await PokeAPI.getData(for: EvolutionTrigger.self, fromEndpoint: "evolution-trigger/\(name)")
+        return try? await PokeAPI.shared.getData(for: EvolutionTrigger.self, fromEndpoint: "evolution-trigger/\(name)")
     }
     
     static func from(id: Int) async -> EvolutionTrigger? {

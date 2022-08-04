@@ -160,7 +160,7 @@ extension PokemonSpecies: SearchByNameOrID {
         if let index = name.firstIndex(of: "-") {
             name = String(name[name.startIndex ..< index])
         }
-        return try? await PokeAPI.getData(for: PokemonSpecies.self, fromEndpoint: "pokemon-species/\(name)")
+        return try? await PokeAPI.shared.getData(for: PokemonSpecies.self, fromEndpoint: "pokemon-species/\(name)")
     }
     
     static func from(id: Int) async -> PokemonSpecies? {

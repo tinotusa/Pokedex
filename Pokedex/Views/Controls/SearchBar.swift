@@ -10,15 +10,20 @@ import SwiftUI
 struct SearchBar: View {
     let placeholder: LocalizedStringKey
     @Binding var text: String
-    @Binding var results: [Pokemon]
-    @EnvironmentObject var pokeAPI: PokeAPI
+    let action: (() -> Void)?
+    
+    init(placeholder: LocalizedStringKey, text: Binding<String>, action: (() -> Void)? = nil) {
+        self.placeholder = placeholder
+        _text = text
+        self.action = action
+    }
     
     var body: some View {
         HStack {
             TextField(placeholder, text: $text, prompt: Text(placeholder))
                 .autocorrectionDisabled(true)
                 .onSubmit {
-                    search()
+                    action?()
                 }
             if !text.isEmpty {
                 Button {
@@ -33,7 +38,7 @@ struct SearchBar: View {
             Divider()
                 .frame(maxHeight: 30)
             Button {
-                search()
+                action?()
             } label: {
                 Image(systemName: "magnifyingglass")
                     .tint(.grayTextColour)
@@ -44,33 +49,10 @@ struct SearchBar: View {
         .background(Color.searchBarColour)
         .cornerRadius(14)
     }
-   
-}
-
-// MARK: - Functions
-private extension SearchBar {
-    func search() {
-        Task {
-            guard let pokemon = await Pokemon.from(name: text.lowercased()) else {
-                return
-            }
-            if results.contains(pokemon) {
-                return
-            }
-            if results.isEmpty {
-                results.insert(pokemon, at: 0)
-            } else {
-                withAnimation {
-                    results.insert(pokemon, at: 0)
-                }
-            }
-            text = ""
-        }
-    }
 }
 
 struct SearchBar_Previews: PreviewProvider {
     static var previews: some View {
-        SearchBar(placeholder: "Placeholder", text: .constant(""), results: .constant([]))
+        SearchBar(placeholder: "Placeholder", text: .constant(""))
     }
 }

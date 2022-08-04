@@ -52,6 +52,5 @@ struct PokemonRow_Previews: PreviewProvider {
     
     static var previews: some View {
         PokemonRow(pokemon: pokemon)
-            .environmentObject(PokeAPI())
     }
 }

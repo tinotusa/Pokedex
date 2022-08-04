@@ -9,12 +9,11 @@ import SwiftUI
 
 @main
 struct PokedexApp: App {
-    @StateObject var pokeAPI = PokeAPI()
-    
+    @StateObject var imageLoader = ImageLoader()
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environmentObject(pokeAPI)
+                .environmentObject(imageLoader)
         }
     }
 }

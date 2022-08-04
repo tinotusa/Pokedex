@@ -48,6 +48,6 @@ extension EvolutionChain {
 // MARK: - SearchByID Conformance
 extension EvolutionChain: SearchByID {
     static func from(id: Int) async -> EvolutionChain? {
-        return try? await PokeAPI.getData(for: EvolutionChain.self, fromEndpoint: "evolution-chain/\(id)")
+        return try? await PokeAPI.shared.getData(for: EvolutionChain.self, fromEndpoint: "evolution-chain/\(id)")
     }
 }

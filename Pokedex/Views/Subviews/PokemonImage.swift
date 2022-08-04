@@ -17,21 +17,26 @@ struct PokemonImage: View {
     }
     
     var body: some View {
-        AsyncImage(url: url) { phase in
-            if let image = phase.image {
-                image
-                    .resizable()
-                    .scaledToFit()
-            } else if let _ = phase.error {
-                ZStack {
-                    Color.red
-                    Text("Error")
-                        .foregroundColor(.textColour)
-                }
-            } else {
-                ProgressView()
-            }
+        ImageLoaderView(url: url) { image in
+            image
+                .resizable()
+                .scaledToFit()
         }
+//        AsyncImage(url: url) { phase in
+//            if let image = phase.image {
+//                image
+//                    .resizable()
+//                    .scaledToFit()
+//            } else if let _ = phase.error {
+//                ZStack {
+//                    Color.red
+//                    Text("Error")
+//                        .foregroundColor(.textColour)
+//                }
+//            } else {
+//                ProgressView()
+//            }
+//        }
         .frame(width: imageSize, height: imageSize)
     }
 }
@@ -39,5 +44,6 @@ struct PokemonImage: View {
 struct PokemonImage_Previews: PreviewProvider {
     static var previews: some View {
         PokemonImage(url: URL(string: "omegalul.com/test.png"))
+            .environmentObject(ImageLoader())
     }
 }

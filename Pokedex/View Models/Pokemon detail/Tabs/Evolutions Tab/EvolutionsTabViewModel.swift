@@ -20,7 +20,7 @@ final class EvolutionsTabViewModel: ObservableObject {
             guard let evolutionChainURL = pokemonSpecies?.evolutionChain?.url else {
                 return
             }
-            evolutionChain = try? await PokeAPI.getData(for: EvolutionChain.self, url: evolutionChainURL)
+            evolutionChain = try? await PokeAPI.shared.getData(for: EvolutionChain.self, url: evolutionChainURL)
         }
     }
 }

@@ -30,7 +30,7 @@ extension EggGroup: Codable {
 
 extension EggGroup: SearchByNameOrID {
     static func from(name: String) async -> EggGroup? {
-        try? await PokeAPI.getData(for: EggGroup.self, fromEndpoint: "egg-group/\(name)")
+        try? await PokeAPI.shared.getData(for: EggGroup.self, fromEndpoint: "egg-group/\(name)")
     }
     
     static func from(id: Int) async -> EggGroup? {

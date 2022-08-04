@@ -89,7 +89,7 @@ struct Move: Codable, Hashable, Identifiable {
 // MARK: - SearchByNameOrID conformance
 extension Move: SearchByNameOrID {
     static func from(name: String) async -> Move? {
-        return try? await PokeAPI.getData(for: Move.self, fromEndpoint: "move/\(name)")
+        return try? await PokeAPI.shared.getData(for: Move.self, fromEndpoint: "move/\(name)")
     }
     
     static func from(id: Int) async -> Move? {

@@ -17,7 +17,7 @@ struct Ability: Codable {
 
 extension Ability: SearchByNameOrID {
     static func from(name: String) async -> Ability? {
-        try? await PokeAPI.getData(for: Ability.self, fromEndpoint: "ability/\(name)")
+        try? await PokeAPI.shared.getData(for: Ability.self, fromEndpoint: "ability/\(name)")
     }
     static func from(id: Int) async -> Ability? {
         return await Self.from(name: "\(id)")

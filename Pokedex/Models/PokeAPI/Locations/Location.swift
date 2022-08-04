@@ -34,7 +34,7 @@ struct Location: Codable, Hashable, Identifiable {
 // MARK: SearchByNameOrID conformance
 extension Location: SearchByNameOrID {
     static func from(name: String) async -> Location? {
-        return try? await PokeAPI.getData(for: Location.self, fromEndpoint: "location/\(name)")
+        return try? await PokeAPI.shared.getData(for: Location.self, fromEndpoint: "location/\(name)")
     }
     
     static func from(id: Int) async -> Location? {

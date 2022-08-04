@@ -28,11 +28,13 @@ struct EvolutionChainCardView: View {
                 }
                 HStack{
                     PokemonImage(url: viewModel.pokemonImageURL, imageSize: size)
+                        .id(UUID())
                     if let evolutionDetails = viewModel.chainLink.evolutionDetails, !evolutionDetails.isEmpty {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
                                 ForEach(viewModel.chainLink.evolutionDetails ?? [], id: \.self) { evolutionDetail in
                                     EvolutionRequirementsSidebarView(evolutionDetail: evolutionDetail)
+                                        
                                 }
                             }
                         }
