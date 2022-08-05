@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// TODO: - Consider caching the images aswell (either use cache or look into implementing a NSCache subclass)
 final class ImageLoader: ObservableObject {
     private var cache = [URL: Data]()
     

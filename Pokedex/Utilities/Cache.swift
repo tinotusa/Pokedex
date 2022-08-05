@@ -51,6 +51,7 @@ final class Cache {
         values[item.filename] = nil
     }
 
+    // TODO: - Check if its necessary to load everything at the begining (what if there are 1000+ saved items?)
     func load() {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         do {
