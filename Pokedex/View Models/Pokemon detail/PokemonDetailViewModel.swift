@@ -7,23 +7,27 @@
 
 import SwiftUI
 
-
+@MainActor
 final class PokemonDetailViewModel: ObservableObject {
     @Published var pokemon: Pokemon
     @Published private(set) var pokemonSpecies: PokemonSpecies?
     @Published private(set) var eggGroups = [EggGroup]()
     @Published private(set) var types = [`Type`]()
+    @Published private(set) var localizedPokemonName = ""
+    @Published private(set) var pokemonSeedType = ""
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
-    }
-    
-    /// Sets up the model.
-    @MainActor
-    func setUp() async {
-        pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
-        types = await getTypes()
-        eggGroups = await pokemonSpecies?.eggGroups() ?? []
+        Task {
+            pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
+            types = await getTypes()
+            eggGroups = await pokemonSpecies?.eggGroups() ?? []
+            localizedPokemonName = await pokemon.localizedName()
+            guard let species = await PokemonSpecies.from(name: pokemon.name) else {
+                return
+            }
+            pokemonSeedType = species.seedType
+        }
     }
 }
 

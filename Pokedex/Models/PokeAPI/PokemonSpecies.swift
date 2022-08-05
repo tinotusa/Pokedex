@@ -156,10 +156,6 @@ extension PokemonSpecies {
 // MARK: - SearchByNameOrID conformance
 extension PokemonSpecies: SearchByNameOrID {
     static func from(name: String) async -> PokemonSpecies? {
-        var name = name
-        if let index = name.firstIndex(of: "-") {
-            name = String(name[name.startIndex ..< index])
-        }
         return try? await PokeAPI.shared.getData(for: PokemonSpecies.self, fromEndpoint: "pokemon-species/\(name)")
     }
     

@@ -21,8 +21,6 @@ struct PokemonDetail: View {
     @State private var selectedTab: InfoTab = .about
     @StateObject private var viewModel: PokemonDetailViewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var localizedPokemonName = ""
-    @State private var pokemonSeedType = ""
     @Namespace private var namespace
     private let animationID = 1
     private let size = 250.0
@@ -32,47 +30,35 @@ struct PokemonDetail: View {
     }
     
     var body: some View {
-        VStack {
+        ScrollView(showsIndicators: false) {
             header
-            
-            ScrollView(showsIndicators: false) {
-                
-                pokemonInfoBar
-                
-                PokemonImage(url: viewModel.pokemon.officialArtWork, imageSize: size)
-                
-                VStack {
-                    tabHeader
-                        .padding(.vertical)
-                    switch selectedTab {
-                    case .about: AboutTab(pokemon: viewModel.pokemon)
-                    case .stats: StatsTab(pokemon: viewModel.pokemon)
-                    case .evolutions: EvolutionsTab(pokemon: viewModel.pokemon)
-                    case .moves: MovesTab(pokemon: viewModel.pokemon)
-                    }
+
+            pokemonInfoBar
+
+            PokemonImage(url: viewModel.pokemon.officialArtWork, imageSize: size)
+
+            VStack {
+                tabHeader
+                    .padding(.vertical)
+                switch selectedTab {
+                case .about: AboutTab(pokemon: viewModel.pokemon)
+                case .stats: StatsTab(pokemon: viewModel.pokemon)
+                case .evolutions: EvolutionsTab(pokemon: viewModel.pokemon)
+                case .moves: MovesTab(pokemon: viewModel.pokemon)
                 }
-                .padding()
-                .background {
-                    Color.white
-                        .ignoresSafeArea()
-                }
-                .clipShape(CustomRoundedRectangle(corners: [.allCorners], radius: 24))
-                .shadow(color: .black.opacity(0.5), radius: 5, x: 0, y: 5)
             }
-            .task {
-                await viewModel.setUp()
-                localizedPokemonName = await viewModel.pokemon.localizedName()
-                guard let species = await PokemonSpecies.from(name: viewModel.pokemon.name) else {
-                    return
-                }
-                pokemonSeedType = species.seedType
+            .padding()
+            .background {
+                Color.white
             }
-            .toolbar(.hidden)
+            .clipShape(CustomRoundedRectangle(corners: [.allCorners], radius: 24))
+            .shadow(color: .black.opacity(0.5), radius: 5, x: 0, y: 5)
         }
+        .toolbar(.hidden)
         .background {
             Rectangle()
                 .fill(viewModel.pokemon.primaryTypeColour.gradient)
-                .ignoresSafeArea()
+                .ignoresSafeArea(edges: .top)
         }
     }
     
@@ -86,7 +72,7 @@ private extension PokemonDetail {
     var pokemonInfoBar: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(localizedPokemonName)
+                Text(viewModel.localizedPokemonName)
                     .font(.largeTitle)
                     .bold()
                 HStack {
@@ -99,7 +85,7 @@ private extension PokemonDetail {
             VStack(alignment: .trailing) {
                 Text(verbatim: "#\(String(format: "%03d", viewModel.pokemon.id))")
                     .font(.title)
-                Text(pokemonSeedType)
+                Text(viewModel.pokemonSeedType)
                     .font(.title2)
             }
         }
@@ -156,5 +142,6 @@ private extension PokemonDetail {
 struct PokemonDetail_Previews: PreviewProvider {
     static var previews: some View {
         PokemonDetail(pokemon: .example)
+            .environmentObject(ImageLoader())
     }
 }

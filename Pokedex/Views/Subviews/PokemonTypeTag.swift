@@ -18,6 +18,7 @@ struct PokemonTypeTag: View {
     
     var body: some View {
         Text(localizedName ?? name.capitalized)
+            .lineLimit(1)
             .padding(.horizontal)
             .background(Color(name))
             .cornerRadius(14)
@@ -37,6 +38,10 @@ private extension PokemonTypeTag {
 
 struct PokemonTypeTag_Previews: PreviewProvider {
     static var previews: some View {
-        PokemonTypeTag(name: "bug")
+        HStack {
+            ForEach(["bug", "normal", "fire", "flying", "ghost"], id: \.self) { typeName in
+                PokemonTypeTag(name: typeName)
+            }
+        }
     }
 }

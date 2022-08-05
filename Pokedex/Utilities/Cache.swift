@@ -10,25 +10,43 @@ import Foundation
 final class Cache {
     private var values = [String: Data]()
     
-    init() {
-        load()
-    }
-    func sanitizeFilename(name: String) -> String {
+    private func sanitizeFilename(name: String) -> String {
         return name.replacingOccurrences(of: "/", with: "-")
     }
     
     func get<T: Codable>(name: String, forType type: T.Type) -> T? {
-        let name = sanitizeFilename(name: name)
-        guard let itemData = values[name] else {
-            return nil
+        let filename = sanitizeFilename(name: name)
+        if values[filename] == nil {
+            // load from disk
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+            let url = documentsDirectory.appendingPathComponent(filename)
+            if !FileManager.default.fileExists(atPath: url.path()) {
+                print("File name: \(filename) doesn't exist")
+                return nil
+            }
+            do {
+                let data = try Data(contentsOf: url)
+                // add to values
+                values[filename] = data
+                
+                // decode
+                let decodedData = try JSONDecoder().decode(type, from: values[filename]!)
+                
+                // return value
+                return decodedData
+            } catch {
+                print("Error in \(#function)\n\(error)")
+            }
         }
+        
         do {
-            let decodedData = try JSONDecoder().decode(type, from: itemData)
+            let decodedData = try JSONDecoder().decode(type, from: values[filename]!)
             print("Getting data from filename: \(name)")
             return decodedData
         } catch {
             print("Error in \(#function)\n\(error.localizedDescription)")
         }
+        
         return nil
     }
 
@@ -49,22 +67,6 @@ final class Cache {
     
     func remove(item: Cachable) {
         values[item.filename] = nil
-    }
-
-    // TODO: - Check if its necessary to load everything at the begining (what if there are 1000+ saved items?)
-    func load() {
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        do {
-            let contents = try FileManager.default.contentsOfDirectory(at: documentsDirectory, includingPropertiesForKeys: nil)
-            for url in contents {
-                let itemURL = documentsDirectory.appendingPathComponent(url.lastPathComponent)
-                let data = try Data(contentsOf: itemURL)
-                values[url.lastPathComponent] = data
-                print("LOADED filename: \(url.lastPathComponent) with data: \(data)")
-            }
-        } catch {
-            print("error: \(error)")
-        }
     }
 
     func save() {
