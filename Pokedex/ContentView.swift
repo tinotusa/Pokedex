@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab: Tab = .home
-    
+    @Environment(\.scenePhase) var scenePhase
     enum Tab {
         case home
         case settings
@@ -29,8 +29,12 @@ struct ContentView: View {
                     Label("Settings", systemImage: "gearshape")
                 }
         }
-        
-        
+        .onChange(of: scenePhase) { scenePhase in
+            if scenePhase == .inactive {
+                print("about to save")
+                PokeAPI.shared.saveCache()
+            }
+        }
     }
 }
 

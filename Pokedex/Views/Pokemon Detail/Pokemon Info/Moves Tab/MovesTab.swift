@@ -15,7 +15,7 @@ struct MovesTab: View {
     }
     
     private let columns: [GridItem] = [
-        .init(.adaptive(minimum: 200))
+        .init(.adaptive(minimum: 150))
     ]
     
     var body: some View {
@@ -24,7 +24,6 @@ struct MovesTab: View {
                 ForEach(viewModel.moves) { move in
                     NavigationLink(value: move) {
                         MoveGridItemView(move: move)
-                            .fixedSize(horizontal: false, vertical: true)
                     }
                 }
             }

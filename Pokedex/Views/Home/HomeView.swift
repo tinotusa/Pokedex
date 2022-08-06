@@ -9,13 +9,14 @@ import SwiftUI
 
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewViewModel()
-    
+    @State private var navigationPath = NavigationPath()
+
     let columns: [GridItem] = [
         .init(.adaptive(minimum: 180)),
     ]
     
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navigationPath) {
             VStack {
                 SearchBar(placeholder: "Search for pokemon", text: $viewModel.searchText) {
                     Task {

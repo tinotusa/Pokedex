@@ -13,6 +13,10 @@ final class PokeAPI: ObservableObject {
     static let shared = PokeAPI()
     private var cache = Cache()
     
+    func saveCache() {
+        cache.save()
+    }
+    
     var shouldCacheResults = false
     
     private init() {

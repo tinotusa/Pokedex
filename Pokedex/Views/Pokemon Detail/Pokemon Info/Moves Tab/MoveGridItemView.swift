@@ -13,10 +13,11 @@ struct MoveGridItemView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(move.names.localizedName ?? move.name)
+                .lineLimit(1)
                 .font(.title)
                 .fontWeight(.medium)
                 .foregroundColor(.white)
-            Spacer()
+                .border(.red)
             HStack {
                 PokemonTypeTag(name: move.type.name)
                 Spacer()
@@ -24,8 +25,9 @@ struct MoveGridItemView: View {
                     .font(.title3)
                     .foregroundColor(.textColour)
             }
+            .border(.green)
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
         .background {
             Rectangle()

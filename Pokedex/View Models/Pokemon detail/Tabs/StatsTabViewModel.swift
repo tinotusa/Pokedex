@@ -14,6 +14,7 @@ struct ValuePerStat: Identifiable {
     let id = UUID().uuidString
 }
 
+@MainActor
 final class StatsTabViewModel: ObservableObject {
     @Published private(set) var valuePerStat = [ValuePerStat]()
     @Published private var pokemon: Pokemon
@@ -26,25 +27,23 @@ final class StatsTabViewModel: ObservableObject {
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
-    }
-    
-    @MainActor
-    func setUp() async {
-        hpStat = await getHPStat()
-        attackStat = await getAttackStat()
-        specialAttackStat = await getSpecialAttack()
-        types = await getTypes()
-        doubleDamageTo = await doubleDamageTo()
-        doubleDamageFrom = await doubleDamageFrom()
-        
-        valuePerStat = [
-            .init(name: "HP", value: hp, colour: "hp"),
-            .init(name: "Attack", value: attack, colour: "attack"),
-            .init(name: "Defense", value: defense, colour: "defense"),
-            .init(name: "Sp. Attack", value: specialAttack, colour: "specialAttack"),
-            .init(name: "Sp. Defense", value: specialDefense, colour: "specialDefense"),
-            .init(name: "Speed", value: speed, colour: "speed"),
-        ]
+        Task {
+            hpStat = await getHPStat()
+            attackStat = await getAttackStat()
+            specialAttackStat = await getSpecialAttack()
+            types = await getTypes()
+            doubleDamageTo = await doubleDamageTo()
+            doubleDamageFrom = await doubleDamageFrom()
+            
+            valuePerStat = [
+                .init(name: "HP", value: hp, colour: "hp"),
+                .init(name: "Attack", value: attack, colour: "attack"),
+                .init(name: "Defense", value: defense, colour: "defense"),
+                .init(name: "Sp. Attack", value: specialAttack, colour: "specialAttack"),
+                .init(name: "Sp. Defense", value: specialDefense, colour: "specialDefense"),
+                .init(name: "Speed", value: speed, colour: "speed"),
+            ]
+        }
     }
 }
 

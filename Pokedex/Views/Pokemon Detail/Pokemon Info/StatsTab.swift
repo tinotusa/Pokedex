@@ -39,7 +39,7 @@ struct StatsTab: View {
                 .font(.title2)
                 .fontWeight(.medium) // TODO: Make this into a modifier
                 .padding(.vertical, 2)
-            
+
             if  viewModel.doubleDamageTo.isEmpty {
                 Text("Not strong against any type.")
                     .bold()
@@ -68,9 +68,6 @@ struct StatsTab: View {
         }
         .navigationDestination(for: `Type`.self) { type in
             Text("Looking at: \(type.name)")
-        }
-        .task {
-            await viewModel.setUp()
         }
     }
 }

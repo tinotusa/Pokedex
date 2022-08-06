@@ -81,8 +81,8 @@ final class HomeViewViewModel: ObservableObject {
             let baseAPIURL = URL(string: "https://pokeapi.co/api/v2")!
             var request = URLRequest(url: baseAPIURL.appendingPathComponent("pokemon"))
             let queryItems: [URLQueryItem] = [
-                .init(name: "limit", value: "\(limit)"),
-                .init(name: "offset", value: "0")
+                .init(name: "offset", value: "0"),
+                .init(name: "limit", value: "\(limit)")
             ]
             request.url?.append(queryItems: queryItems)
             let url = request.url

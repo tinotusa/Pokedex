@@ -18,7 +18,7 @@ enum InfoTab: String, CaseIterable, Identifiable {
 
 /// The detail view for a pokemon.
 struct PokemonDetail: View {
-    @State private var selectedTab: InfoTab = .about
+    @State private var selectedTab: InfoTab = .stats
     @StateObject private var viewModel: PokemonDetailViewModel
     @Environment(\.dismiss) private var dismiss
     @Namespace private var namespace
@@ -30,29 +30,41 @@ struct PokemonDetail: View {
     }
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
+        VStack {
             header
-
-            pokemonInfoBar
-
-            PokemonImage(url: viewModel.pokemon.officialArtWork, imageSize: size)
-
-            VStack {
-                tabHeader
-                    .padding(.vertical)
-                switch selectedTab {
-                case .about: AboutTab(pokemon: viewModel.pokemon)
-                case .stats: StatsTab(pokemon: viewModel.pokemon)
-                case .evolutions: EvolutionsTab(pokemon: viewModel.pokemon)
-                case .moves: MovesTab(pokemon: viewModel.pokemon)
+            ScrollView(showsIndicators: false) {
+                VStack {
+                    pokemonInfoBar
+                    
+                    PokemonImage(url: viewModel.pokemon.officialArtWork, imageSize: size)
+                    VStack {
+                        tabHeader
+//                        if selectedTab == .about {
+//                            AboutTab(pokemon: viewModel.pokemon)
+//                        } else if selectedTab == .stats {
+//                            StatsTab(pokemon: viewModel.pokemon)
+//                        } else if selectedTab == .evolutions {
+//                            EvolutionsTab(pokemon: viewModel.pokemon)
+//                        } else if selectedTab == .moves {
+//                            MovesTab(pokemon: viewModel.pokemon)
+//                        }
+                        // TODO: This crashes when you click nav links in the views
+                        switch selectedTab {
+                        case .about: AboutTab(pokemon: viewModel.pokemon)
+                        case .stats: StatsTab(pokemon: viewModel.pokemon)
+                        case .evolutions: EvolutionsTab(pokemon: viewModel.pokemon)
+                        case .moves: MovesTab(pokemon: viewModel.pokemon)
+                        }
+                                        
+                    }
+                    .padding()
+                    .background {
+                        Color.white
+                    }
+                    .clipShape(CustomRoundedRectangle(corners: [.allCorners], radius: 24))
+                    .shadow(color: .black.opacity(0.5), radius: 5, x: 0, y: 5)
                 }
             }
-            .padding()
-            .background {
-                Color.white
-            }
-            .clipShape(CustomRoundedRectangle(corners: [.allCorners], radius: 24))
-            .shadow(color: .black.opacity(0.5), radius: 5, x: 0, y: 5)
         }
         .toolbar(.hidden)
         .background {

@@ -15,9 +15,11 @@ final class PokemonDetailViewModel: ObservableObject {
     @Published private(set) var types = [`Type`]()
     @Published private(set) var localizedPokemonName = ""
     @Published private(set) var pokemonSeedType = ""
+    @Published private(set) var isLoading = false
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
+        isLoading = true
         Task {
             pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
             types = await getTypes()
@@ -27,6 +29,7 @@ final class PokemonDetailViewModel: ObservableObject {
                 return
             }
             pokemonSeedType = species.seedType
+            isLoading = false
         }
     }
 }

@@ -28,7 +28,6 @@ struct ImageLoaderView<Content: View>: View {
                 ProgressView()
             }
         }
-        .id(UUID())
         .task {
             data = await imageLoader.getImage(url: url)
             if let data {
