@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 final class EvolutionRequirementsSidebarViewViewModel: ObservableObject {
     let evolutionDetail: EvolutionDetail
     @Published private(set) var localizedEvolutionTriggerName: String?
@@ -21,19 +22,17 @@ final class EvolutionRequirementsSidebarViewViewModel: ObservableObject {
     
     init(evolutionDetail: EvolutionDetail) {
         self.evolutionDetail = evolutionDetail
-    }
-    
-    @MainActor
-    func setUp() async {
-        localizedEvolutionTriggerName = await getLocalizedTriggerName()
-        localizedItemName = await getLocalizedItemName()
-        localizedHeldItemName = await getLocalizedHeldItemName()
-        localizedKnownMoveName = await getLocalizedKnownMove()
-        localizedKnownMoveType = await getLocalizedKnowMoveType()
-        localizedLocationName = await getLocalizedLocationName()
-        localizedPartySpeciesName = await getLocalizedPartySpeciesName()
-        localizedPartyTypeName = await getLocalizedPartyTypeName()
-        localizedTradeSpeciesName = await getLocalizedTradeSpecies()
+        Task {
+            localizedEvolutionTriggerName = await getLocalizedTriggerName()
+            localizedItemName = await getLocalizedItemName()
+            localizedHeldItemName = await getLocalizedHeldItemName()
+            localizedKnownMoveName = await getLocalizedKnownMove()
+            localizedKnownMoveType = await getLocalizedKnowMoveType()
+            localizedLocationName = await getLocalizedLocationName()
+            localizedPartySpeciesName = await getLocalizedPartySpeciesName()
+            localizedPartyTypeName = await getLocalizedPartyTypeName()
+            localizedTradeSpeciesName = await getLocalizedTradeSpecies()
+        }
     }
     
     func getLocalizedTriggerName() async -> String? {

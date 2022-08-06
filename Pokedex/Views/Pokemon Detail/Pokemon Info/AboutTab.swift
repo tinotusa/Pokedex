@@ -83,9 +83,6 @@ struct AboutTab: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .task {
-            await viewModel.setUp()
-        }
     }
 }
 struct AboutTab_Previews: PreviewProvider {

@@ -14,10 +14,16 @@ final class PokeAPI: ObservableObject {
     private var cache = Cache()
     
     func saveCache() {
-        cache.save()
+        if shouldCacheResults {
+            cache.save()
+        }
     }
     
-    var shouldCacheResults = false
+    var shouldCacheResults = true {
+        didSet {
+            print("changed shouldCacheResults to \(shouldCacheResults)")
+        }
+    }
     
     private init() {
         print("PokeAPI Init called")
@@ -38,7 +44,7 @@ final class PokeAPI: ObservableObject {
             throw PokeAPIError.invalidEndPoint
         }
         let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
-
+        
         if let cachedResult = cache.get(name: endpoint, forType: type) {
             return cachedResult
         }
@@ -55,8 +61,9 @@ final class PokeAPI: ObservableObject {
                 throw PokeAPIError.invalidResponseStatusCode(code: httpResponse.statusCode)
             }
             let decodedData = try JSONDecoder().decode(type, from: data)
-            
-            cache.insert(filename: endpoint, data: data)
+            if shouldCacheResults {
+                cache.insert(filename: endpoint, data: data)
+            }
             return decodedData
             
         } catch {
@@ -86,8 +93,9 @@ final class PokeAPI: ObservableObject {
                 throw PokeAPIError.invalidResponseStatusCode(code: httpResponse.statusCode)
             }
             let decodedData = try JSONDecoder().decode(type, from: data)
-            
-            cache.insert(filename: filename, data: data)
+            if shouldCacheResults {
+                cache.insert(filename: filename, data: data)
+            }
             return decodedData
         } catch {
             print(error)

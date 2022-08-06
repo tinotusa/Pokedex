@@ -82,8 +82,5 @@ struct EvolutionRequirementsSidebarView: View {
                 }
             }
         }
-        .task {
-            await viewModel.setUp()
-        }
     }
 }

@@ -10,6 +10,9 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab: Tab = .home
     @Environment(\.scenePhase) var scenePhase
+    @AppStorage("shouldCacheResults") var shouldCacheResults = true
+    @AppStorage("isDarkMode") var isDarkMode = false
+    
     enum Tab {
         case home
         case settings
@@ -35,6 +38,10 @@ struct ContentView: View {
                 PokeAPI.shared.saveCache()
             }
         }
+        .onChange(of: shouldCacheResults) { shouldCacheResults in
+            PokeAPI.shared.shouldCacheResults = shouldCacheResults
+        }
+        .environment(\.colorScheme, isDarkMode ? .dark : .light)
     }
 }
 

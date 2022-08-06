@@ -7,22 +7,21 @@
 
 import SwiftUI
 
+@MainActor
 final class AboutTabViewModel: ObservableObject {
     @Published private var pokemon: Pokemon
     @Published private(set) var pokemonSpecies: PokemonSpecies?
     @Published private(set) var eggGroups = [EggGroup]()
     @Published private(set) var abilities = [Ability]()
+    @AppStorage("language") var language = ""
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
-    }
-    
-    /// Sets up the view model.
-    @MainActor
-    func setUp() async {
-        pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
-        abilities = await getPokemonAbilities()
-        eggGroups = await pokemonSpecies?.eggGroups() ?? []
+        Task {
+            pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
+            abilities = await getPokemonAbilities()
+            eggGroups = await pokemonSpecies?.eggGroups() ?? []
+        }
     }
 }
 
@@ -30,14 +29,14 @@ final class AboutTabViewModel: ObservableObject {
 extension AboutTabViewModel {
     var pokemonSeedType: String {
         guard let pokemonSpecies else { return "Error" }
-        return pokemonSpecies.seedType
+        return pokemonSpecies.seedType(language: language)
     }
     
     /// The localized names for the pokemons egg group.
     var eggGroupNames: String {
         var names = [String]()
         for eggGroup in eggGroups {
-            if let name = eggGroup.names.localizedName{
+            if let name = eggGroup.names.localizedName {
                 names.append(name)
             } else {
                 names.append(eggGroup.name)
@@ -95,9 +94,9 @@ extension AboutTabViewModel {
         }
         let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLangaugeCodes, forPreferences: nil).first!
         let flavorText = species.flavorTextEntries.first { entry in
-            entry.language.name == deviceLanguageCode
+            entry.language.name == (!language.isEmpty ? language : deviceLanguageCode)
         }
-        return flavorText?.flavorText ?? String(localized: "No description available.")
+        return flavorText?.flavorText ?? species.flavorTextEntries.first!.flavorText
     }
 }
 

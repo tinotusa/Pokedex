@@ -83,13 +83,13 @@ extension PokemonSpecies {
     }
     
     /// Returns the localized seed type name for this pokemon.
-    var seedType: String {
+    func seedType(language: String) -> String {
         let availableLanguageCodes = genera.map { genera in
             genera.language.name
         }
         let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
         let genera = genera.first { genera in
-            genera.language.name == deviceLanguageCode
+            genera.language.name == (!language.isEmpty ? language : deviceLanguageCode)
         }
         if let genera {
             return genera.genus
@@ -105,21 +105,6 @@ extension PokemonSpecies {
     /// The male gender rate chance from 0 to 1 (e.g 0.25 for 25% male).
     var maleGenderRate: Double {
         1.0 - femaleGenderRate
-    }
-    
-    /// The localized `FlavorText` of this pokemon.
-    var aboutText: String {
-        let availableLanguageCodes = flavorTextEntries.compactMap { flavorText in
-            flavorText.language.name
-        }
-        let uniqueLanguageCodes = Set(availableLanguageCodes)
-        let systemLanguageCode = Bundle.preferredLocalizations(from: Array(uniqueLanguageCodes), forPreferences: nil).first!
-        if let matchingFlavorText = flavorTextEntries.first(where: {  flavorText in
-            flavorText.language.name == systemLanguageCode
-        }) {
-            return matchingFlavorText.flavorText
-        }
-        return flavorTextEntries.first!.flavorText
     }
 
     enum CodingKeys: String, CodingKey {

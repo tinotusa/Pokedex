@@ -18,7 +18,7 @@ enum InfoTab: String, CaseIterable, Identifiable {
 
 /// The detail view for a pokemon.
 struct PokemonDetail: View {
-    @State private var selectedTab: InfoTab = .stats
+    @State private var selectedTab: InfoTab = .about
     @StateObject private var viewModel: PokemonDetailViewModel
     @Environment(\.dismiss) private var dismiss
     @Namespace private var namespace

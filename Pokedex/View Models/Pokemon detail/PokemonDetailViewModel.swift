@@ -13,9 +13,8 @@ final class PokemonDetailViewModel: ObservableObject {
     @Published private(set) var pokemonSpecies: PokemonSpecies?
     @Published private(set) var eggGroups = [EggGroup]()
     @Published private(set) var types = [`Type`]()
-    @Published private(set) var localizedPokemonName = ""
-    @Published private(set) var pokemonSeedType = ""
     @Published private(set) var isLoading = false
+    @AppStorage("language") var language = ""
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
@@ -24,17 +23,19 @@ final class PokemonDetailViewModel: ObservableObject {
             pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
             types = await getTypes()
             eggGroups = await pokemonSpecies?.eggGroups() ?? []
-            localizedPokemonName = await pokemon.localizedName()
-            guard let species = await PokemonSpecies.from(name: pokemon.name) else {
-                return
-            }
-            pokemonSeedType = species.seedType
             isLoading = false
         }
     }
 }
 
 extension PokemonDetailViewModel {
+    var localizedPokemonName: String {
+        pokemonSpecies?.localizedName ?? pokemon.name
+    }
+    
+    var pokemonSeedType: String {
+        pokemonSpecies?.seedType(language: language) ?? "Error"
+    }
     /// The url for the pokemon's artwork
     var pokemonImageURL: URL? {
         pokemon.officialArtWork
