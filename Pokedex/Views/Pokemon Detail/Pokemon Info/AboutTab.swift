@@ -9,7 +9,8 @@ import SwiftUI
 
 struct AboutTab: View {
     @StateObject private var viewModel: AboutTabViewModel
-
+    @EnvironmentObject var settingsManager: SettingsManager
+    
     init(pokemon: Pokemon) {
         _viewModel = StateObject(wrappedValue: AboutTabViewModel(pokemon: pokemon))
     }
@@ -83,8 +84,12 @@ struct AboutTab: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .task {
+            viewModel.setUp(settingsManager: settingsManager)
+        }
     }
 }
+
 struct AboutTab_Previews: PreviewProvider {
     static var previews: some View {
         AboutTab(pokemon: .example)

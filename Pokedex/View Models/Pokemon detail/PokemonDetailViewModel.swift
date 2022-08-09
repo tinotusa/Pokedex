@@ -14,7 +14,7 @@ final class PokemonDetailViewModel: ObservableObject {
     @Published private(set) var eggGroups = [EggGroup]()
     @Published private(set) var types = [`Type`]()
     @Published private(set) var isLoading = false
-    @AppStorage("language") var language = ""
+    @Published private(set) var settingsManager: SettingsManager?
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
@@ -26,6 +26,10 @@ final class PokemonDetailViewModel: ObservableObject {
             isLoading = false
         }
     }
+    
+    func setUp(settingsManager: SettingsManager) {
+        self.settingsManager = settingsManager
+    }
 }
 
 extension PokemonDetailViewModel {
@@ -34,7 +38,11 @@ extension PokemonDetailViewModel {
     }
     
     var pokemonSeedType: String {
-        pokemonSpecies?.seedType(language: language) ?? "Error"
+        guard let pokemonSpecies else { return "No species found." }
+        if let settings = settingsManager?.settings, let language = settings.language {
+            return pokemonSpecies.seedType(language: language.name)
+        }
+        return pokemonSpecies.seedType()
     }
     /// The url for the pokemon's artwork
     var pokemonImageURL: URL? {

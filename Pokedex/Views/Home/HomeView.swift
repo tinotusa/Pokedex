@@ -39,6 +39,7 @@ struct HomeView: View {
                             ForEach(viewModel.filteredPokemon) { pokemon in
                                 NavigationLink(value: pokemon) {
                                     PokemonCard(pokemon: pokemon)
+                                        .animation(.easeInOut, value: viewModel.searchText)
                                 }
                             }
                         }
@@ -50,6 +51,7 @@ struct HomeView: View {
                         }
                     }
                 }
+
                 .scrollDismissesKeyboard(.immediately)
                 .refreshable {
                     Task {

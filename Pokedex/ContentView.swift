@@ -7,19 +7,37 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    @State private var selectedTab: Tab = .home
-    @Environment(\.scenePhase) var scenePhase
-    @AppStorage("shouldCacheResults") var shouldCacheResults = true
-    @AppStorage("isDarkMode") var isDarkMode = false
+enum Tab {
+    case home
+    case settings
+}
+
+// TODO: This doesn't work (saving appstorage doesn't update the view)
+final class ContentViewViewModel: ObservableObject {
+    @Published var selectedTab: Tab = .home
+    @Published var settings: Settings?
+    @Published var settingsManager: SettingsManager?
     
-    enum Tab {
-        case home
-        case settings
+    @MainActor
+    func setUp(settingsManager: SettingsManager) {
+        self.settingsManager = settingsManager
     }
     
+    var isDarkMode: Bool {
+        guard let settings = settingsManager?.settings else {
+            return false
+        }
+        return settings.isDarkMode
+    }
+}
+
+struct ContentView: View {
+    @Environment(\.scenePhase) var scenePhase
+    @StateObject var viewModel = ContentViewViewModel()
+    @EnvironmentObject var settingsManager: SettingsManager
+    
     var body: some View {
-        TabView(selection: $selectedTab) {
+        TabView(selection: $viewModel.selectedTab) {
             HomeView()
                 .tag(Tab.home)
                 .tabItem {
@@ -38,15 +56,16 @@ struct ContentView: View {
                 PokeAPI.shared.saveCache()
             }
         }
-        .onChange(of: shouldCacheResults) { shouldCacheResults in
-            PokeAPI.shared.shouldCacheResults = shouldCacheResults
+        .task {
+            viewModel.setUp(settingsManager: settingsManager)
         }
-        .environment(\.colorScheme, isDarkMode ? .dark : .light)
+        .environment(\.colorScheme, viewModel.isDarkMode ? .dark : .light)
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .environmentObject(SettingsManager())
     }
 }

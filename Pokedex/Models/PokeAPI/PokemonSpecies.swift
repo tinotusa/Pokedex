@@ -83,7 +83,7 @@ extension PokemonSpecies {
     }
     
     /// Returns the localized seed type name for this pokemon.
-    func seedType(language: String) -> String {
+    func seedType(language: String = "") -> String {
         let availableLanguageCodes = genera.map { genera in
             genera.language.name
         }

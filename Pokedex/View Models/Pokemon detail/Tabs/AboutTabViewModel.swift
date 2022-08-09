@@ -13,7 +13,7 @@ final class AboutTabViewModel: ObservableObject {
     @Published private(set) var pokemonSpecies: PokemonSpecies?
     @Published private(set) var eggGroups = [EggGroup]()
     @Published private(set) var abilities = [Ability]()
-    @AppStorage("language") var language = ""
+    @Published var settingsManager: SettingsManager?
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
@@ -23,13 +23,21 @@ final class AboutTabViewModel: ObservableObject {
             eggGroups = await pokemonSpecies?.eggGroups() ?? []
         }
     }
+    
+    func setUp(settingsManager: SettingsManager) {
+        self.settingsManager = settingsManager
+    }
+    
 }
 
 // MARK: Computed properties
 extension AboutTabViewModel {
     var pokemonSeedType: String {
         guard let pokemonSpecies else { return "Error" }
-        return pokemonSpecies.seedType(language: language)
+        if let settings = settingsManager?.settings {
+            return pokemonSpecies.seedType(language: settings.language?.name ?? "")
+        }
+        return "Error"
     }
     
     /// The localized names for the pokemons egg group.
@@ -93,10 +101,18 @@ extension AboutTabViewModel {
             entry.language.name
         }
         let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLangaugeCodes, forPreferences: nil).first!
-        let flavorText = species.flavorTextEntries.first { entry in
-            entry.language.name == (!language.isEmpty ? language : deviceLanguageCode)
+        var flavorText = species.flavorTextEntries.first { entry in
+            if let settings = settingsManager?.settings, let language = settings.language {
+                return entry.language.name == language.name
+            }
+            return false
         }
-        return flavorText?.flavorText ?? species.flavorTextEntries.first!.flavorText
+        if flavorText == nil {
+            flavorText = species.flavorTextEntries.first { entry in
+                entry.language.name == deviceLanguageCode
+            }
+        }
+        return flavorText?.flavorText ?? "No description found."
     }
 }
 

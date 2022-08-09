@@ -7,23 +7,15 @@
 
 import SwiftUI
 
-enum InfoTab: String, CaseIterable, Identifiable {
-    case about
-    case stats
-    case evolutions
-    case moves
-    
-    var id: Self { self }
-}
-
 /// The detail view for a pokemon.
 struct PokemonDetail: View {
-    @State private var selectedTab: InfoTab = .about
+    @State private var selectedTab: PokmeonInfoTab = .about
     @StateObject private var viewModel: PokemonDetailViewModel
     @Environment(\.dismiss) private var dismiss
     @Namespace private var namespace
     private let animationID = 1
     private let size = 250.0
+    @EnvironmentObject var settingsManager: SettingsManager
     
     init(pokemon: Pokemon) {
         _viewModel = StateObject(wrappedValue: PokemonDetailViewModel(pokemon: pokemon))
@@ -67,6 +59,9 @@ struct PokemonDetail: View {
             }
         }
         .toolbar(.hidden)
+        .task {
+            viewModel.setUp(settingsManager: settingsManager)
+        }
         .background {
             Rectangle()
                 .fill(viewModel.pokemon.primaryTypeColour.gradient)
@@ -74,7 +69,7 @@ struct PokemonDetail: View {
         }
     }
     
-    func isSelected(tab: InfoTab) -> Bool {
+    func isSelected(tab: PokmeonInfoTab) -> Bool {
         selectedTab == tab
     }
 }
@@ -120,7 +115,7 @@ private extension PokemonDetail {
     }
     
     @ViewBuilder
-    func tabMenuButton(tab: InfoTab) -> some View {
+    func tabMenuButton(tab: PokmeonInfoTab) -> some View {
         Text(tab.rawValue.capitalized)
             .padding(.vertical, 2)
             .frame(maxWidth: .infinity)
@@ -138,7 +133,7 @@ private extension PokemonDetail {
     
     var tabHeader: some View {
         HStack {
-            ForEach(InfoTab.allCases) { tab in
+            ForEach(PokmeonInfoTab.allCases) { tab in
                 Button {
                     selectedTab = tab
                 } label: {
@@ -155,5 +150,6 @@ struct PokemonDetail_Previews: PreviewProvider {
     static var previews: some View {
         PokemonDetail(pokemon: .example)
             .environmentObject(ImageLoader())
+            .environmentObject(SettingsManager())
     }
 }

@@ -10,10 +10,13 @@ import SwiftUI
 @main
 struct PokedexApp: App {
     @StateObject var imageLoader = ImageLoader()
+    @StateObject var settingsManager = SettingsManager()
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(imageLoader)
+                .environmentObject(settingsManager)
         }
     }
 }
