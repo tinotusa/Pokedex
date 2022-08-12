@@ -7,91 +7,146 @@
 
 import Foundation
 
-final class Cache {
-    private var values = [String: Data]()
-    private var hasChanges = false
-    
-    private func sanitizeFilename(name: String) -> String {
-        return name.replacingOccurrences(of: "/", with: "-")
-    }
-    
+final class Cache<Key: Hashable, Value> {
+    private var cache = NSCache<WrappedKey, Entry>()
+    private var keyTracker = KeyTracker()
+
     init() {
-        print("Cache init is called")
+        // Leaving it as unlimited because there is a limit to all the pokemon data
+//        cache.countLimit = 0
+        cache.delegate = keyTracker
     }
     
-    func get<T: Codable>(name: String, forType type: T.Type) -> T? {
-        let filename = sanitizeFilename(name: name)
-        // the file is not in memory
-        if values[filename] == nil {
-            // get file url
-            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let url = documentsDirectory.appendingPathComponent(filename)
-            if !FileManager.default.fileExists(atPath: url.path()) {
-                print("File name: \(filename) doesn't exist")
-                return nil
+    func value(forKey key: Key) -> Value? {
+        let entry = cache.object(forKey: WrappedKey(key: key))
+        return entry?.value
+    }
+    
+    func insert(_ value: Value, forKey key: Key) {
+        let entry = Entry(key: key, value: value)
+        cache.setObject(entry, forKey: WrappedKey(key: key))
+        keyTracker.insert(key)
+    }
+    
+    func removeValue(forKey key: Key) {
+        cache.removeObject(forKey: WrappedKey(key: key))
+    }
+}
+
+extension Cache {
+    subscript(key: Key) -> Value? {
+        get { value(forKey: key) }
+        set {
+            if let value = newValue {
+                insert(value, forKey: key)
+                return
             }
-            do {
-                let data = try Data(contentsOf: url)
-                // add to values
-                values[filename] = data
-                
-                // decode
-                let decodedData = try JSONDecoder().decode(type, from: values[filename]!)
-                
-                // return value
-                return decodedData
-            } catch {
-                print("Error in \(#function)\n\(error)")
-            }
+            // if newValue was nil remove the value for the key
+            removeValue(forKey: key)
         }
-        // It's already in memory
-        do {
-            let decodedData = try JSONDecoder().decode(type, from: values[filename]!)
-            print("Getting data from filename: \(filename)")
-            return decodedData
-        } catch {
-            print("Error in \(#function)\n\(error.localizedDescription)")
+    }
+}
+
+extension Cache {
+    final class WrappedKey: NSObject {
+        let key: Key
+        
+        init(key: Key) {
+            self.key = key
         }
         
-        return nil
+        override var hash: Int { return key.hashValue }
+        
+        override func isEqual(_ object: Any?) -> Bool {
+            if let object = object as? WrappedKey {
+                return object.key == key
+            }
+            return false
+        }
     }
+}
 
-    func insert(item: Cachable) {
-        guard let data = item.getData() else { return }
-        if values[item.filename] != nil { return }
-        values[item.filename] = data
-        hasChanges = true
+extension Cache {
+    final class Entry {
+        let key: Key
+        let value: Value
+        
+        init(key: Key, value: Value) {
+            self.key = key
+            self.value = value
+        }
     }
+}
 
-    func insert(filename: String, data: Data) {
-        let filename = sanitizeFilename(name: filename)
-        if values[filename] != nil { return }
-        values[filename] = data
-        print("added filename: \(filename) with data: \(data)")
-        hasChanges = true
-    }
-    
-    func remove(item: Cachable) {
-        values[item.filename] = nil
-        hasChanges = true
-    }
-
-    func save() {
-        if !hasChanges { return }
-        defer { hasChanges = false }
-        let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
-        for (filename, value) in values {
-            let url = documentsDirectory.appendingPathComponent(filename)
-            do {
-                if FileManager.default.fileExists(atPath: url.path()) {
-                    print("Filename \(filename) already exists won't save again.")
-                    continue
-                }
-                try value.write(to: url, options: [.atomic])
-                print("SAVED filename: \(filename) with data: \(value)")
-            } catch {
-                print("Error in \(#function)\n\(error)")
+private extension Cache {
+    final class KeyTracker: NSObject, NSCacheDelegate {
+        var keys = Set<Key>()
+        
+        func cache(_ cache: NSCache<AnyObject, AnyObject>, willEvictObject obj: Any) {
+            if let entry = obj as? Entry {
+                keys.remove(entry.key)
+                return
             }
         }
+        
+        func insert(_ key: Key) {
+            keys.insert(key)
+        }
+    }
+}
+
+extension Cache.Entry: Codable where Key: Codable, Value: Codable { }
+
+extension Cache: Codable where Key: Codable, Value: Codable {
+    convenience init(from decoder: Decoder) throws {
+        self.init()
+        let container = try decoder.singleValueContainer()
+        let entries = try container.decode([Entry].self)
+        entries.forEach(insert)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(keyTracker.keys.compactMap(entry))
+    }
+    
+    func saveToDisk(withName name: String, using fileManager: FileManager = .default) throws {
+        let folderURLs = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+        let fileURL = folderURLs.first!.appendingPathComponent("\(name).cache")
+        let data = try JSONEncoder().encode(self)
+        try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
+    }
+    
+    func loadFromDisk(fromName name: String, using fileManager: FileManager = .default) {
+        let folderURLs = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+        let fileURL = folderURLs.first!.appendingPathComponent("\(name).cache")
+        let data = try? Data(contentsOf: fileURL)
+        guard let data else { return }
+        let decodedCache = try? JSONDecoder().decode(Self.self, from: data)
+        if let decodedCache {
+            print("Successfully loaded from disk")
+            self.cache = decodedCache.cache
+            self.keyTracker = decodedCache.keyTracker
+            print("THe cache")
+            print(self.cache)
+            print("THE END OF THE CACHE")
+            print(self.keyTracker)
+            print("THE END OF THE KEYTRACKER")
+        }
+    }
+}
+
+
+private extension Cache {
+    func entry(forKey key: Key) -> Entry? {
+        if let entry = cache.object(forKey: WrappedKey(key: key)) {
+            return entry
+        }
+        return nil
+    }
+    
+    func insert(_ entry: Entry) {
+        cache.setObject(entry, forKey: WrappedKey(key: entry.key))
+        keyTracker.insert(entry.key)
     }
 }

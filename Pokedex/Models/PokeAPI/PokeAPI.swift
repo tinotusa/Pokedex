@@ -9,13 +9,19 @@ import Foundation
 
 final class PokeAPI: ObservableObject {
     static let apiURL = "https://pokeapi.co/api/v2/"
-    
+    static let cacheFilename = "PokeAPIResults"
     static let shared = PokeAPI()
-    private var cache = Cache()
+    private let cache = Cache<String, Data>()
+    
+    private init() {
+        print("PokeAPI Init called")
+        cache.loadFromDisk(fromName: Self.cacheFilename)
+    }
     
     func saveCache() {
         if shouldCacheResults {
-            cache.save()
+            print("About to save to the cache")
+            try? cache.saveToDisk(withName: Self.cacheFilename)
         }
     }
     
@@ -23,10 +29,6 @@ final class PokeAPI: ObservableObject {
         didSet {
             print("changed shouldCacheResults to \(shouldCacheResults)")
         }
-    }
-    
-    private init() {
-        print("PokeAPI Init called")
     }
     
     enum PokeAPIError: Error {
@@ -37,6 +39,10 @@ final class PokeAPI: ObservableObject {
         case other(error: Error)
     }
     
+    private func sanitizeFilename(name: String) -> String {
+        return name.replacingOccurrences(of: "/", with: "-")
+    }
+    
     func getData<T>(for type: T.Type, fromEndpoint endpoint: String) async throws -> T
     where T: Codable
     {
@@ -44,9 +50,11 @@ final class PokeAPI: ObservableObject {
             throw PokeAPIError.invalidEndPoint
         }
         let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
-        
-        if let cachedResult = cache.get(name: endpoint, forType: type) {
-            return cachedResult
+        let endpoint = sanitizeFilename(name: endpoint)
+        print("About to get from \(endpoint)")
+        if let cachedData = cache.value(forKey: endpoint) {
+            print("getting from the cache 1")
+            return try JSONDecoder().decode(type, from: cachedData)
         }
         
         do {
@@ -62,7 +70,8 @@ final class PokeAPI: ObservableObject {
             }
             let decodedData = try JSONDecoder().decode(type, from: data)
             if shouldCacheResults {
-                cache.insert(filename: endpoint, data: data)
+                print("adding \(endpoint) to the cache 1")
+                cache.insert(data, forKey: endpoint)
             }
             return decodedData
             
@@ -76,9 +85,11 @@ final class PokeAPI: ObservableObject {
         where T: Codable
     {
         let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
-        let filename = url.absoluteString
-        if let cachedResult = cache.get(name: filename, forType: type) {
-            return cachedResult
+        let filename = sanitizeFilename(name: url.absoluteString)
+        
+        if let cachedResult = cache.value(forKey: filename) {
+            print("getting from the cache 2")
+            return try JSONDecoder().decode(type, from: cachedResult)
         }
         
         do {
@@ -94,7 +105,8 @@ final class PokeAPI: ObservableObject {
             }
             let decodedData = try JSONDecoder().decode(type, from: data)
             if shouldCacheResults {
-                cache.insert(filename: filename, data: data)
+                print("adding to the cache 2")
+                cache.insert(data, forKey: filename)
             }
             return decodedData
         } catch {
