@@ -17,26 +17,13 @@ struct PokemonImage: View {
     }
     
     var body: some View {
-        ImageLoaderView(url: url) { image in
+        ImageLoaderView(url: url) {
+            ProgressView()
+        } content: { image in
             image
                 .resizable()
                 .scaledToFit()
         }
-//        AsyncImage(url: url) { phase in
-//            if let image = phase.image {
-//                image
-//                    .resizable()
-//                    .scaledToFit()
-//            } else if let _ = phase.error {
-//                ZStack {
-//                    Color.red
-//                    Text("Error")
-//                        .foregroundColor(.textColour)
-//                }
-//            } else {
-//                ProgressView()
-//            }
-//        }
         .frame(width: imageSize, height: imageSize)
     }
 }
