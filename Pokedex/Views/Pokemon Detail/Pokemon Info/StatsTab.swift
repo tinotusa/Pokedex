@@ -9,32 +9,39 @@ import SwiftUI
 import Charts
 
 struct StatsTab: View {
-    @StateObject private var viewModel: StatsTabViewModel
+    private var pokemon: Pokemon
+    @StateObject private var viewModel = StatsTabViewModel()
     
     init(pokemon: Pokemon) {
-        _viewModel = StateObject(wrappedValue: StatsTabViewModel(pokemon: pokemon))
+        self.pokemon = pokemon
     }
     
     var body: some View {
         VStack(alignment: .leading) {
-            Chart(viewModel.valuePerStat) {
-                BarMark(
-                    x: .value("Stat", $0.value),
-                    y: .value("Name", $0.name)
-                    
-                )
-                .foregroundStyle(by: .value("Colour", $0.name))
+            Group {
+                if !viewModel.isLoading {
+                    Chart(viewModel.valuePerStat) {
+                        BarMark(
+                            x: .value("Stat", $0.value),
+                            y: .value("Name", $0.name)
+                            
+                        )
+                        .foregroundStyle(by: .value("Colour", $0.name))
+                    }
+                    .chartForegroundStyleScale([
+                        viewModel.hpStatName: Color("hp"),
+                        viewModel.attackStatName: Color("attack"),
+                        viewModel.defenseStatName: Color("defense"),
+                        viewModel.specialAttackStatName: Color("specialAttack"),
+                        viewModel.specialDefenseStatName: Color("specialDefense"),
+                        viewModel.speedStatName: Color("speed")
+                    ])
+                } else {
+                    ProgressView()
+                }
             }
-            .chartForegroundStyleScale([
-                "HP": Color("hp"),
-                "Attack": Color("attack"),
-                "Defense": Color("defense"),
-                "Sp. Attack": Color("specialAttack"),
-                "Sp. Defense": Color("specialDefense"),
-                "Speed": Color("speed")
-            ])
             .frame(minHeight: 300)
-            
+
             Text("Strong against", comment: "Title: The pokemon types this pokemon is strong against.")
                 .font(.title2)
                 .fontWeight(.medium) // TODO: Make this into a modifier
@@ -52,12 +59,12 @@ struct StatsTab: View {
                     }
                 }
             }
-            
+
             Text("Weak against", comment: "Title: The pokemon types this pokemon is weak against.")
                 .font(.title2)
                 .fontWeight(.medium)
                 .padding(.vertical, 2)
-            
+
             WrappingHStack {
                 ForEach(viewModel.doubleDamageFrom, id: \.self) { type in
                     NavigationLink(value: type) {
@@ -65,6 +72,9 @@ struct StatsTab: View {
                     }
                 }
             }
+        }
+        .task {
+            await viewModel.setUp(pokemon: pokemon)
         }
         .navigationDestination(for: `Type`.self) { type in
             Text("Looking at: \(type.name)")
@@ -83,7 +93,7 @@ private extension StatsTab {
     
     var attackGridRow: some View {
         gridRow(
-            title: "Attack",
+            title: viewModel.attackStatName,
             value: Double(viewModel.attack),
             total: Double(viewModel.totalStats)
         )
@@ -91,7 +101,7 @@ private extension StatsTab {
     
     var defenseGridRow: some View {
         gridRow(
-            title: "Defense",
+            title: viewModel.defenseStatName,
             value: Double(viewModel.defense),
             total: Double(viewModel.totalStats)
         )
@@ -99,7 +109,7 @@ private extension StatsTab {
     
     var specialAttackGridRow: some View {
         gridRow(
-            title: "Sp. Attack",
+            title: viewModel.specialAttackStatName,
             value: Double(viewModel.specialAttack),
             total: Double(viewModel.totalStats)
         )
@@ -107,7 +117,7 @@ private extension StatsTab {
     
     var specialDefenseGridRow: some View {
         gridRow(
-            title: "Sp. Defense",
+            title: viewModel.specialDefenseStatName,
             value: Double(viewModel.specialDefense),
             total: Double(viewModel.totalStats)
         )
@@ -115,7 +125,7 @@ private extension StatsTab {
     
     var speedGridRow: some View {
         gridRow(
-            title: "Speed",
+            title: viewModel.speedStatName,
             value: Double(viewModel.speed),
             total: Double(viewModel.totalStats)
         )
@@ -132,7 +142,7 @@ private extension StatsTab {
 private extension StatsTab {
     func gridRow(title: String, value: Double, total: Double? = nil) -> some View {
         GridRow {
-            Text(title)
+            Text(LocalizedStringKey(title), comment: "Grid row title: The title for the stat.")
                 .foregroundColor(.grayTextColour)
             Text("\(value.formatted(.number))")
                 .bold()

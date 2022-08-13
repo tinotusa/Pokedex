@@ -7,54 +7,83 @@
 
 import SwiftUI
 
-struct ValuePerStat: Identifiable {
-    let name: String
-    let value: Int
-    let colour: String
-    let id = UUID().uuidString
-}
-
 @MainActor
 final class StatsTabViewModel: ObservableObject {
     @Published private(set) var valuePerStat = [ValuePerStat]()
-    @Published private var pokemon: Pokemon
+    @Published private var pokemon: Pokemon?
+    
     @Published private(set) var hpStat: Stat?
     @Published private(set) var attackStat: Stat?
+    @Published private(set) var defenseStat: Stat?
     @Published private(set) var specialAttackStat: Stat?
+    @Published private(set) var specialDefenseStat: Stat?
+    @Published private(set) var speedStat: Stat?
+    
     @Published private(set) var doubleDamageTo = [`Type`]()
     @Published private(set) var doubleDamageFrom = [`Type`]()
     @Published private(set) var types = [`Type`]()
     
-    init(pokemon: Pokemon) {
+    @Published private(set) var isLoading = false
+    
+    func setUp(pokemon: Pokemon) async {
+        isLoading = true
+        defer { isLoading = false }
         self.pokemon = pokemon
-        Task {
-            hpStat = await getHPStat()
-            attackStat = await getAttackStat()
-            specialAttackStat = await getSpecialAttack()
-            types = await getTypes()
-            doubleDamageTo = await doubleDamageTo()
-            doubleDamageFrom = await doubleDamageFrom()
-            
-            valuePerStat = [
-                .init(name: "HP", value: hp, colour: "hp"),
-                .init(name: "Attack", value: attack, colour: "attack"),
-                .init(name: "Defense", value: defense, colour: "defense"),
-                .init(name: "Sp. Attack", value: specialAttack, colour: "specialAttack"),
-                .init(name: "Sp. Defense", value: specialDefense, colour: "specialDefense"),
-                .init(name: "Speed", value: speed, colour: "speed"),
-            ]
-        }
+        
+        hpStat = await getStat(for: .hp)
+        attackStat = await getStat(for: .attack)
+        defenseStat = await getStat(for: .defense)
+        specialAttackStat = await getStat(for: .specialAttack)
+        specialDefenseStat = await getStat(for: .specialDefense)
+        speedStat = await getStat(for: .speed)
+        
+        types = await getTypes()
+        doubleDamageTo = await doubleDamageTo()
+        doubleDamageFrom = await doubleDamageFrom()
+        
+        valuePerStat = [
+            .init(name: hpStatName, value: hp, colour: "hp"),
+            .init(name: attackStatName, value: attack, colour: "attack"),
+            .init(name: defenseStatName, value: defense, colour: "defense"),
+            .init(name: specialAttackStatName, value: specialAttack, colour: "specialAttack"),
+            .init(name: specialDefenseStatName, value: specialDefense, colour: "specialDefense"),
+            .init(name: speedStatName, value: speed, colour: "speed"),
+        ]
     }
 }
 
-// MARK: - Computed properties
 extension StatsTabViewModel {
-    var hpStatName: String {
-        guard let hpStat else { return "Error" }
-        return hpStat.names.localizedName ?? "Error"
+    struct ValuePerStat: Identifiable {
+        let name: String
+        let value: Int
+        let colour: String
+        let id = UUID().uuidString
     }
-    
+
+    enum StatName: String {
+        case hp
+        case attack
+        case defense
+        case specialAttack = "special-attack"
+        case specialDefense = "special-defense"
+        case speed
+    }
+}
+
+// MARK: - Localized stat names
+extension StatsTabViewModel {
+    var hpStatName: String { statName(for: hpStat) }
+    var attackStatName: String { statName(for: attackStat) }
+    var defenseStatName: String { statName(for: defenseStat) }
+    var specialAttackStatName: String { statName(for: specialAttackStat) }
+    var specialDefenseStatName: String { statName(for: specialDefenseStat) }
+    var speedStatName: String { statName(for: speedStat) }
+}
+
+// MARK: - Stat values
+extension StatsTabViewModel {
     var hp: Int {
+        guard let pokemon else { return -1 }
         let hpStat = pokemon.stats.first { stat in
             stat.stat.name == "hp"
         }
@@ -62,6 +91,7 @@ extension StatsTabViewModel {
     }
     
     var attack: Int {
+        guard let pokemon else { return -1 }
         let attackStat = pokemon.stats.first { stat in
             stat.stat.name == "attack"
         }
@@ -69,6 +99,7 @@ extension StatsTabViewModel {
     }
     
     var defense: Int {
+        guard let pokemon else { return -1 }
         let defenseStat = pokemon.stats.first { stat in
             stat.stat.name == "defense"
         }
@@ -76,6 +107,7 @@ extension StatsTabViewModel {
     }
     
     var specialAttack: Int {
+        guard let pokemon else { return -1 }
         let specialAttack = pokemon.stats.first { stat in
             stat.stat.name == "special-attack"
         }
@@ -83,6 +115,7 @@ extension StatsTabViewModel {
     }
     
     var specialDefense: Int {
+        guard let pokemon else { return -1 }
         let specialDefense = pokemon.stats.first { stat in
             stat.stat.name == "special-defense"
         }
@@ -90,6 +123,7 @@ extension StatsTabViewModel {
     }
     
     var speed: Int {
+        guard let pokemon else { return -1 }
         let speed = pokemon.stats.first { stat in
             stat.stat.name == "speed"
         }
@@ -97,14 +131,25 @@ extension StatsTabViewModel {
     }
     
     var totalStats: Int {
-        pokemon.totalStats
+        guard let pokemon else { return -1 }
+        return pokemon.totalStats
     }
 }
 
 // MARK: Private functions
 private extension StatsTabViewModel {
+    /// Gets the localized name for a given stat.
+    /// - parameter stat: The stat to get the name for.
+    /// - returns: The localized name for the stat or Error if the `Stat` is nil.
+    func statName(for stat: Stat?) -> String {
+        guard let stat else { return "Error" }
+        return stat.names.localizedName ?? stat.name
+    }
+    
     /// Gets the types for this pokemon.
+    /// - returns: An array of `Type` that the pokemon is.
     func getTypes() async -> [`Type`] {
+        guard let pokemon else { return [] }
         var results = [`Type`]()
         for type in pokemon.types {
             guard let type = await `Type`.from(name: type.type.name) else {
@@ -115,31 +160,23 @@ private extension StatsTabViewModel {
         return results
     }
     
-    func getAttackStat() async -> Stat? {
-        let attackStat = pokemon.stats.first { stat in
-            stat.stat.name == "attack"
+    /// Gets the `Stat` for a given name.
+    ///
+    ///     let hpStat = getStat(named: "hp")
+    ///
+    /// - parameter name: The name of the stat (e.g hp, defense, attack, etc).
+    /// - returns: A `Stat` if the name if found or nil otherwise.
+    func getStat(for statName: StatName) async -> Stat? {
+        guard let pokemon else { return nil }
+        let stat = pokemon.stats.first { stat in
+            stat.stat.name == statName.rawValue
         }
-        guard let attackStat else { fatalError("Fatal error in \(#function)\nInvalid pokemon stat") }
-        return await Stat.from(name: attackStat.stat.name)
-    }
-    
-    func getHPStat() async -> Stat? {
-        let hpStat = pokemon.stats.first { stat in
-            stat.stat.name == "hp"
-        }
-        guard let hpStat else { fatalError("Fatal error in \(#function)\nInvalid pokemon stat") }
-        return await Stat.from(name: hpStat.stat.name)
-    }
-    
-    func getSpecialAttack() async -> Stat? {
-        let spAttackStat = pokemon.stats.first { stat in
-            stat.stat.name  == "special-attack"
-        }
-        guard let spAttackStat else { fatalError("Fatal error in \(#function)\nInvalid pokemon stat.") }
-        return await Stat.from(name: spAttackStat.stat.name)
+        guard let stat else { fatalError("Fatal error in \(#function)\nInvalid pokemon stat name \"\(statName.rawValue)\"") }
+        return await Stat.from(name: stat.stat.name)
     }
     
     /// Gets the types that this pokemon's type is weak against.
+    /// - returns: An array of `Type` that the pokemon takes double damage from.
     func doubleDamageFrom() async -> [`Type`] {
         var results = Set<`Type`>()
         for type in types {
@@ -152,6 +189,7 @@ private extension StatsTabViewModel {
     }
     
     /// Gets the types that this pokemon's type is strong against.
+    /// - returns: An array of `Type` that the pokemon deals double damage to.
     func doubleDamageTo() async -> [`Type`] {
         var results = Set<`Type`>()
         for type in types {

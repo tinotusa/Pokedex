@@ -52,7 +52,7 @@ final class PokeAPI: ObservableObject {
         let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
         let endpoint = sanitizeFilename(name: endpoint)
         print("About to get from \(endpoint)")
-        if let cachedData = cache.value(forKey: endpoint) {
+        if let cachedData = cache[endpoint] {
             print("getting from the cache 1")
             return try JSONDecoder().decode(type, from: cachedData)
         }
@@ -71,7 +71,7 @@ final class PokeAPI: ObservableObject {
             let decodedData = try JSONDecoder().decode(type, from: data)
             if shouldCacheResults {
                 print("adding \(endpoint) to the cache 1")
-                cache.insert(data, forKey: endpoint)
+                cache[endpoint] = data
             }
             return decodedData
             
@@ -87,7 +87,7 @@ final class PokeAPI: ObservableObject {
         let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
         let filename = sanitizeFilename(name: url.absoluteString)
         
-        if let cachedResult = cache.value(forKey: filename) {
+        if let cachedResult = cache[filename] {
             print("getting from the cache 2")
             return try JSONDecoder().decode(type, from: cachedResult)
         }
@@ -106,7 +106,7 @@ final class PokeAPI: ObservableObject {
             let decodedData = try JSONDecoder().decode(type, from: data)
             if shouldCacheResults {
                 print("adding to the cache 2")
-                cache.insert(data, forKey: filename)
+                cache[filename] = data
             }
             return decodedData
         } catch {

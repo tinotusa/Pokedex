@@ -9,17 +9,20 @@ import SwiftUI
 
 /// The detail view for a pokemon.
 struct PokemonDetail: View {
+    private var pokemon: Pokemon
     @State private var selectedTab: PokmeonInfoTab = .about
-    @StateObject private var viewModel: PokemonDetailViewModel
+    
+    @StateObject private var viewModel = PokemonDetailViewModel()
     @Environment(\.dismiss) private var dismiss
-    @Namespace private var namespace
-    private let animationID = 1
-    private let size = 250.0
     @EnvironmentObject var settingsManager: SettingsManager
     
     init(pokemon: Pokemon) {
-        _viewModel = StateObject(wrappedValue: PokemonDetailViewModel(pokemon: pokemon))
+        self.pokemon = pokemon
     }
+    
+    @Namespace private var namespace
+    private let animationID = 1
+    private let size = 250.0
     
     var body: some View {
         VStack {
@@ -28,24 +31,14 @@ struct PokemonDetail: View {
                 VStack {
                     pokemonInfoBar
                     
-                    PokemonImage(url: viewModel.pokemon.officialArtWork, imageSize: size)
+                    PokemonImage(url: pokemon.officialArtWork, imageSize: size)
                     VStack {
                         tabHeader
-//                        if selectedTab == .about {
-//                            AboutTab(pokemon: viewModel.pokemon)
-//                        } else if selectedTab == .stats {
-//                            StatsTab(pokemon: viewModel.pokemon)
-//                        } else if selectedTab == .evolutions {
-//                            EvolutionsTab(pokemon: viewModel.pokemon)
-//                        } else if selectedTab == .moves {
-//                            MovesTab(pokemon: viewModel.pokemon)
-//                        }
-                        // TODO: This crashes when you click nav links in the views
                         switch selectedTab {
-                        case .about: AboutTab(pokemon: viewModel.pokemon)
-                        case .stats: StatsTab(pokemon: viewModel.pokemon)
-                        case .evolutions: EvolutionsTab(pokemon: viewModel.pokemon)
-                        case .moves: MovesTab(pokemon: viewModel.pokemon)
+                        case .about: AboutTab(pokemon: pokemon)
+                        case .stats: StatsTab(pokemon: pokemon)
+                        case .evolutions: EvolutionsTab(pokemon: pokemon)
+                        case .moves: MovesTab(pokemon: pokemon)
                         }
                                         
                     }
@@ -60,11 +53,11 @@ struct PokemonDetail: View {
         }
         .toolbar(.hidden)
         .task {
-            viewModel.setUp(settingsManager: settingsManager)
+            await viewModel.setUp(pokemon: pokemon, settingsManager: settingsManager)
         }
         .background {
             Rectangle()
-                .fill(viewModel.pokemon.primaryTypeColour.gradient)
+                .fill(pokemon.primaryTypeColour.gradient)
                 .ignoresSafeArea(edges: .top)
         }
     }
@@ -83,14 +76,14 @@ private extension PokemonDetail {
                     .font(.largeTitle)
                     .bold()
                 HStack {
-                    ForEach(viewModel.pokemon.types, id: \.self) { type in
+                    ForEach(pokemon.types, id: \.self) { type in
                         PokemonTypeTag(name: type.type.name)
                     }
                 }
             }
             Spacer()
             VStack(alignment: .trailing) {
-                Text(verbatim: "#\(String(format: "%03d", viewModel.pokemon.id))")
+                Text(verbatim: "#\(String(format: "%03d", pokemon.id))")
                     .font(.title)
                 Text(viewModel.pokemonSeedType)
                     .font(.title2)
@@ -123,7 +116,7 @@ private extension PokemonDetail {
             .background(alignment: .bottom) {
                 if isSelected(tab: tab) {
                     Rectangle()
-                        .fill(viewModel.pokemon.primaryTypeColour)
+                        .fill(pokemon.primaryTypeColour)
                         .frame(height: 2)
                         .matchedGeometryEffect(id: animationID, in: namespace)
                 }

@@ -7,13 +7,8 @@
 
 import SwiftUI
 
-// TODO: - Consider caching the images aswell (either use cache or look into implementing a NSCache subclass)
 final class ImageLoader: ObservableObject {
-    private var cache = [URL: Data]()
-    
-    init() {
-        
-    }
+    private var cache = Cache<URL, Data>()
     
     func getImage(url: URL?) async -> Data? {
         if let url, let image = cache[url] {
@@ -27,6 +22,12 @@ final class ImageLoader: ObservableObject {
         guard let url else { return nil }
         do {
             let (data, urlResponse) = try await URLSession.shared.data(from: url)
+            if let urlResponse = urlResponse as? HTTPURLResponse,
+               !(200 ..< 299).contains(urlResponse.statusCode)
+            {
+                print("Error in \(#function).\nInvalid status code: \(urlResponse.statusCode)")
+                return nil
+            }
             cache[url] = data
             return cache[url]
         } catch {

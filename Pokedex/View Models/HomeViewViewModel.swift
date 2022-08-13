@@ -18,7 +18,7 @@ final class HomeViewViewModel: ObservableObject {
     @Published var hasNextPage = false
     @Published var foundPokemon: Bool?
     
-    private let limit = 50
+    private let limit = 20
     private var nextPage: URL?
 
     init() {

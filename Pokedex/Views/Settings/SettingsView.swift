@@ -9,7 +9,6 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject var viewModel = SettingsViewViewModel()
-    @AppStorage("appSettings") var appSettings = Data()
     @EnvironmentObject var settingsManager: SettingsManager
     
     var body: some View {
