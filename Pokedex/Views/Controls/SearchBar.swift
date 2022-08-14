@@ -10,13 +10,7 @@ import SwiftUI
 struct SearchBar: View {
     let placeholder: LocalizedStringKey
     @Binding var text: String
-    let action: (() -> Void)?
-    
-    init(placeholder: LocalizedStringKey, text: Binding<String>, action: (() -> Void)? = nil) {
-        self.placeholder = placeholder
-        _text = text
-        self.action = action
-    }
+    var action: (() -> Void)? = nil
     
     var body: some View {
         HStack {
