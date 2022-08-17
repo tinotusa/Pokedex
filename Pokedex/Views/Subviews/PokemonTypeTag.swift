@@ -21,11 +21,18 @@ struct PokemonTypeTag: View {
             .lineLimit(1)
             .padding(.horizontal)
             .background(Color(name))
-            .cornerRadius(14)
-            .foregroundColor(.textColour)
+            .cornerRadius(Constants.cornerRadius)
+            .foregroundColor(.headerTextColour)
+            .tagStyle()
             .task {
                 localizedName = await localizedType()
             }
+    }
+}
+
+extension PokemonTypeTag {
+    struct Constants {
+        static let cornerRadius = 18.0
     }
 }
 

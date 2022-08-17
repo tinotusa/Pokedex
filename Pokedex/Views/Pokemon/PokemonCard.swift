@@ -9,47 +9,48 @@ import SwiftUI
 
 struct PokemonCard: View {
     let pokemon: Pokemon
-    let imageSize = 150.0
     @State private var localizedPokemonName = ""
     @State private var typeNames = [String]()
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     var body: some View {
-        VStack(alignment: .leading) {
-            HStack {
-                Spacer()
-                PokemonImage(url: pokemon.officialArtWork, imageSize: imageSize)
-                Spacer()
-            }
-        
-            Text("#\(String(format: "%03d", pokemon.id))")
-                .font(.title2)
-            Text(localizedPokemonName.capitalized)
-                .font(.title)
-            
-            HStack {
-                ForEach(typeNames, id: \.self) { typeName in
-                    PokemonTypeTag(name: typeName)
+        VStack(spacing: 0) {
+            PokemonImage(url: pokemon.officialArtWork, imageSize: Constants.imageSize)
+            VStack(alignment: .leading) {
+                Text(localizedPokemonName)
+                    .bodyStyle()
+                HStack {
+                    ForEach(pokemon.types, id: \.self) { type in
+                        PokemonTypeTag(name: type.type.name)
+                    }
+                    Spacer()
+
                 }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .topLeading) {
+            Text(String(format: "#%03d", pokemon.id))
+        }
         .padding()
         .foregroundColor(.textColour)
-        .background(alignment: .top) {
-            GeometryReader { proxy in
-                Rectangle()
-                    .fill(pokemon.primaryTypeColour)
-                    .opacity(0.5)
-                    .cornerRadius(14) // TODO: Remove magic numbers
-                    .frame(height: proxy.size.height * 0.7)
-                    .offset(y: proxy.size.height - (proxy.size.height * 0.7))
-            }
+        .background {
+            Color.white
         }
+        .cornerRadius(Constants.backgroundCornerRadius)
+        .shadow(radius: 3)
         .task {
             localizedPokemonName = await pokemon.localizedName()
             typeNames = pokemon.getTypes()
         }
+    }
+}
+
+private extension PokemonCard {
+    enum Constants {
+        static let backgroundOpacity = 0.5
+        static let backgroundCornerRadius = 30.0
+        static let backgroundHeightPercentage = 0.6
+        static let imageSize = 150.0
     }
 }
 

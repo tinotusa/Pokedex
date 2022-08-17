@@ -1,5 +1,5 @@
 //
-//  HomeView.swift
+//  SearchView.swift
 //  Pokedex
 //
 //  Created by Tino on 3/8/2022.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct HomeView: View {
+struct SearchView: View {
     @StateObject private var viewModel = HomeViewViewModel()
     @State private var navigationPath = NavigationPath()
 
@@ -17,13 +17,16 @@ struct HomeView: View {
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            VStack {
-                SearchBar(placeholder: "Search for pokemon", text: $viewModel.searchText) {
-                    Task {
-                        viewModel.foundPokemon = await viewModel.searchPokemon()
+            VStack(alignment: .leading) {
+                VStack(spacing: 0) {
+                    Text("My Pokemon")
+                        .headerStyle()
+                    SearchBar(placeholder: "Search for pokemon", text: $viewModel.searchText) {
+                        Task {
+                            viewModel.foundPokemon = await viewModel.searchPokemon()
+                        }
                     }
                 }
-                
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns) {
                         if let foundPokemon = viewModel.foundPokemon, !foundPokemon {
@@ -51,7 +54,6 @@ struct HomeView: View {
                         }
                     }
                 }
-
                 .scrollDismissesKeyboard(.immediately)
                 .refreshable {
                     Task {
@@ -73,7 +75,7 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        HomeView()
+        SearchView()
             .environmentObject(ImageLoader())
     }
 }

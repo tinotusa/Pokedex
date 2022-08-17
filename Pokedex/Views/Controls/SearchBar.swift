@@ -14,11 +14,18 @@ struct SearchBar: View {
     
     var body: some View {
         HStack {
-            TextField(placeholder, text: $text, prompt: Text(placeholder))
-                .autocorrectionDisabled(true)
-                .onSubmit {
-                    action?()
-                }
+            TextField(text: $text, prompt: Text(placeholder)) {
+                Text("Search bar")
+            }
+            .subHeaderStyle()
+            .foregroundColor(.searchBarTextColour)
+            .autocorrectionDisabled(true)
+            .textInputAutocapitalization(.never)
+            .submitLabel(.search)
+            .onSubmit {
+                action?()
+            }
+            
             if !text.isEmpty {
                 Button {
                     text = ""
@@ -29,19 +36,26 @@ struct SearchBar: View {
                 .transition(.opacity)
                 
             }
-            Divider()
-                .frame(maxHeight: 30)
+            
             Button {
                 action?()
             } label: {
                 Image(systemName: "magnifyingglass")
-                    .tint(.grayTextColour)
+                    .subHeaderStyle()
+                    .foregroundColor(.searchBarTextColour)
             }
         }
+        .foregroundColor(.searchBarColour)
         .animation(.easeInOut, value: text)
         .padding()
         .background(Color.searchBarColour)
-        .cornerRadius(14)
+        .cornerRadius(Constants.searchBarCornerRadius)
+    }
+}
+
+private extension SearchBar {
+    struct Constants {
+        static let searchBarCornerRadius = 26.0
     }
 }
 

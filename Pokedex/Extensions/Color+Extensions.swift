@@ -8,10 +8,16 @@
 import SwiftUI
 
 extension Color {
-    static let backgroundColour = Color("backgroundColour")
+    static let backgroundCircleColour = Color("backgroundCircleColour")
+    static let headerTextColour = Color("headerTextColour")
     static let searchBarColour = Color("searchBarColour")
+    static let searchBarTextColour = Color("searchBarTextColour")
+    static let tabColour = Color("tabColour")
     static let textColour = Color("textColour")
     static let grayTextColour = Color("grayTextColour")
+    static let selectedTabColour = Color("selectedTabColour")
+    static let unselectedTabColour = Color("unselectedTabColour")
+    
     // Type colours
     static let bug = Color("bug")
     static let dark = Color("dark")
