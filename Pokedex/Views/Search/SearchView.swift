@@ -7,30 +7,13 @@
 
 import SwiftUI
 
-struct SearchSubmitted: EnvironmentKey {
-    static let defaultValue: Bool = false
-}
-
-extension EnvironmentValues {
-    var searchSubmitted: Bool {
-        get { self[SearchSubmitted.self] }
-        set { self[SearchSubmitted.self] = newValue }
-    }
-}
-
-extension View {
-    func onSearchSubmit(_ isSubmitted: Bool) -> some View {
-        environment(\.searchSubmitted, isSubmitted)
-    }
-}
-
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewViewModel()
     @State private var navigationPath = NavigationPath()
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            VStack(alignment: .leading, spacing: 20) {
+            VStack(spacing: 20) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(viewModel.headerTitle)
                         .headerStyle()
@@ -46,18 +29,19 @@ struct SearchView: View {
                 
                 Group {
                     switch viewModel.searchTab {
-                    case .pokemon: PokemonGridView()
+                    case .pokemon: PokemonGridView(searchSubmitted: $viewModel.searchSubmitted)
                     case .items: Text("Items search")
                     case .moves: Text("Moves search")
                     case .abilities: Text("Abilities search")
                     }
                 }
-                .searchText(viewModel.searchText)
-                .onSearchSubmit(viewModel.searchSubmitted)
+                .setSearchText(viewModel.searchText)
                 Spacer()
             }
+            .ignoresSafeArea(edges: .bottom)
             .background {
                 ZStack {
+                    Color.backgroundColour
                     Circle()
                         .fill(Color.backgroundCircleColour)
                         .frame(width: 650, height: 650)
@@ -106,7 +90,6 @@ private extension SearchView {
             static let cornerRadius = 20.0
         }
     }
-
 }
 
 struct SearchView_Previews: PreviewProvider {

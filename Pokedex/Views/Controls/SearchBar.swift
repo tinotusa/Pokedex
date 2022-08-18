@@ -7,6 +7,10 @@
 
 import SwiftUI
 
+final class SearchBarViewModel: ObservableObject {
+//    @Published var 
+}
+
 struct SearchBar: View {
     let placeholder: LocalizedStringKey
     @Binding var text: String
@@ -34,7 +38,6 @@ struct SearchBar: View {
                         .renderingMode(.original)
                 }
                 .transition(.opacity)
-                
             }
             
             Button {

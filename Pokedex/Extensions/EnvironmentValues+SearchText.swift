@@ -19,7 +19,7 @@ extension EnvironmentValues {
 }
 
 extension View {
-    func searchText(_ text: String) -> some View {
+    func setSearchText(_ text: String) -> some View {
         environment(\.searchText, text)
     }
 }

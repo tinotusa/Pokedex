@@ -36,6 +36,7 @@ extension ImageLoader {
         state = .loading
         do {
             let (data, urlResponse) = try await URLSession.shared.data(from: url)
+            try Task.checkCancellation()
             if let urlResponse = urlResponse as? HTTPURLResponse,
                !(200 ..< 299).contains(urlResponse.statusCode)
             {
@@ -46,6 +47,8 @@ extension ImageLoader {
             cache[url] = data
             state = .loaded
             return cache[url]
+        } catch is CancellationError {
+            print("Task cancelled in \(#function).")
         } catch {
             state = .error(error.localizedDescription)
             print(error)

@@ -36,7 +36,7 @@ final class PokeAPI: ObservableObject {
         case failedToGetHTTPURLResponse
         case invalidResponseStatusCode(code: Int)
         case failedToDecode
-        case other(error: Error)
+        case other(message: String)
     }
     
     private func sanitizeFilename(name: String) -> String {
@@ -59,7 +59,7 @@ final class PokeAPI: ObservableObject {
         
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
+            try Task.checkCancellation()
             guard let httpResponse = response as? HTTPURLResponse else {
                 print("Error in \(#function)\nFailed to get http url response")
                 throw PokeAPIError.failedToGetHTTPURLResponse
@@ -77,7 +77,7 @@ final class PokeAPI: ObservableObject {
             
         } catch {
             print(error)
-            throw PokeAPIError.other(error: error)
+            throw PokeAPIError.other(message: error.localizedDescription)
         }
     }
     
@@ -94,7 +94,7 @@ final class PokeAPI: ObservableObject {
         
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            
+            try Task.checkCancellation()
             guard let httpResponse = response as? HTTPURLResponse else {
                 print("Error in \(#function)\nFailed to get http url response")
                 throw PokeAPIError.failedToGetHTTPURLResponse
@@ -111,7 +111,7 @@ final class PokeAPI: ObservableObject {
             return decodedData
         } catch {
             print(error)
-            throw PokeAPIError.other(error: error)
+            throw PokeAPIError.other(message: error.localizedDescription)
         }
     }
 }

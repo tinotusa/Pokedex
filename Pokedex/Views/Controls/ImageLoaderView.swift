@@ -16,9 +16,10 @@ struct ImageLoaderView<Content: View, PlaceholderContent: View>: View {
     private let placeholder: () -> PlaceholderContent
     private let content: (Image) -> Content
     
-    init(url: URL?,
-         @ViewBuilder placeholder: @escaping () -> PlaceholderContent,
-         @ViewBuilder content: @escaping ((Image) -> Content)
+    init(
+        url: URL?,
+        @ViewBuilder placeholder: @escaping () -> PlaceholderContent,
+        @ViewBuilder content: @escaping ((Image) -> Content)
     ) {
         self.url = url
         self.placeholder = placeholder

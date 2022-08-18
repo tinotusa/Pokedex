@@ -9,6 +9,7 @@ import SwiftUI
 
 extension Color {
     static let backgroundCircleColour = Color("backgroundCircleColour")
+    static let backgroundColour = Color("backgroundColour")
     static let headerTextColour = Color("headerTextColour")
     static let searchBarColour = Color("searchBarColour")
     static let searchBarTextColour = Color("searchBarTextColour")
