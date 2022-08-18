@@ -9,6 +9,9 @@ import Foundation
 
 final class PokeAPI: ObservableObject {
     static let apiURL = "https://pokeapi.co/api/v2/"
+    static let apiURLScheme = "https"
+    static let hostName = "pokeapi.co"
+    static let pathName = "/api/v2"
     static let cacheFilename = "PokeAPIResults"
     static let shared = PokeAPI()
     private let cache = Cache<String, Data>()
@@ -18,16 +21,45 @@ final class PokeAPI: ObservableObject {
         cache.loadFromDisk(fromName: Self.cacheFilename)
     }
     
+    var shouldCacheResults = true {
+        didSet {
+            print("changed shouldCacheResults to \(shouldCacheResults)")
+        }
+    }
+}
+
+extension PokeAPI {
+    func getResourceList(
+        fromEndpoint endpoint: String,
+        limit: Int
+    )
+        async throws -> NamedAPIResourceList
+    {
+        var urlComponents = URLComponents()
+        urlComponents.scheme = Self.apiURLScheme
+        urlComponents.host = Self.hostName
+        urlComponents.path = "\(Self.pathName)/\(endpoint)"
+        urlComponents.queryItems = [
+            .init(name: "limit", value: "\(limit)"),
+            .init(name: "offset", value: "0")
+        ]
+        guard let url = urlComponents.url else {
+            print("Error in \(#function). Failed to create url from components")
+            throw PokeAPIError.invalidEndPoint
+        }
+        do {
+            let resourceList = try await getData(for: NamedAPIResourceList.self, url: url)
+            return resourceList
+        } catch {
+            print("Error in \(#function).")
+            throw PokeAPIError.other(message: error.localizedDescription)
+        }
+    }
+    
     func saveCache() {
         if shouldCacheResults {
             print("About to save to the cache")
             try? cache.saveToDisk(withName: Self.cacheFilename)
-        }
-    }
-    
-    var shouldCacheResults = true {
-        didSet {
-            print("changed shouldCacheResults to \(shouldCacheResults)")
         }
     }
     

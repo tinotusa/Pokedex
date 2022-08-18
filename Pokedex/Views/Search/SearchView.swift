@@ -30,7 +30,7 @@ struct SearchView: View {
                 Group {
                     switch viewModel.searchTab {
                     case .pokemon: PokemonGridView(searchSubmitted: $viewModel.searchSubmitted)
-                    case .items: Text("Items search")
+                    case .items: ItemGridView(searchSubmitted: $viewModel.searchSubmitted)
                     case .moves: Text("Moves search")
                     case .abilities: Text("Abilities search")
                     }

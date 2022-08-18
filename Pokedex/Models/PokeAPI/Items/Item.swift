@@ -15,7 +15,7 @@ struct Item: Codable, Hashable, Identifiable {
     /// The price of this item in stores.
     let cost: Int
     /// The power of the move Fling when used with this item.
-    let flingPower: Int
+    let flingPower: Int?
     /// The effect of the move Fling when used with this item.
     let flingEffect: NamedAPIResource?
     /// A list of attributes this item has.
@@ -66,5 +66,12 @@ extension Item: SearchByNameOrID {
     
     static func from(id: Int) async -> Item? {
         return await from(name: "\(id)")
+    }
+}
+
+// MARK: - Comparable conformance
+extension Item: Comparable {
+    static func < (lhs: Item, rhs: Item) -> Bool {
+        lhs.id < rhs.id
     }
 }

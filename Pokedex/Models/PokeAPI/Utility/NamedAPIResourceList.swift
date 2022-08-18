@@ -11,7 +11,7 @@ struct NamedAPIResourceList: Codable, Hashable {
     /// The total number of resources available from this API.
     let count: Int
     /// The URL for the next page in the list.
-    let next: String?
+    let next: URL?
     /// The URL for the previous page in the list.
     let previous: String?
     /// A list of named API resources.

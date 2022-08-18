@@ -38,8 +38,8 @@ extension PokemonGridViewViewModel {
             
             let resourceList = try? await PokeAPI.shared.getData(for: NamedAPIResourceList.self, url: url)
             guard let resourceList else { return }
-            if let nextURLString = resourceList.next {
-                nextPage = URL(string: nextURLString)
+            if let nextURL = resourceList.next {
+                nextPage = nextURL
                 hasNextPage = true
             } else {
                 hasNextPage = false
@@ -69,8 +69,8 @@ extension PokemonGridViewViewModel {
         let resourceList = try? await PokeAPI.shared.getData(for: NamedAPIResourceList.self, url: nextPage)
         
         guard let resourceList else { return }
-        if let nextURLString = resourceList.next {
-            self.nextPage = URL(string: nextURLString)
+        if let nextURL = resourceList.next {
+            self.nextPage = nextURL
             hasNextPage = true
         } else {
             hasNextPage = false
