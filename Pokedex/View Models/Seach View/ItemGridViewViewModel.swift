@@ -14,6 +14,8 @@ final class ItemGridViewViewModel: ObservableObject {
         didSet {
             if nextPageURL != nil {
                 hasNextPage = true
+            } else {
+                hasNextPage = false
             }
         }
     }
@@ -25,7 +27,6 @@ final class ItemGridViewViewModel: ObservableObject {
 extension ItemGridViewViewModel {
     func filteredItems(searchText: String) -> [Item] {
         if searchText.isEmpty { return items.sorted() }
-        
         if let id = Int(searchText) {
             return items.filter { item in
                 item.id == id

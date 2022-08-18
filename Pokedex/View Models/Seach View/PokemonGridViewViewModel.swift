@@ -10,13 +10,22 @@ import SwiftUI
 @MainActor
 final class PokemonGridViewViewModel: ObservableObject {
     @Published private(set) var pokemon: Set<Pokemon> = []
-    @Published private(set) var nextPage: URL?
+    @Published private(set) var nextPage: URL? {
+        didSet {
+            if nextPage != nil {
+                hasNextPage = true
+            } else {
+                hasNextPage = false
+            }
+        }
+    }
     @Published private(set) var hasNextPage: Bool = false
     private let limit = 20
 }
 
 extension PokemonGridViewViewModel {
     func getPokemon(searchText: String) async {
+        if searchText.isEmpty { return }
         guard let pokemon = await Pokemon.from(name: searchText) else {
             return
         }
@@ -25,24 +34,10 @@ extension PokemonGridViewViewModel {
     
     func getPokemonList() async {
         await withTaskGroup(of: Pokemon?.self) { group in
-            let baseAPIURL = URL(string: "https://pokeapi.co/api/v2")!
-            var request = URLRequest(url: baseAPIURL.appendingPathComponent("pokemon"))
-            let queryItems: [URLQueryItem] = [
-                .init(name: "offset", value: "0"),
-                .init(name: "limit", value: "\(limit)")
-            ]
-            request.url?.append(queryItems: queryItems)
-            let url = request.url
-            
-            guard let url else { return }
-            
-            let resourceList = try? await PokeAPI.shared.getData(for: NamedAPIResourceList.self, url: url)
+            let resourceList = try? await PokeAPI.shared.getResourceList(fromEndpoint: "pokemon", limit: limit)
             guard let resourceList else { return }
             if let nextURL = resourceList.next {
                 nextPage = nextURL
-                hasNextPage = true
-            } else {
-                hasNextPage = false
             }
             
             for resouce in resourceList.results {
@@ -71,9 +66,6 @@ extension PokemonGridViewViewModel {
         guard let resourceList else { return }
         if let nextURL = resourceList.next {
             self.nextPage = nextURL
-            hasNextPage = true
-        } else {
-            hasNextPage = false
         }
         
         await withTaskGroup(of: Pokemon?.self) { group in

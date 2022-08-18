@@ -11,6 +11,7 @@ import Combine
 struct PokemonGridView: View {
     @Binding private var searchSubmitted: Bool
     @Environment(\.searchText) private var searchText
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @StateObject private var viewModel = PokemonGridViewViewModel()
     @State private var hasSearched = true
     
@@ -18,7 +19,7 @@ struct PokemonGridView: View {
         _searchSubmitted = searchSubmitted
     }
     
-    private let columns: [GridItem] = [
+    @State private var columns: [GridItem] = [
         .init(.adaptive(minimum: 150))
     ]
               
@@ -31,10 +32,15 @@ struct PokemonGridView: View {
             }
         }
         .task {
+            print("appeared again")
+            if !viewModel.pokemon.isEmpty { return }
             await viewModel.getPokemonList()
         }
         .navigationDestination(for: Pokemon.self) { pokemon in
             PokemonDetail(pokemon: pokemon)
+        }
+        .onChange(of: horizontalSizeClass) { horizontalSizeClass in
+            setGridSize()
         }
         .onChange(of: searchSubmitted) { searchSubmitted in
             Task {
@@ -45,6 +51,23 @@ struct PokemonGridView: View {
 }
 
 private extension PokemonGridView {
+    func setGridSize() {
+        print("called")
+        if horizontalSizeClass == .compact {
+            print("is compact")
+            columns = [
+                .init(.adaptive(minimum: 250))
+            ]
+        }
+        if horizontalSizeClass == .regular {
+            print("is regular")
+            columns = [
+                .init(.adaptive(minimum: 150))
+                
+            ]
+        }
+    }
+    
     var loadingView: some View {
         VStack {
             Spacer()

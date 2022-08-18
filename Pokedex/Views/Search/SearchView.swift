@@ -14,31 +14,41 @@ struct SearchView: View {
     var body: some View {
         NavigationStack(path: $navigationPath) {
             VStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 0) {
+                Group {
                     Text(viewModel.headerTitle)
                         .headerStyle()
                         .foregroundColor(.headerTextColour)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                     SearchBar(placeholder: "Search", text: $viewModel.searchText) {
                         viewModel.searchSubmitted = true
                     }
+                    SearchTabs(selectedTab: $viewModel.searchTab)
+                        .frame(maxWidth: .infinity, alignment: .center)
                 }
                 .padding(.horizontal)
                 
-                SearchTabs(selectedTab: $viewModel.searchTab)
-                    .padding(.horizontal)
-                
-                Group {
-                    switch viewModel.searchTab {
-                    case .pokemon: PokemonGridView(searchSubmitted: $viewModel.searchSubmitted)
-                    case .items: ItemGridView(searchSubmitted: $viewModel.searchSubmitted)
-                    case .moves: Text("Moves search")
-                    case .abilities: Text("Abilities search")
-                    }
+                TabView(selection: $viewModel.searchTab) {
+                    PokemonGridView(searchSubmitted: $viewModel.searchSubmitted)
+                        .tag(SearchViewViewModel.SearchTab.pokemon)
+                    ItemGridView(searchSubmitted: $viewModel.searchSubmitted)
+                        .tag(SearchViewViewModel.SearchTab.items)
+                    Text("Moves search")
+                        .tag(SearchViewViewModel.SearchTab.moves)
+                    Text("Abilities search")
+                        .tag(SearchViewViewModel.SearchTab.abilities)
                 }
-                .setSearchText(viewModel.searchText)
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .ignoresSafeArea()
+                .setSearchText(
+                    viewModel.searchText
+                        .lowercased()
+                        .replacingOccurrences(of: " ", with: "-")
+                )
+                
                 Spacer()
             }
             .ignoresSafeArea(edges: .bottom)
+            .scrollDismissesKeyboard(.immediately)
             .background {
                 ZStack {
                     Color.backgroundColour
@@ -48,6 +58,7 @@ struct SearchView: View {
                         .offset(y: -650 + 150)
                 }
             }
+            .ignoresSafeArea(.keyboard, edges: .bottom)
         }
         .onAppear {
             viewModel.searchTab = .pokemon
@@ -69,11 +80,12 @@ private extension SearchView {
                             tabButton(for: tab)
                         }
                     }
+                    
                 }
             }
         }
         
-        private func tabButton(for tab: SearchViewViewModel.SearchTab) -> some View {
+        func tabButton(for tab: SearchViewViewModel.SearchTab) -> some View {
             Text(tab.rawValue.capitalized)
                 .padding(.horizontal)
                 .padding(.vertical, 5)
@@ -82,11 +94,11 @@ private extension SearchView {
                 .cornerRadius(Constants.cornerRadius)
         }
         
-        private func isSelectedTab(_ currentTab: SearchViewViewModel.SearchTab) -> Bool {
+        func isSelectedTab(_ currentTab: SearchViewViewModel.SearchTab) -> Bool {
             selectedTab == currentTab
         }
         
-        private enum Constants {
+        enum Constants {
             static let cornerRadius = 20.0
         }
     }

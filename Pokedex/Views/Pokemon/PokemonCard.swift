@@ -34,7 +34,9 @@ struct PokemonCard: View {
         .padding()
         .foregroundColor(.textColour)
         .background {
-            Color.white
+            RoundedRectangle(cornerRadius: Constants.backgroundCornerRadius)
+                .strokeBorder(pokemon.primaryTypeColour, lineWidth: 2)
+                .background(Color.cardBackgroundColour)
         }
         .cornerRadius(Constants.backgroundCornerRadius)
         .shadow(radius: 3)
