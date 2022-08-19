@@ -83,13 +83,13 @@ extension PokemonSpecies {
     }
     
     /// Returns the localized seed type name for this pokemon.
-    func seedType(language: String = "") -> String {
+    func seedType(language: Language?) -> String {
         let availableLanguageCodes = genera.map { genera in
             genera.language.name
         }
         let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
         let genera = genera.first { genera in
-            genera.language.name == (!language.isEmpty ? language : deviceLanguageCode)
+            genera.language.name == (language != nil ? language!.name : deviceLanguageCode)
         }
         if let genera {
             return genera.genus
@@ -152,7 +152,7 @@ extension PokemonSpecies: SearchByNameOrID {
 
 // MARK: Helper computed properties
 extension PokemonSpecies {
-    var localizedName: String {
-        return names.localizedName ?? "Error"
+    func localizedName(language: Language?) -> String {
+        return names.localizedName(language: language) ?? "Error"
     }
 }

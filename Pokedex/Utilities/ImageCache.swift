@@ -12,7 +12,7 @@ struct ImageCache {
     /// The cache for the images.
     private let cache = NSCache<NSURL, UIImage>()
     
-    /// Creats a new empty `ImageCache`
+    /// Creates a new empty `ImageCache`
     ///
     ///     let imageCache = ImageCache() // uses the default config
     ///

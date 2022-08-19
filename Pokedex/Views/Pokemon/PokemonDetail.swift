@@ -14,6 +14,7 @@ struct PokemonDetail: View {
     
     @StateObject private var viewModel = PokemonDetailViewModel()
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.appSettings) private var appSettings
     @EnvironmentObject var settingsManager: SettingsManager
     
     init(pokemon: Pokemon) {
@@ -53,7 +54,7 @@ struct PokemonDetail: View {
         }
         .toolbar(.hidden)
         .task {
-            await viewModel.setUp(pokemon: pokemon, settingsManager: settingsManager)
+            await viewModel.setUp(pokemon: pokemon, settings: appSettings)
         }
         .background {
             Rectangle()
@@ -72,7 +73,7 @@ private extension PokemonDetail {
     var pokemonInfoBar: some View {
         HStack {
             VStack(alignment: .leading) {
-                Text(viewModel.localizedPokemonName)
+                Text(viewModel.localizedPokemonName(language: appSettings.language))
                     .font(.largeTitle)
                     .bold()
                 HStack {

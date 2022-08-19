@@ -13,7 +13,7 @@ final class AboutTabViewModel: ObservableObject {
     @Published private(set) var pokemonSpecies: PokemonSpecies?
     @Published private(set) var eggGroups = [EggGroup]()
     @Published private(set) var abilities = [Ability]()
-    @Published var settingsManager: SettingsManager?
+    private var settings: Settings?
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
@@ -24,8 +24,8 @@ final class AboutTabViewModel: ObservableObject {
         }
     }
     
-    func setUp(settingsManager: SettingsManager) {
-        self.settingsManager = settingsManager
+    func setUp(settings: Settings) {
+        self.settings = settings
     }
     
 }
@@ -33,18 +33,19 @@ final class AboutTabViewModel: ObservableObject {
 // MARK: Computed properties
 extension AboutTabViewModel {
     var pokemonSeedType: String {
-        guard let pokemonSpecies else { return "Error" }
-        if let settings = settingsManager?.settings {
-            return pokemonSpecies.seedType(language: settings.language?.name ?? "")
+        guard let pokemonSpecies else {
+            print("Error in \(#function) at: \(#line), Pokemon species is nil")
+            return "Error"
         }
-        return "Error"
+        
+        return pokemonSpecies.seedType(language: settings?.language)
     }
     
     /// The localized names for the pokemons egg group.
     var eggGroupNames: String {
         var names = [String]()
         for eggGroup in eggGroups {
-            if let name = eggGroup.names.localizedName {
+            if let name = eggGroup.names.localizedName(language: settings?.language) {
                 names.append(name)
             } else {
                 names.append(eggGroup.name)
@@ -71,8 +72,12 @@ extension AboutTabViewModel {
     /// The localized names for the pokemon's abilities.
     var pokemonAbilities: String {
         var abilityNames = [String]()
+        guard let settings else {
+            print("Error in \(#function) at line: \(#line). Settings is nil.")
+            return "Error"
+        }
         for ability in abilities {
-            if let name = ability.names.localizedName {
+            if let name = ability.names.localizedName(language: settings.language) {
                 abilityNames.append(name)
             } else {
                 abilityNames.append(ability.name)
@@ -102,7 +107,7 @@ extension AboutTabViewModel {
         }
         let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLangaugeCodes, forPreferences: nil).first!
         var flavorText = species.flavorTextEntries.first { entry in
-            if let settings = settingsManager?.settings, let language = settings.language {
+            if let settings = settings, let language = settings.language {
                 return entry.language.name == language.name
             }
             return false

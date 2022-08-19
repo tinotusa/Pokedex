@@ -90,7 +90,7 @@ extension ItemGridView {
                 .frame(width: Constants.imageSize, height: Constants.imageSize)
                 
                 VStack(alignment: .leading) {
-                    Text(item.names.localizedName ?? item.name)
+                    Text(item.names.localizedName() ?? item.name)
                     HStack{
                         Text("Cost")
                         Spacer()

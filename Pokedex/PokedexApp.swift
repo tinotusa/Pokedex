@@ -17,6 +17,7 @@ struct PokedexApp: App {
             ContentView()
                 .environmentObject(imageLoader)
                 .environmentObject(settingsManager)
+                .setSettings(settingsManager.settings)
         }
     }
 }

@@ -8,9 +8,7 @@
 import SwiftUI
 
 extension Array where Element == Name {
-    var localizedName: String? {
-        @AppStorage("appSettings") var appSettings = Data()
-        let settings = SettingsManager.load(from: appSettings)
+    func localizedName(language: Language? = nil) -> String? {
 //        var availableLanguageCodes = ["en"] // adding something to the front of the array will help keep a safe fallback
         let availableLanguageCodes = self.map { name in
             name.language.name
@@ -20,10 +18,7 @@ extension Array where Element == Name {
         let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
         
         let matchingName: Name? = self.first { (name: Name) -> Bool in
-            guard let settings else {
-                return name.language.name == deviceLanguageCode
-            }
-            guard let language = settings.language else {
+            guard let language else {
                 return name.language.name == deviceLanguageCode
             }
             return name.language.name == language.name

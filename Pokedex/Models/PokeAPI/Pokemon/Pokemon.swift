@@ -61,11 +61,11 @@ extension Pokemon: SearchByNameOrID {
 // MARK: - Helpers
 extension Pokemon {
     /// Returns the localized name for the pokemon.
-    func localizedName(preferredLanguage: String = "en") async -> String {
+    func localizedName(language: Language?) async -> String {
         guard let species = await PokemonSpecies.from(name: self.name) else {
-            return "error"
+            return "Error"
         }
-        return species.localizedName
+        return species.localizedName(language: language)
     }
     
     /// Gets the type names for this pokemon's type.

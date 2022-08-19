@@ -12,6 +12,7 @@ struct PokemonCard: View {
     @State private var localizedPokemonName = ""
     @State private var typeNames = [String]()
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.appSettings) var appSettings
     
     var body: some View {
         VStack(spacing: 0) {
@@ -41,7 +42,7 @@ struct PokemonCard: View {
         .cornerRadius(Constants.backgroundCornerRadius)
         .shadow(radius: 3)
         .task {
-            localizedPokemonName = await pokemon.localizedName()
+            localizedPokemonName = await pokemon.localizedName(language: appSettings.language)
             typeNames = pokemon.getTypes()
         }
     }

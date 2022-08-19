@@ -40,7 +40,15 @@ final class SettingsManager: ObservableObject {
     
     private func load() {
         do {
+            if appSettings.isEmpty {
+                print("settings are empty")
+                settings = .default
+                return
+            }
+            print("=========== about to load settings ===========")
             settings = try JSONDecoder().decode(Settings.self, from: appSettings)
+            print(settings)
+            print("=========== loaded settings ===========")
         } catch {
             print("Error in \(#function).\n\(error)")
         }
@@ -57,8 +65,10 @@ final class SettingsManager: ObservableObject {
     
     private func saveSettings() {
         do {
-            @AppStorage("appSettings") var appSettings = Data()
             appSettings = try JSONEncoder().encode(settings)
+            print("=========== settings got saved ===========")
+            print(settings)
+            print("=========== settings got saved ===========")
         } catch {
             print("Error in \(#function).\n\(error)")
         }

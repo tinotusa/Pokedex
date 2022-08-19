@@ -5,7 +5,7 @@
 //  Created by Tino on 30/7/2022.
 //
 
-import Foundation
+import SwiftUI
 
 @MainActor
 final class EvolutionRequirementsSidebarViewViewModel: ObservableObject {
@@ -19,6 +19,7 @@ final class EvolutionRequirementsSidebarViewViewModel: ObservableObject {
     @Published private(set) var localizedPartySpeciesName: String?
     @Published private(set) var localizedPartyTypeName: String?
     @Published private(set) var localizedTradeSpeciesName: String?
+    private var settings: Settings?
     
     init(evolutionDetail: EvolutionDetail) {
         self.evolutionDetail = evolutionDetail
@@ -35,17 +36,22 @@ final class EvolutionRequirementsSidebarViewViewModel: ObservableObject {
         }
     }
     
+    func setUp(settings: Settings) {
+        self.settings = settings
+    }
+    
     func getLocalizedTriggerName() async -> String? {
+        guard let settings else { return nil }
         guard let trigger = await EvolutionTrigger.from(name: evolutionDetail.trigger.name) else {
             return nil
         }
-        return trigger.names.localizedName
+        return trigger.names.localizedName(language: settings.language)
     }
     
     func getLocalizedHeldItemName() async -> String? {
         guard let heldItem = evolutionDetail.heldItem else { return nil }
         let item = await Item.from(name: heldItem.name)
-        return item?.names.localizedName
+        return item?.names.localizedName()
     }
     
     func getLocalizedItemName() async -> String? {
@@ -53,43 +59,43 @@ final class EvolutionRequirementsSidebarViewViewModel: ObservableObject {
             return nil
         }
         let item = await Item.from(name: evolutionItem.name)
-        return item?.names.localizedName
+        return item?.names.localizedName()
     }
     
     func getLocalizedKnownMove() async -> String? {
         guard let knownMove = evolutionDetail.knownMove else { return nil }
         let move = await Move.from(name: knownMove.name)
-        return move?.names.localizedName
+        return move?.names.localizedName()
     }
     
     func getLocalizedKnowMoveType() async -> String? {
         guard let knownMoveType = evolutionDetail.knownMoveType else { return nil }
         let moveType = await `Type`.from(name: knownMoveType.name)
-        return moveType?.names.localizedName
+        return moveType?.names.localizedName()
     }
     
     func getLocalizedLocationName() async -> String? {
         guard let locationResource = evolutionDetail.location else { return nil }
         let location = await Location.from(name: locationResource.name)
-        return location?.names.localizedName
+        return location?.names.localizedName()
     }
     
     func getLocalizedPartySpeciesName() async -> String? {
         guard let partySpecies = evolutionDetail.partySpecies else { return nil }
         let pokemonSpecies = await PokemonSpecies.from(name: partySpecies.name)
-        return pokemonSpecies?.names.localizedName
+        return pokemonSpecies?.names.localizedName()
     }
     
     func getLocalizedPartyTypeName() async -> String? {
         guard let partyType = evolutionDetail.partyType else { return nil }
         let type = await `Type`.from(name: partyType.name)
-        return type?.names.localizedName
+        return type?.names.localizedName()
     }
     
     func getLocalizedTradeSpecies() async -> String? {
         guard let tradeSpecies = evolutionDetail.tradeSpecies else { return nil }
         let pokemonSpecies = await PokemonSpecies.from(name: tradeSpecies.name)
-        return pokemonSpecies?.names.localizedName
+        return pokemonSpecies?.names.localizedName()
     }
 }
 

@@ -14,13 +14,13 @@ final class PokemonDetailViewModel: ObservableObject {
     @Published private(set) var eggGroups = [EggGroup]()
     @Published private(set) var types = [`Type`]()
     @Published private(set) var isLoading = false
-    @Published private(set) var settingsManager: SettingsManager?
+    private var settings: Settings?
 
-    func setUp(pokemon: Pokemon, settingsManager: SettingsManager) async {
+    func setUp(pokemon: Pokemon, settings: Settings) async {
         isLoading = true
         defer { isLoading = false }
         self.pokemon = pokemon
-        self.settingsManager = settingsManager
+        self.settings = settings
         pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
         types = await getTypes()
         eggGroups = await pokemonSpecies?.eggGroups() ?? []
@@ -29,17 +29,14 @@ final class PokemonDetailViewModel: ObservableObject {
 }
 
 extension PokemonDetailViewModel {
-    var localizedPokemonName: String {
+    func localizedPokemonName(language: Language?) -> String {
         guard let pokemon else { return "Error" }
-        return pokemonSpecies?.localizedName ?? pokemon.name
+        return pokemonSpecies?.localizedName(language: language) ?? pokemon.name
     }
     
     var pokemonSeedType: String {
         guard let pokemonSpecies else { return "No species found." }
-        if let settings = settingsManager?.settings, let language = settings.language {
-            return pokemonSpecies.seedType(language: language.name)
-        }
-        return pokemonSpecies.seedType()
+        return pokemonSpecies.seedType(language: settings?.language)
     }
     /// The url for the pokemon's artwork
     var pokemonImageURL: URL? {

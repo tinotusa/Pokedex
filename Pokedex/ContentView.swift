@@ -26,6 +26,7 @@ final class ContentViewViewModel: ObservableObject {
 
 struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
+    @Environment(\.appSettings) var appSettings
     @StateObject var viewModel = ContentViewViewModel()
     @EnvironmentObject var settingsManager: SettingsManager
     
@@ -40,7 +41,7 @@ struct ContentView: View {
             .task {
                 viewModel.setUp(settingsManager: settingsManager)
             }
-            .environment(\.colorScheme, viewModel.isDarkMode ? .dark : .light)
+            .environment(\.colorScheme, appSettings.isDarkMode ? .dark : .light)
     }
 }
 

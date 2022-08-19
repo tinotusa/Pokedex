@@ -9,8 +9,11 @@ import SwiftUI
 
 /// A small rounded rectangle with the name and colour of the pokemon's type.
 struct PokemonTypeTag: View {
+    /// The label of the tag.
     let name: String
+    /// The localized name of the tag name.
     @State private var localizedName: String?
+    @Environment(\.appSettings) var appSettings
     
     init(name: String) {
         self.name = name
@@ -39,7 +42,7 @@ extension PokemonTypeTag {
 private extension PokemonTypeTag {
     func localizedType() async -> String {
         guard let type = await `Type`.from(name: name) else { return name }
-        return type.names.localizedName ?? name
+        return type.names.localizedName(language: appSettings.language) ?? name
     }
 }
 

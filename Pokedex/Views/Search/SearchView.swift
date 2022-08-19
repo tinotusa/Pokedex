@@ -10,7 +10,9 @@ import SwiftUI
 struct SearchView: View {
     @StateObject private var viewModel = SearchViewViewModel()
     @State private var navigationPath = NavigationPath()
-
+    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.appSettings) var appSettings
+    
     var body: some View {
         NavigationStack(path: $navigationPath) {
             VStack(spacing: 20) {
