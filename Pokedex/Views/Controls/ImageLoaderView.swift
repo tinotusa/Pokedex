@@ -10,7 +10,6 @@ import SwiftUI
 struct ImageLoaderView<Content: View, PlaceholderContent: View>: View {
     @EnvironmentObject var imageLoader: ImageLoader
     @State private var image: UIImage?
-    @State private var data: Data?
     
     private let url: URL?
     private let placeholder: () -> PlaceholderContent
@@ -19,7 +18,7 @@ struct ImageLoaderView<Content: View, PlaceholderContent: View>: View {
     init(
         url: URL?,
         @ViewBuilder placeholder: @escaping () -> PlaceholderContent,
-        @ViewBuilder content: @escaping ((Image) -> Content)
+        @ViewBuilder content: @escaping (Image) -> Content
     ) {
         self.url = url
         self.placeholder = placeholder
@@ -31,8 +30,8 @@ struct ImageLoaderView<Content: View, PlaceholderContent: View>: View {
             if imageLoader.state == .loading {
                 placeholder()
             } else if imageLoader.state == .loaded {
-                if let uiImage = image, let image = Image(uiImage: uiImage) {
-                    content(image)
+                if let uiImage = image {
+                    content(Image(uiImage: uiImage))
                 }
             } else {
                 ZStack {
@@ -44,10 +43,7 @@ struct ImageLoaderView<Content: View, PlaceholderContent: View>: View {
             }
         }
         .task {
-            data = await imageLoader.getImage(url: url)
-            if let data {
-                image = UIImage(data: data)
-            }
+            image = await imageLoader.getImage(url: url)
         }
     }
 }

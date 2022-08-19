@@ -8,7 +8,7 @@
 import SwiftUI
 
 final class ImageLoader: ObservableObject {
-    private var cache = Cache<URL, Data>()
+    private var cache = ImageCache()
     @Published var state = LoadingState.loading
 }
 
@@ -20,7 +20,7 @@ extension ImageLoader {
 
 extension ImageLoader {
     @MainActor
-    func getImage(url: URL?) async -> Data? {
+    func getImage(url: URL?) async -> UIImage? {
         state = .loading
         if let url, let image = cache[url] {
             print("getting image")
@@ -31,7 +31,7 @@ extension ImageLoader {
     }
     
     @MainActor
-    private func loadImage(url: URL?) async -> Data? {
+    private func loadImage(url: URL?) async -> UIImage? {
         guard let url else { return nil }
         state = .loading
         do {
@@ -44,7 +44,7 @@ extension ImageLoader {
                 state = .error("Invalid status code: \(urlResponse.statusCode)")
                 return nil
             }
-            cache[url] = data
+            cache[url] = UIImage(data: data)
             state = .loaded
             return cache[url]
         } catch is CancellationError {
