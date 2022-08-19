@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct ImageLoaderView<Content: View, PlaceholderContent: View>: View {
-    @EnvironmentObject var imageLoader: ImageLoader
-    @State private var image: UIImage?
+    @EnvironmentObject private var imageCache: ImageCache
+    @StateObject private var imageLoader = ImageLoader()
     
     private let url: URL?
     private let placeholder: () -> PlaceholderContent
@@ -27,23 +27,25 @@ struct ImageLoaderView<Content: View, PlaceholderContent: View>: View {
     
     var body: some View {
         VStack {
-            if imageLoader.state == .loading {
+            switch imageLoader.state {
+            case .idle, .isLoading:
                 placeholder()
-            } else if imageLoader.state == .loaded {
-                if let uiImage = image {
+            case .finishedLoading:
+                if let uiImage = imageLoader.uiImage {
                     content(Image(uiImage: uiImage))
                 }
-            } else {
+            case .error(_):
                 ZStack {
                     RoundedRectangle(cornerRadius: 24)
                         .foregroundColor(.red.opacity(0.5))
-                    Text("Failed to load image.")
+                    Text("Failed to load image")
                         .foregroundColor(.textColour)
                 }
             }
         }
         .task {
-            image = await imageLoader.getImage(url: url)
+            imageLoader.cache = imageCache
+            await imageLoader.getImage(url: url)
         }
     }
 }

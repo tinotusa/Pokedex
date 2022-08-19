@@ -29,6 +29,16 @@ final class PokeAPI: ObservableObject {
 }
 
 extension PokeAPI {
+    enum PokeAPIError: Error {
+        case invalidEndPoint
+        case failedToGetHTTPURLResponse
+        case invalidResponseStatusCode(code: Int)
+        case failedToDecode
+        case other(message: String)
+    }
+}
+
+extension PokeAPI {
     func getResourceList(
         fromEndpoint endpoint: String,
         limit: Int
@@ -61,14 +71,6 @@ extension PokeAPI {
             print("About to save to the cache")
             try? cache.saveToDisk(withName: Self.cacheFilename)
         }
-    }
-    
-    enum PokeAPIError: Error {
-        case invalidEndPoint
-        case failedToGetHTTPURLResponse
-        case invalidResponseStatusCode(code: Int)
-        case failedToDecode
-        case other(message: String)
     }
     
     private func sanitizeFilename(name: String) -> String {
@@ -145,5 +147,26 @@ extension PokeAPI {
             print(error)
             throw PokeAPIError.other(message: error.localizedDescription)
         }
+    }
+    
+    func getItems<T>(ofType type: T.Type, from resourceList: NamedAPIResourceList) async -> (Set<T>, URL?)
+        where T: Codable & SearchByName
+    {
+        var items = Set<T>()
+        await withTaskGroup(of: T?.self) { group in
+            for resource in resourceList.results {
+                group.addTask {
+                    let item = await T.from(name: resource.name)
+                    return item as? T
+                }
+            }
+            
+            for await item in group {
+                if let item {
+                    items.insert(item)
+                }
+            }
+        }
+        return (items, resourceList.next)
     }
 }

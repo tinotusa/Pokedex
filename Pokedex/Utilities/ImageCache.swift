@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// An in memory cache for images.
-struct ImageCache {
+final class ImageCache: ObservableObject {
     /// The cache for the images.
     private let cache = NSCache<NSURL, UIImage>()
     

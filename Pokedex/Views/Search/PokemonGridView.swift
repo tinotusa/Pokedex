@@ -13,7 +13,6 @@ struct PokemonGridView: View {
     @Environment(\.searchText) private var searchText
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @StateObject private var viewModel = PokemonGridViewViewModel()
-    @State private var hasSearched = true
     
     init(searchSubmitted: Binding<Bool>) {
         _searchSubmitted = searchSubmitted

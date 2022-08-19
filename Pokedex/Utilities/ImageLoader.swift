@@ -8,32 +8,40 @@
 import SwiftUI
 
 final class ImageLoader: ObservableObject {
-    private var cache = ImageCache()
-    @Published var state = LoadingState.loading
+    @Published var cache: ImageCache?
+    @Published var uiImage: UIImage?
+    @Published var state = LoadingState.idle
+    
+    init(cache: ImageCache = ImageCache()) {
+        self.cache = cache
+    }
 }
 
 extension ImageLoader {
     enum LoadingState: Equatable {
-        case loading, loaded, error(String)
+        case idle, isLoading, finishedLoading, error(String)
     }
 }
 
 extension ImageLoader {
     @MainActor
-    func getImage(url: URL?) async -> UIImage? {
-        state = .loading
-        if let url, let image = cache[url] {
+    func getImage(url: URL?) async {
+        if state == .isLoading { return }
+        
+        if let url, let image = cache?[url] {
             print("getting image")
-            state = .loaded
-            return image
+            uiImage = image
+            state = .finishedLoading
+            return
         }
-        return await loadImage(url: url)
+        
+        await loadImage(url: url)
     }
     
     @MainActor
-    private func loadImage(url: URL?) async -> UIImage? {
-        guard let url else { return nil }
-        state = .loading
+    private func loadImage(url: URL?) async {
+        guard let url else { return }
+        state = .isLoading
         do {
             let (data, urlResponse) = try await URLSession.shared.data(from: url)
             try Task.checkCancellation()
@@ -42,18 +50,18 @@ extension ImageLoader {
             {
                 print("Error in \(#function).\nInvalid status code: \(urlResponse.statusCode)")
                 state = .error("Invalid status code: \(urlResponse.statusCode)")
-                return nil
+                return
             }
-            cache[url] = UIImage(data: data)
-            state = .loaded
-            return cache[url]
+            cache?[url] = UIImage(data: data)
+            uiImage = cache?[url]
+            state = .finishedLoading
+            return
         } catch is CancellationError {
             print("Task cancelled in \(#function).")
         } catch {
             state = .error(error.localizedDescription)
             print(error)
         }
-        state = .error("Unknown error")
-        return nil
+        return
     }
 }

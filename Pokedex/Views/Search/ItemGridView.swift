@@ -92,10 +92,15 @@ extension ItemGridView {
                 VStack(alignment: .leading) {
                     Text(item.names.localizedName() ?? item.name)
                     HStack{
-                        Text("Cost")
-                        Spacer()
-                        Text("\(item.cost)")
+                        if item.cost == 0 {
+                            Text("Quest item")
+                        } else {
+                            Text("Cost")
+                            Spacer()
+                            Text("\(item.cost)")
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 .bodyStyle()
                 .foregroundColor(.textColour)

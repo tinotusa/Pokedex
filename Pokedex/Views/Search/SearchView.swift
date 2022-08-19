@@ -34,7 +34,7 @@ struct SearchView: View {
                         .tag(SearchViewViewModel.SearchTab.pokemon)
                     ItemGridView(searchSubmitted: $viewModel.searchSubmitted)
                         .tag(SearchViewViewModel.SearchTab.items)
-                    Text("Moves search")
+                    MoveGridView()
                         .tag(SearchViewViewModel.SearchTab.moves)
                     Text("Abilities search")
                         .tag(SearchViewViewModel.SearchTab.abilities)

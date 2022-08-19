@@ -27,7 +27,6 @@ final class AboutTabViewModel: ObservableObject {
     func setUp(settings: Settings) {
         self.settings = settings
     }
-    
 }
 
 // MARK: Computed properties
