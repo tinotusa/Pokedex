@@ -1,8 +1,8 @@
 //
-//  MoveGridView.swift
+//  MoveGridViewViewModel.swift
 //  Pokedex
 //
-//  Created by Tino on 19/8/2022.
+//  Created by Tino on 20/8/2022.
 //
 
 import SwiftUI
@@ -33,7 +33,7 @@ extension MoveGridViewViewModel {
         await withTaskGroup(of: Move?.self) { group in
             for resource in resourceList.results {
                 group.addTask {
-                    let move = await Move.from(name: resource.name)
+                    let move = try? await Move.from(name: resource.name)
                     return move
                 }
             }
@@ -64,25 +64,6 @@ extension MoveGridViewViewModel {
         let (moves, otherURL) = await PokeAPI.shared.getItems(ofType: Move.self, from: resourceList)
         self.nextURL = otherURL
         self.moves.formUnion(moves)
-//        await withTaskGroup(of: Move?.self) { group in
-//            for resource in resourceList.results {
-//                group.addTask {
-//                    let move = await Move.from(name: resource.name)
-//                    print("Move name \(resource.name)")
-//                    return move
-//                }
-//            }
-//            var tempMoves = Set<Move>()
-//            for await move in group {
-//                if let move {
-//                    print("adding move: \(move.name)")
-//                    tempMoves.insert(move)
-//                }
-//            }
-//            print("temp count: \(tempMoves.count)")
-//            self.moves.formUnion(tempMoves)
-////                state = .finishedLoading
-//        }
         
     }
     
@@ -100,47 +81,5 @@ extension MoveGridViewViewModel {
             move.name.contains(searchText)
         }
         .sorted()
-    }
-}
-
-struct MoveGridView: View {
-    @Environment(\.searchText) var searchText
-    @EnvironmentObject private var viewModel: MoveGridViewViewModel
-    
-    var body: some View {
-        ScrollView {
-            LazyVStack {
-                ForEach(viewModel.filteredMoves(searchText: searchText)) { move in
-                    NavigationLink(value: move) {
-                        Text(move.name)
-                    }
-                    .buttonStyle(.plain)
-                }
-                if searchText.isEmpty && viewModel.hasNextPage && !viewModel.isLoading {
-                    ProgressView()
-                        .task {
-                            print("Here lmao")
-                            await viewModel.getNextMovesPage()
-                        }
-                }
-            }
-        }
-        .navigationDestination(for: Move.self) { move in
-            Text("Move detail page here: \(move.name)")
-        }
-        .task {
-            if !viewModel.viewHasAppeared {
-                await viewModel.getMoves()
-                viewModel.viewHasAppeared = true
-            }
-        }
-    }
-}
-
-struct MoveGridView_Previews: PreviewProvider {
-    static var previews: some View {
-        NavigationStack {
-            MoveGridView()
-        }
     }
 }
