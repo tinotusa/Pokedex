@@ -53,3 +53,14 @@ extension Generation {
         }
     }
 }
+
+// MARK: - SearchByNameOrID conformance
+extension Generation: SearchByNameOrID {
+    static func from(name: String) async throws -> Generation {
+        try await PokeAPI.shared.getData(for: Generation.self, fromEndpoint: "generation/\(name)")
+    }
+    
+    static func from(id: Int) async throws -> Generation {
+        try await from(name: "\(id)")
+    }
+}
