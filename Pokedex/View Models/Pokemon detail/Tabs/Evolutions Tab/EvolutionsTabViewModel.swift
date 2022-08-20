@@ -16,7 +16,7 @@ final class EvolutionsTabViewModel: ObservableObject {
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
         Task {
-            pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
+            pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.name)
             guard let evolutionChainURL = pokemonSpecies?.evolutionChain?.url else {
                 return
             }

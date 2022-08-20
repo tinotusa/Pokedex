@@ -74,7 +74,7 @@ extension PokemonSpecies {
     func eggGroups() async -> [EggGroup] {
         var results = [EggGroup]()
         for eggGroup in self.eggGroups {
-            guard let group = await EggGroup.from(name: eggGroup.name) else {
+            guard let group = try? await EggGroup.from(name: eggGroup.name) else {
                 continue
             }
             results.append(group)
@@ -140,12 +140,12 @@ extension PokemonSpecies {
 
 // MARK: - SearchByNameOrID conformance
 extension PokemonSpecies: SearchByNameOrID {
-    static func from(name: String) async -> PokemonSpecies? {
-        return try? await PokeAPI.shared.getData(for: PokemonSpecies.self, fromEndpoint: "pokemon-species/\(name)")
+    static func from(name: String) async throws -> PokemonSpecies {
+        try await PokeAPI.shared.getData(for: PokemonSpecies.self, fromEndpoint: "pokemon-species/\(name)")
     }
     
-    static func from(id: Int) async -> PokemonSpecies? {
-        return await from(name: "\(id)")
+    static func from(id: Int) async throws -> PokemonSpecies {
+        try await from(name: "\(id)")
     }
 }
 

@@ -158,7 +158,7 @@ extension PokeAPI {
         await withTaskGroup(of: T?.self) { group in
             for resource in resourceList.results {
                 group.addTask {
-                    let item = await T.from(name: resource.name)
+                    let item = try? await T.from(name: resource.name)
                     return item as? T
                 }
             }

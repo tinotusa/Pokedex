@@ -28,7 +28,7 @@ final class MovesTabViewModel: ObservableObject {
             for pokemonMove in pokemon.moves {
                 group.addTask {
                     let name = pokemonMove.move.name
-                    let move = await Move.from(name: name)
+                    let move = try? await Move.from(name: name)
                     return move
                 }
             }

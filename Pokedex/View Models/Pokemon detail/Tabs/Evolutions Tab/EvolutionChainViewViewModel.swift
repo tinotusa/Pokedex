@@ -17,10 +17,10 @@ final class EvolutionChainViewViewModel: ObservableObject {
     init(chainLink: ChainLink) {
         self.chainLink = chainLink
         Task {
-            pokemonSpecies = await PokemonSpecies.from(name: chainLink.species.name)
-            pokemon = await Pokemon.from(name: chainLink.species.name)
+            pokemonSpecies = try? await PokemonSpecies.from(name: chainLink.species.name)
+            pokemon = try? await Pokemon.from(name: chainLink.species.name)
             if let evolutionDetails = chainLink.evolutionDetails, !evolutionDetails.isEmpty {
-                evolutionTrigger = await EvolutionTrigger.from(name: evolutionDetails.first!.trigger.name)
+                evolutionTrigger = try? await EvolutionTrigger.from(name: evolutionDetails.first!.trigger.name)
             }
         }
     }

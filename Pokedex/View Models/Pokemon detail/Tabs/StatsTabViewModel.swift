@@ -152,7 +152,7 @@ private extension StatsTabViewModel {
         guard let pokemon else { return [] }
         var results = [`Type`]()
         for type in pokemon.types {
-            guard let type = await `Type`.from(name: type.type.name) else {
+            guard let type = try? await `Type`.from(name: type.type.name) else {
                 continue
             }
             results.append(type)
@@ -172,7 +172,7 @@ private extension StatsTabViewModel {
             stat.stat.name == statName.rawValue
         }
         guard let stat else { fatalError("Fatal error in \(#function)\nInvalid pokemon stat name \"\(statName.rawValue)\"") }
-        return await Stat.from(name: stat.stat.name)
+        return try? await Stat.from(name: stat.stat.name)
     }
     
     /// Gets the types that this pokemon's type is weak against.
@@ -181,7 +181,7 @@ private extension StatsTabViewModel {
         var results = Set<`Type`>()
         for type in types {
             for type in type.damageRelations.doubleDamageFrom {
-                guard let type = await `Type`.from(name: type.name) else { continue }
+                guard let type = try? await `Type`.from(name: type.name) else { continue }
                 results.insert(type)
             }
         }
@@ -194,7 +194,7 @@ private extension StatsTabViewModel {
         var results = Set<`Type`>()
         for type in types {
             for type in type.damageRelations.doubleDamageTo {
-                guard let type = await `Type`.from(name: type.name) else { continue }
+                guard let type = try? await `Type`.from(name: type.name) else { continue }
                 results.insert(type)
             }
         }

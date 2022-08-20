@@ -49,12 +49,12 @@ struct Pokemon: Identifiable, Hashable {
 
 // MARK: - SearchByNameOrID conformance
 extension Pokemon: SearchByNameOrID {
-    static func from(name: String) async -> Pokemon? {
-        try? await PokeAPI.shared.getData(for: Pokemon.self, fromEndpoint: "pokemon/\(name)")
+    static func from(name: String) async throws -> Pokemon {
+        try await PokeAPI.shared.getData(for: Pokemon.self, fromEndpoint: "pokemon/\(name)")
     }
     
-    static func from(id: Int) async -> Pokemon? {
-        return await Self.from(name: "\(id)")
+    static func from(id: Int) async throws -> Pokemon {
+        try await from(name: "\(id)")
     }
 }
 
@@ -62,7 +62,7 @@ extension Pokemon: SearchByNameOrID {
 extension Pokemon {
     /// Returns the localized name for the pokemon.
     func localizedName(language: Language?) async -> String {
-        guard let species = await PokemonSpecies.from(name: self.name) else {
+        guard let species = try? await PokemonSpecies.from(name: self.name) else {
             return "Error"
         }
         return species.localizedName(language: language)

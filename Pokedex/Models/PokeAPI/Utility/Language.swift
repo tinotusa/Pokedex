@@ -50,12 +50,12 @@ extension Language {
 
 // MARK: - SearchByNameOrID conformance
 extension Language: SearchByNameOrID {
-    static func from(name: String) async -> Language? {
-        return try? await PokeAPI.shared.getData(for: Language.self, fromEndpoint: "language/\(name)")
+    static func from(name: String) async throws -> Language {
+        try await PokeAPI.shared.getData(for: Language.self, fromEndpoint: "language/\(name)")
     }
     
-    static func from(id: Int) async -> Language? {
-        await from(name: "\(id)")
+    static func from(id: Int) async throws -> Language {
+        try await from(name: "\(id)")
     }
 }
 

@@ -27,7 +27,7 @@ final class PokemonGridViewViewModel: ObservableObject {
 extension PokemonGridViewViewModel {
     func getPokemon(searchText: String) async {
         if searchText.isEmpty { return }
-        guard let pokemon = await Pokemon.from(name: searchText) else {
+        guard let pokemon = try? await Pokemon.from(name: searchText) else {
             return
         }
         self.pokemon.insert(pokemon)
@@ -43,7 +43,7 @@ extension PokemonGridViewViewModel {
             
             for resouce in resourceList.results {
                 group.addTask {
-                    let pokemon = await Pokemon.from(name: resouce.name)
+                    let pokemon = try? await Pokemon.from(name: resouce.name)
                     return pokemon
                 }
             }
@@ -72,7 +72,7 @@ extension PokemonGridViewViewModel {
         await withTaskGroup(of: Pokemon?.self) { group in
             for resouce in resourceList.results {
                 group.addTask {
-                    let pokemon = await Pokemon.from(name: resouce.name)
+                    let pokemon = try? await Pokemon.from(name: resouce.name)
                     return pokemon
                 }
             }

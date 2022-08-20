@@ -60,12 +60,12 @@ struct Item: Codable, Hashable, Identifiable {
 
 // MARK: - SearchByNameOrID conformance
 extension Item: SearchByNameOrID {
-    static func from(name: String) async -> Item? {
-        return try? await PokeAPI.shared.getData(for: Item.self, fromEndpoint: "item/\(name)")
+    static func from(name: String) async throws -> Item {
+        try await PokeAPI.shared.getData(for: Item.self, fromEndpoint: "item/\(name)")
     }
     
-    static func from(id: Int) async -> Item? {
-        return await from(name: "\(id)")
+    static func from(id: Int) async throws -> Item {
+        try await from(name: "\(id)")
     }
 }
 

@@ -45,7 +45,7 @@ extension ItemGridViewViewModel {
             print("In \(#function). Search text is empty.")
             return
         }
-        let item = await Item.from(name: searchText)
+        let item = try? await Item.from(name: searchText)
         if let item {
             items.insert(item)
         }
@@ -78,7 +78,7 @@ extension ItemGridViewViewModel {
         await withTaskGroup(of: Item?.self) { group in
             for result in list {
                 group.addTask {
-                    let item = await Item.from(name: result.name)
+                    let item = try? await Item.from(name: result.name)
                     return item
                 }
             }

@@ -21,7 +21,7 @@ final class PokemonDetailViewModel: ObservableObject {
         defer { isLoading = false }
         self.pokemon = pokemon
         self.settings = settings
-        pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
+        pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.name)
         types = await getTypes()
         eggGroups = await pokemonSpecies?.eggGroups() ?? []
         
@@ -55,7 +55,7 @@ extension PokemonDetailViewModel {
         guard let pokemon else { return [] }
         var tempTypes = [`Type`]()
         for type in pokemon.types {
-            let typeDetails = await `Type`.from(name: type.type.name)
+            let typeDetails = try? await `Type`.from(name: type.type.name)
             if let typeDetails {
                 tempTypes.append(typeDetails)
             }

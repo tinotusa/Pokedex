@@ -35,7 +35,7 @@ struct TempSettingsView: View {
             return
         }
         for result in resourceList.results {
-            guard let language = await Language.from(name: result.name) else {
+            guard let language = try? await Language.from(name: result.name) else {
                 continue
             }
             self.languages.append(language)

@@ -24,11 +24,11 @@ struct Stat: Codable, Identifiable {
 }
 
 extension Stat: SearchByNameOrID {
-    static func from(name: String) async -> Stat? {
-        try? await PokeAPI.shared.getData(for: Stat.self, fromEndpoint: "stat/\(name)")
+    static func from(name: String) async throws -> Stat {
+        try await PokeAPI.shared.getData(for: Stat.self, fromEndpoint: "stat/\(name)")
     }
     
-    static func from(id: Int) async -> Stat? {
-        return await Self.from(name: "\(id)")
+    static func from(id: Int) async throws -> Stat {
+        try await Self.from(name: "\(id)")
     }
 }

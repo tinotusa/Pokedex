@@ -41,7 +41,7 @@ extension PokemonTypeTag {
 
 private extension PokemonTypeTag {
     func localizedType() async -> String {
-        guard let type = await `Type`.from(name: name) else { return name }
+        guard let type = try? await `Type`.from(name: name) else { return name }
         return type.names.localizedName(language: appSettings.language, default: name)
     }
 }

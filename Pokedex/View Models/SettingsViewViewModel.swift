@@ -20,7 +20,7 @@ final class SettingsViewViewModel: ObservableObject {
             await withTaskGroup(of: Language?.self) { group in
                 for result in resourceList.results {
                     group.addTask {
-                        let language = await Language.from(name: result.name)
+                        let language = try? await Language.from(name: result.name)
                         return language
                     }
                 }

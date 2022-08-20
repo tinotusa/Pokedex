@@ -18,7 +18,7 @@ final class AboutTabViewModel: ObservableObject {
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
         Task {
-            pokemonSpecies = await PokemonSpecies.from(name: pokemon.name)
+            pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.name)
             abilities = await getPokemonAbilities()
             eggGroups = await pokemonSpecies?.eggGroups() ?? []
         }
@@ -120,7 +120,7 @@ private extension AboutTabViewModel {
     func getPokemonAbilities() async -> [Ability] {
         var abilities = [Ability]()
         for pokemonAbility in pokemon.abilities {
-            guard let ability = await Ability.from(name: pokemonAbility.ability.name) else { continue }
+            guard let ability = try? await Ability.from(name: pokemonAbility.ability.name) else { continue }
             abilities.append(ability)
         }
         return abilities
