@@ -153,6 +153,6 @@ extension PokemonSpecies: SearchByNameOrID {
 // MARK: Helper computed properties
 extension PokemonSpecies {
     func localizedName(language: Language?) -> String {
-        return names.localizedName(language: language) ?? "Error"
+        return names.localizedName(language: language)
     }
 }

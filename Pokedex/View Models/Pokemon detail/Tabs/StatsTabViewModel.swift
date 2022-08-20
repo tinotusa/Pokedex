@@ -143,7 +143,7 @@ private extension StatsTabViewModel {
     /// - returns: The localized name for the stat or Error if the `Stat` is nil.
     func statName(for stat: Stat?) -> String {
         guard let stat else { return "Error" }
-        return stat.names.localizedName() ?? stat.name
+        return stat.names.localizedName(default: stat.name)
     }
     
     /// Gets the types for this pokemon.

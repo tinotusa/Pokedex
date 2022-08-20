@@ -92,7 +92,7 @@ extension ItemGridView {
                 .frame(width: Constants.imageSize, height: Constants.imageSize)
                 
                 VStack(alignment: .leading) {
-                    Text(item.names.localizedName() ?? item.name)
+                    Text(item.names.localizedName(default: item.name))
                     HStack{
                         if item.cost == 0 {
                             Text("Quest item")

@@ -27,7 +27,7 @@ final class EvolutionChainViewViewModel: ObservableObject {
     
     var localizedPokemonName: String {
         guard let pokemonSpecies else { return "Error" }
-        return pokemonSpecies.names.localizedName() ?? "Error234"
+        return pokemonSpecies.names.localizedName(default: "Error")
     }
     
     var pokemonImageURL: URL? {
@@ -36,6 +36,6 @@ final class EvolutionChainViewViewModel: ObservableObject {
     
     var localizedEvolutionTriggerName: String {
         guard let evolutionTrigger else { return "Error" }
-        return evolutionTrigger.names.localizedName() ?? "Error"
+        return evolutionTrigger.names.localizedName(default: "Error")
     }
 }

@@ -12,7 +12,7 @@ struct MoveGridItemView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            Text(move.names.localizedName() ?? move.name)
+            Text(move.names.localizedName(default: move.name))
                 .lineLimit(1)
                 .font(.title)
                 .fontWeight(.medium)

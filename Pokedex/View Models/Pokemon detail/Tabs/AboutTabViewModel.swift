@@ -44,11 +44,8 @@ extension AboutTabViewModel {
     var eggGroupNames: String {
         var names = [String]()
         for eggGroup in eggGroups {
-            if let name = eggGroup.names.localizedName(language: settings?.language) {
-                names.append(name)
-            } else {
-                names.append(eggGroup.name)
-            }
+            let name = eggGroup.names.localizedName(language: settings?.language, default: eggGroup.name)
+            names.append(name)
         }
         return ListFormatter.localizedString(byJoining: names)
     }
@@ -76,11 +73,8 @@ extension AboutTabViewModel {
             return "Error"
         }
         for ability in abilities {
-            if let name = ability.names.localizedName(language: settings.language) {
-                abilityNames.append(name)
-            } else {
-                abilityNames.append(ability.name)
-            }
+            let name = ability.names.localizedName(language: settings.language, default: ability.name)
+            abilityNames.append(name)
         }
         return ListFormatter.localizedString(byJoining: abilityNames)
     }
