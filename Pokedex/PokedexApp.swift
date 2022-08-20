@@ -14,6 +14,7 @@ struct PokedexApp: App {
     @StateObject var pokemonGridViewViewModel = PokemonGridViewViewModel()
     @StateObject var itemGridViewViewModel = ItemGridViewViewModel()
     @StateObject var moveGridViewViewModel = MoveGridViewViewModel()
+    @StateObject var abilityListViewViewModel = AbilityListViewViewModel()
     
     var body: some Scene {
         WindowGroup {
@@ -23,6 +24,7 @@ struct PokedexApp: App {
                 .environmentObject(pokemonGridViewViewModel)
                 .environmentObject(itemGridViewViewModel)
                 .environmentObject(moveGridViewViewModel)
+                .environmentObject(abilityListViewViewModel)
                 .setSettings(settingsManager.settings)
         }
     }

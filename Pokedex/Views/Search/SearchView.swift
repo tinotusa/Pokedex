@@ -34,8 +34,7 @@ struct SearchView: View {
                     case .pokemon: PokemonGridView(searchSubmitted: $viewModel.searchSubmitted)
                     case .items: ItemGridView(searchSubmitted: $viewModel.searchSubmitted)
                     case .moves: MoveGridView()
-                    case .abilities: Text("Abilities View")
-
+                    case .abilities: AbilityListView()
                     }
                 }
                 .ignoresSafeArea()
@@ -108,6 +107,10 @@ struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView()
             .environmentObject(ImageCache())
+            .environmentObject(PokemonGridViewViewModel())
+            .environmentObject(ItemGridViewViewModel())
+            .environmentObject(MoveGridViewViewModel())
+            .environmentObject(AbilityListViewViewModel())
         
     }
 }

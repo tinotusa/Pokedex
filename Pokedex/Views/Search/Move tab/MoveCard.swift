@@ -14,7 +14,7 @@ struct MoveCard: View {
     
     var body: some View {
         HStack {
-            Text("\(move.id).")
+            Text("\(move.id).", comment: "The id of the pokemon followed by a fullstop.")
                 
             VStack(alignment: .leading) {
                 Text(move.names.localizedName(language: appSettings.language, default: move.name.capitalized))
@@ -28,11 +28,11 @@ struct MoveCard: View {
             Spacer()
             Grid(alignment: .leading) {
                 GridRow {
-                    Text("Power")
+                    Text("Power", comment: "Grid row title: The power(strength) of the pokemon.")
                     Text("\(move.power ?? 0)")
                 }
                 GridRow {
-                    Text("PP")
+                    Text("PP", comment: "Grid row title: PP (Power Points).")
                     Text("\(move.pp)")
                 }
             }
@@ -42,10 +42,8 @@ struct MoveCard: View {
         .padding(.horizontal)
         .padding(.vertical, 4)
         .background {
-            ZStack {
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(Color(move.type.name).opacity(0.8))
-            }
+            RoundedRectangle(cornerRadius: 24)
+                .fill(Color(move.type.name).opacity(0.8))
         }
         .task {
             await getMoveDamageClass()
