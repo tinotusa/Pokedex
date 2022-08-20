@@ -47,6 +47,9 @@ struct ImageLoaderView<Content: View, PlaceholderContent: View>: View {
             imageLoader.cache = imageCache
             await imageLoader.getImage(url: url)
         }
+//        .onDisappear {
+//            print("Image disappeared: image was \(imageLoader.uiImage)")
+//        }
     }
 }
 

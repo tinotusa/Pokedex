@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ItemGridView: View {
     @Binding private var searchSubmitted: Bool
-    @StateObject private var viewModel = ItemGridViewViewModel()
+    @EnvironmentObject private var viewModel: ItemGridViewViewModel
     @Environment(\.searchText) var searchText
 
     private let columns: [GridItem] = [
@@ -49,8 +49,10 @@ struct ItemGridView: View {
             }
         }
         .task {
-            if !viewModel.items.isEmpty { return }
-            await viewModel.getItems()
+            if !viewModel.viewHasApeared {
+                await viewModel.getItems()
+                viewModel.viewHasApeared = true
+            }
         }
         .navigationDestination(for: Item.self) { item in
             Text("item view: for \(item.name)")
@@ -122,7 +124,7 @@ struct ItemGridView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             ItemGridView(searchSubmitted: .constant(false))
-                .environmentObject(ImageLoader())
+                .environmentObject(ImageCache())
         }
     }
 }

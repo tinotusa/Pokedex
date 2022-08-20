@@ -18,6 +18,7 @@ final class MoveGridViewViewModel: ObservableObject {
     }
     @Published private(set) var hasNextPage = false
     @Published private(set) var isLoading = false
+    @Published var viewHasAppeared = false
     private let limit = 20
 }
 
@@ -50,7 +51,9 @@ extension MoveGridViewViewModel {
     }
     
     func getNextMovesPage() async {
+        if isLoading { return }
         guard let nextURL else { return }
+        
         
         guard let resourceList = try? await PokeAPI.shared.getData(for: NamedAPIResourceList.self, url: nextURL) else {
             return
@@ -102,7 +105,7 @@ extension MoveGridViewViewModel {
 
 struct MoveGridView: View {
     @Environment(\.searchText) var searchText
-    @StateObject private var viewModel = MoveGridViewViewModel()
+    @EnvironmentObject private var viewModel: MoveGridViewViewModel
     
     var body: some View {
         ScrollView {
@@ -113,7 +116,7 @@ struct MoveGridView: View {
                     }
                     .buttonStyle(.plain)
                 }
-                if searchText.isEmpty && viewModel.hasNextPage {
+                if searchText.isEmpty && viewModel.hasNextPage && !viewModel.isLoading {
                     ProgressView()
                         .task {
                             print("Here lmao")
@@ -126,8 +129,10 @@ struct MoveGridView: View {
             Text("Move detail page here: \(move.name)")
         }
         .task {
-            if !viewModel.moves.isEmpty { return }
-            await viewModel.getMoves()
+            if !viewModel.viewHasAppeared {
+                await viewModel.getMoves()
+                viewModel.viewHasAppeared = true
+            }
         }
     }
 }

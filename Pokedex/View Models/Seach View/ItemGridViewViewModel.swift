@@ -20,6 +20,7 @@ final class ItemGridViewViewModel: ObservableObject {
         }
     }
     @Published var hasNextPage: Bool = false
+    @Published var viewHasApeared = false
     private var limit = 20
 }
 

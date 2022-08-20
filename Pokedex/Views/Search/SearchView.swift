@@ -29,17 +29,15 @@ struct SearchView: View {
                 }
                 .padding(.horizontal)
                 
-                TabView(selection: $viewModel.searchTab) {
-                    PokemonGridView(searchSubmitted: $viewModel.searchSubmitted)
-                        .tag(SearchViewViewModel.SearchTab.pokemon)
-                    ItemGridView(searchSubmitted: $viewModel.searchSubmitted)
-                        .tag(SearchViewViewModel.SearchTab.items)
-                    MoveGridView()
-                        .tag(SearchViewViewModel.SearchTab.moves)
-                    Text("Abilities search")
-                        .tag(SearchViewViewModel.SearchTab.abilities)
+                Group {
+                    switch viewModel.searchTab {
+                    case .pokemon: PokemonGridView(searchSubmitted: $viewModel.searchSubmitted)
+                    case .items: ItemGridView(searchSubmitted: $viewModel.searchSubmitted)
+                    case .moves: MoveGridView()
+                    case .abilities: Text("Abilities View")
+
+                    }
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
                 .ignoresSafeArea()
                 .setSearchText(
                     viewModel.searchText
@@ -109,7 +107,7 @@ private extension SearchView {
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         SearchView()
-            .environmentObject(ImageLoader())
+            .environmentObject(ImageCache())
         
     }
 }

@@ -11,7 +11,7 @@ final class ImageLoader: ObservableObject {
     @Published var cache: ImageCache?
     @Published var uiImage: UIImage?
     @Published var state = LoadingState.idle
-    
+    @Published var task: Task<Void, Never>?
     init(cache: ImageCache = ImageCache()) {
         self.cache = cache
     }
@@ -60,7 +60,7 @@ extension ImageLoader {
             print("Task cancelled in \(#function).")
         } catch {
             state = .error(error.localizedDescription)
-            print(error)
+            print("Error in \(#function).\n\(error)")
         }
         return
     }

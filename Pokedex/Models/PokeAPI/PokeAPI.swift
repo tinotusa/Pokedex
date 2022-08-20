@@ -109,8 +109,10 @@ extension PokeAPI {
             }
             return decodedData
             
+        } catch is CancellationError {
+            throw PokeAPIError.other(message: "Task cancelled")
         } catch {
-            print(error)
+            print("Error in \(#function).\n\(error)")
             throw PokeAPIError.other(message: error.localizedDescription)
         }
     }

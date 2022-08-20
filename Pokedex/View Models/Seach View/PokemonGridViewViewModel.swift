@@ -20,6 +20,7 @@ final class PokemonGridViewViewModel: ObservableObject {
         }
     }
     @Published private(set) var hasNextPage: Bool = false
+    @Published var viewHasAppeared = false
     private let limit = 20
 }
 

@@ -12,7 +12,7 @@ struct PokemonGridView: View {
     @Binding private var searchSubmitted: Bool
     @Environment(\.searchText) private var searchText
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @StateObject private var viewModel = PokemonGridViewViewModel()
+    @EnvironmentObject private var viewModel: PokemonGridViewViewModel
     
     init(searchSubmitted: Binding<Bool>) {
         _searchSubmitted = searchSubmitted
@@ -31,9 +31,11 @@ struct PokemonGridView: View {
             }
         }
         .task {
-            print("appeared again")
-            if !viewModel.pokemon.isEmpty { return }
-            await viewModel.getPokemonList()
+            if !viewModel.viewHasAppeared {
+                await viewModel.getPokemonList()
+                print("loaded the pokemon")
+                viewModel.viewHasAppeared = true
+            }
         }
         .navigationDestination(for: Pokemon.self) { pokemon in
             PokemonDetail(pokemon: pokemon)
@@ -122,6 +124,6 @@ private extension PokemonGridView {
 struct PokemonGridView_Previews: PreviewProvider {
     static var previews: some View {
         PokemonGridView(searchSubmitted: .constant(false))
-            .environmentObject(ImageLoader())
+            .environmentObject(ImageCache())
     }
 }
