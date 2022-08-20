@@ -108,6 +108,10 @@ extension Move: Comparable {
 // MARK: - Helpers
 extension Move {
     static var example: Move {
-        Bundle.main.getData(for: Move.self, fromFileNamed: "Move_ExampleJSON")
+        do {
+            return try Bundle.main.loadJSON(ofType: Move.self, filename: "move", extension: "json")
+        } catch {
+            fatalError("Error in \(#function).\n\(error)")
+        }
     }
 }

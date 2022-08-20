@@ -94,7 +94,11 @@ extension Pokemon {
     
     /// An example pokemon for xcode previews.
     static var example: Pokemon {
-        return Bundle.main.getData(for: Pokemon.self, fromFileNamed: "ExamplePokemonJSON")
+        do {
+            return try Bundle.main.loadJSON(ofType: Pokemon.self, filename: "pokemon", extension: "json")
+        } catch {
+            fatalError("Error in \(#function).\n\(error)")
+        }
     }
 }
 

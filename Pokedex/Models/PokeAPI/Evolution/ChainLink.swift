@@ -25,23 +25,13 @@ struct ChainLink: Codable, Hashable {
     }
 }
 
-extension Bundle {
-    func getData<T: Decodable>(for type: T.Type, fromFileNamed filename: String) -> T {
-        let url = Self.main.url(forResource: filename, withExtension: nil)!
-        do {
-            let data = try Data(contentsOf: url)
-            let decodedData = try JSONDecoder().decode(T.self, from: data)
-            return decodedData
-        } catch {
-            print("Error in \(#function)\n\(error)")
-        }
-        fatalError("Couldn't read the file at \(filename) json file")
-    }
-}
-
 extension ChainLink {
     static var example: ChainLink {
-        let evolutionChain = Bundle.main.getData(for: EvolutionChain.self, fromFileNamed: "EvolutionChain_ExampleJSON")
-        return evolutionChain.chain
+        do {
+            let evolutionChain = try Bundle.main.loadJSON(ofType: EvolutionChain.self, filename: "evolutionChain", extension: "json")
+            return evolutionChain.chain
+        } catch {
+            fatalError("Error in \(#function).\n\(error)")
+        }
     }
 }
