@@ -9,12 +9,17 @@ import SwiftUI
 
 @main
 struct PokedexApp: App {
+    
+    // MARK: - Managers
     @StateObject var imageCache = ImageCache()
     @StateObject var settingsManager = SettingsManager()
+    
+    // MARK: - View Models
     @StateObject var pokemonGridViewViewModel = PokemonGridViewViewModel()
     @StateObject var itemGridViewViewModel = ItemGridViewViewModel()
     @StateObject var moveGridViewViewModel = MoveGridViewViewModel()
     @StateObject var abilityListViewViewModel = AbilityListViewViewModel()
+    @StateObject var searchBarViewModel = SearchBarViewModel()
     
     var body: some Scene {
         WindowGroup {
@@ -25,6 +30,7 @@ struct PokedexApp: App {
                 .environmentObject(itemGridViewViewModel)
                 .environmentObject(moveGridViewViewModel)
                 .environmentObject(abilityListViewViewModel)
+                .environmentObject(searchBarViewModel)
                 .setSettings(settingsManager.settings)
         }
     }

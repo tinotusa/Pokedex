@@ -9,14 +9,9 @@ import SwiftUI
 import Combine
 
 struct PokemonGridView: View {
-    @Binding private var searchSubmitted: Bool
-    @Environment(\.searchText) private var searchText
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @EnvironmentObject private var viewModel: PokemonGridViewViewModel
-    
-    init(searchSubmitted: Binding<Bool>) {
-        _searchSubmitted = searchSubmitted
-    }
+    @EnvironmentObject private var searchBar: SearchBarViewModel
     
     @State private var columns: [GridItem] = [
         .init(.adaptive(minimum: 150))
@@ -24,7 +19,7 @@ struct PokemonGridView: View {
               
     var body: some View {
         Group {
-            if viewModel.pokemon.isEmpty {
+            if searchBar.isSearching && viewModel.isLoading {
                 loadingView
             } else {
                 pokemonGrid
@@ -43,7 +38,13 @@ struct PokemonGridView: View {
         .onChange(of: horizontalSizeClass) { horizontalSizeClass in
             setGridSize()
         }
-        .onChange(of: searchSubmitted) { searchSubmitted in
+        .onReceive(
+            searchBar.$searchText
+                .debounce(
+                    for: 0.8,
+                    scheduler: RunLoop.main
+                )
+        ) { searchText in
             Task {
                 await viewModel.getPokemon(searchText: searchText)
             }
@@ -79,25 +80,16 @@ private extension PokemonGridView {
     
     var pokemonGrid: some View {
         Group {
-            if !searchText.isEmpty && viewModel.filteredPokemon(searchText: searchText).isEmpty {
-                VStack {
-                    Spacer()
-                    Text("No pokemon named: \(searchText) in pokedex.")
-                    Text("Try searching for it.")
-                    Spacer()
-                }
-                .bodyStyle()
-            }
             ScrollView(showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: 20) {
-                    ForEach(viewModel.filteredPokemon(searchText: searchText)) { pokemon in
+                    ForEach(viewModel.filteredPokemon(searchText: searchBar.sanitizedSearchText)) { pokemon in
                         NavigationLink(destination: PokemonDetail(pokemon: pokemon)) {
                             PokemonCard(pokemon: pokemon)
                         }
                     }
                     
                     // if there is more data and user is not searching
-                    if viewModel.hasNextPage && searchText.isEmpty {
+                    if viewModel.hasNextPage && searchBar.searchText.isEmpty {
                         ProgressView()
                             .frame(maxWidth: .infinity)
                             .task {
@@ -109,24 +101,16 @@ private extension PokemonGridView {
             }
         }
     }
-    
-    func submitSearch() async {
-        defer { searchSubmitted = false }
-        if searchText.isEmpty { return }
-        Task {
-            print("this is happening")
-            await viewModel.getPokemon(searchText: searchText)
-        }
-    }
 }
 
 
 struct PokemonGridView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            PokemonGridView(searchSubmitted: .constant(false))
+            PokemonGridView()
                 .environmentObject(ImageCache())
                 .environmentObject(PokemonGridViewViewModel())
+                .environmentObject(SearchBarViewModel())
         }
     }
 }

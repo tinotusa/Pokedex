@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct AbilityListView: View {
-    @Environment(\.searchText) var searchText
     @EnvironmentObject private var viewModel: AbilityListViewViewModel
+    @EnvironmentObject private var searchBar: SearchBarViewModel
     
     @State private var columns: [GridItem] = [
         .init(.adaptive(minimum: 300))
@@ -18,12 +18,12 @@ struct AbilityListView: View {
     var body: some View {
         ScrollView {
             LazyVGrid(columns: columns) {
-                ForEach(viewModel.filteredAbilities(searchText: searchText)) { ability in
+                ForEach(viewModel.filteredAbilities(searchText: searchBar.sanitizedSearchText)) { ability in
                     NavigationLink(destination: Text("Ability detail for \(ability.name)")) {
                         AbilityCardView(ability: ability)
                     }
                 }
-                if searchText.isEmpty && viewModel.hasNextPage && !viewModel.isLoading {
+                if searchBar.isSearching && viewModel.hasNextPage && !viewModel.isLoading {
                     ProgressView()
                         .task {
                             print("progress view showed")
@@ -50,6 +50,7 @@ struct AbilityListView_Previews: PreviewProvider {
         NavigationStack {
             AbilityListView()
                 .environmentObject(AbilityListViewViewModel())
+                .environmentObject(SearchViewViewModel())
         }
     }
 }

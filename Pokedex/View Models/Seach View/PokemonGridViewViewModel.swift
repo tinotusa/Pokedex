@@ -21,16 +21,41 @@ final class PokemonGridViewViewModel: ObservableObject {
     }
     @Published private(set) var hasNextPage: Bool = false
     @Published var viewHasAppeared = false
+    @Published var isLoading = false
+    private var task: Task<Void, Never>?
     private let limit = 20
 }
 
 extension PokemonGridViewViewModel {
     func getPokemon(searchText: String) async {
-        if searchText.isEmpty { return }
-        guard let pokemon = try? await Pokemon.from(name: searchText) else {
+        task?.cancel()
+        print("am i called")
+        if Task.isCancelled {
+            print("task is cancelled \(#function)")
             return
         }
-        self.pokemon.insert(pokemon)
+        if isLoading { return }
+
+        task = Task {
+            isLoading = true
+            defer {
+                Task { @MainActor in
+                    isLoading = false
+                }
+            }
+            
+            let searchText = SearchBarViewModel.sanitizedSearchText(text: searchText)
+            if searchText.isEmpty { return }
+            
+            if pokemon.containsItem(named: searchText) {
+                return
+            }
+            
+            guard let pokemon = try? await Pokemon.from(name: searchText) else {
+                return
+            }
+            self.pokemon.insert(pokemon)
+        }
     }
     
     func getPokemonList() async {

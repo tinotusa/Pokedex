@@ -12,6 +12,7 @@ struct SearchView: View {
     @State private var navigationPath = NavigationPath()
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.appSettings) var appSettings
+    @EnvironmentObject private var pokemonGridViewViewModel: PokemonGridViewViewModel
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -21,9 +22,7 @@ struct SearchView: View {
                         .headerStyle()
                         .foregroundColor(.headerTextColour)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    SearchBar(placeholder: "Search", text: $viewModel.searchText) {
-                        viewModel.searchSubmitted = true
-                    }
+                    SearchBar(placeholder: "Search")
                     SearchTabs(selectedTab: $viewModel.searchTab)
                         .frame(maxWidth: .infinity, alignment: .center)
                 }
@@ -31,18 +30,14 @@ struct SearchView: View {
                 
                 Group {
                     switch viewModel.searchTab {
-                    case .pokemon: PokemonGridView(searchSubmitted: $viewModel.searchSubmitted)
-                    case .items: ItemGridView(searchSubmitted: $viewModel.searchSubmitted)
+                    case .pokemon: PokemonGridView()
+                    case .items: ItemGridView()
                     case .moves: MoveGridView()
                     case .abilities: AbilityListView()
                     }
                 }
                 .ignoresSafeArea()
-                .setSearchText(
-                    viewModel.searchText
-                        .lowercased()
-                        .replacingOccurrences(of: " ", with: "-")
-                )
+                
                 
                 Spacer()
             }
@@ -96,7 +91,6 @@ private extension SearchView {
         func isSelectedTab(_ currentTab: SearchViewViewModel.SearchTab) -> Bool {
             selectedTab == currentTab
         }
-        
         enum Constants {
             static let cornerRadius = 20.0
         }
@@ -111,6 +105,7 @@ struct SearchView_Previews: PreviewProvider {
             .environmentObject(ItemGridViewViewModel())
             .environmentObject(MoveGridViewViewModel())
             .environmentObject(AbilityListViewViewModel())
+            .environmentObject(SearchBarViewModel())
         
     }
 }

@@ -8,8 +8,8 @@
 import SwiftUI
 
 struct MoveGridView: View {
-    @Environment(\.searchText) var searchText
     @EnvironmentObject private var viewModel: MoveGridViewViewModel
+    @EnvironmentObject private var searchBar: SearchBarViewModel
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     @State private var columns: [GridItem] = [
@@ -17,27 +17,26 @@ struct MoveGridView: View {
     ]
     
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns) {
-                ForEach(viewModel.filteredMoves(searchText: searchText)) { move in
-                    NavigationLink(destination: Text("Move detail page: \(move.name)")) {
-                        MoveCard(move: move)
-                    }
-                    .buttonStyle(.plain)
-                }
-                if searchText.isEmpty && viewModel.hasNextPage && !viewModel.isLoading {
-                    ProgressView()
-                        .task {
-                            print("Here lmao")
-                            await viewModel.getNextMovesPage()
-                        }
-                }
+        Group {
+            if searchBar.isSearching && viewModel.isLoading {
+                loadingView
+            } else {
+                movesList
             }
-            .padding(.horizontal)
         }
 //        .navigationDestination(for: Move.self) { move in
 //            Text("Move detail page here: \(move.name)")
 //        }
+        .onReceive(searchBar.$searchText
+            .debounce(
+                for: 0.8,
+                scheduler: RunLoop.main
+            )
+        ) { searchText in
+            Task {
+                await viewModel.getMove(searchText: searchText)
+            }
+        }
         .task {
             if !viewModel.viewHasAppeared {
                 await viewModel.getMoves()
@@ -47,11 +46,43 @@ struct MoveGridView: View {
     }
 }
 
+private extension MoveGridView {
+    var loadingView: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+        }
+    }
+    
+    var movesList: some View {
+        ScrollView {
+            LazyVGrid(columns: columns) {
+                ForEach(viewModel.filteredMoves(searchText: searchBar.sanitizedSearchText)) { move in
+                    NavigationLink(destination: Text("Move detail page: \(move.name)")) {
+                        MoveCard(move: move)
+                    }
+                    .buttonStyle(.plain)
+                }
+                if !searchBar.isSearching && viewModel.hasNextPage && !viewModel.isLoading {
+                    ProgressView()
+                        .task {
+                            print("Here lmao")
+                            await viewModel.getNextMovesPage()
+                        }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+}
+
 struct MoveGridView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             MoveGridView()
                 .environmentObject(MoveGridViewViewModel())
+                .environmentObject(SearchBarViewModel())
         }
     }
 }

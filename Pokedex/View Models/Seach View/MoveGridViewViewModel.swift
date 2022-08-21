@@ -19,10 +19,39 @@ final class MoveGridViewViewModel: ObservableObject {
     @Published private(set) var hasNextPage = false
     @Published private(set) var isLoading = false
     @Published var viewHasAppeared = false
+    private var task: Task<Void, Never>?
     private let limit = 20
 }
 
 extension MoveGridViewViewModel {
+    func getMove(searchText: String) async {
+        task?.cancel()
+        if Task.isCancelled { return }
+        
+        let searchText = SearchBarViewModel.sanitizedSearchText(text: searchText)
+        if searchText.isEmpty { return }
+        if isLoading { return }
+        
+        // get move
+        task = Task {
+            isLoading = true
+            defer {
+                Task { @MainActor in
+                    isLoading = false
+                }
+            }
+            
+            if moves.containsItem(named: searchText) {
+                return
+            }
+            
+            let move = try? await Move.from(name: searchText)
+            if let move {
+                self.moves.insert(move)
+            }
+        }
+    }
+    
     func getMoves() async {
         guard let resourceList = try? await PokeAPI.shared.getResourceList(fromEndpoint: "move", limit: limit) else {
             print("Error in \(#function) at line: \(#line). Resource list is nil.")

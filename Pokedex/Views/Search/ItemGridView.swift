@@ -8,44 +8,19 @@
 import SwiftUI
 
 struct ItemGridView: View {
-    @Binding private var searchSubmitted: Bool
     @EnvironmentObject private var viewModel: ItemGridViewViewModel
-    @Environment(\.searchText) var searchText
-
+    @EnvironmentObject private var searchBar: SearchBarViewModel
+    
     private let columns: [GridItem] = [
         .init(.adaptive(minimum: 150))
     ]
     
-    init(searchSubmitted: Binding<Bool>) {
-        _searchSubmitted = searchSubmitted
-    }
-    
     var body: some View {
         Group {
-            if viewModel.items.isEmpty {
-                VStack {
-                    Spacer()
-                    ProgressView()
-                    Spacer()
-                }
+            if viewModel.items.isEmpty || viewModel.isLoading {
+                loadingView
             } else {
-                ScrollView(showsIndicators: false) {
-                    LazyVGrid(columns: columns) {
-                        ForEach(viewModel.filteredItems(searchText: searchText)) { item in
-                            NavigationLink(destination: Text("Item detail view for: \(item.name)")) {
-                                ItemCardView(item: item)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                        if viewModel.hasNextPage && !isSearching {
-                            ProgressView()
-                                .task {
-                                    await viewModel.getNextItemsPage()
-                                }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
+                itemsList
             }
         }
         .task {
@@ -57,9 +32,13 @@ struct ItemGridView: View {
 //        .navigationDestination(for: Item.self) { item in
 //            Text("item view: for \(item.name)")
 //        }
-        .onChange(of: searchSubmitted) { searchSubmitted in
-            defer { self.searchSubmitted = false }
-            if !searchSubmitted { return }
+        .onReceive(
+            searchBar.$searchText
+                .debounce(
+                    for: 0.8,
+                    scheduler: RunLoop.main
+                )
+        ) { searchText in
             Task {
                 await viewModel.getItem(searchText: searchText)
             }
@@ -67,15 +46,37 @@ struct ItemGridView: View {
     }
 }
 
-private extension ItemGridView {
-    var isSearching: Bool {
-        !searchText.isEmpty
-    }
-}
-
 
 // MARK: - ItemCard
 extension ItemGridView {
+    var loadingView: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+        }
+    }
+    
+    var itemsList: some View {
+        ScrollView(showsIndicators: false) {
+            LazyVGrid(columns: columns) {
+                ForEach(viewModel.filteredItems(searchText: searchBar.sanitizedSearchText)) { item in
+                    NavigationLink(destination: Text("Item detail view for: \(item.name)")) {
+                        ItemCardView(item: item)
+                    }
+                    .buttonStyle(.plain)
+                }
+                if viewModel.hasNextPage && !searchBar.isSearching {
+                    ProgressView()
+                        .task {
+                            await viewModel.getNextItemsPage()
+                        }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
     struct ItemCardView: View {
         let item: Item
         
@@ -123,9 +124,10 @@ extension ItemGridView {
 struct ItemGridView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            ItemGridView(searchSubmitted: .constant(false))
+            ItemGridView()
                 .environmentObject(ImageCache())
                 .environmentObject(ItemGridViewViewModel())
+                .environmentObject(SearchBarViewModel())
         }
     }
 }

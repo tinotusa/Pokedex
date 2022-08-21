@@ -8,17 +8,40 @@
 import SwiftUI
 
 final class SearchBarViewModel: ObservableObject {
-//    @Published var 
+    @Published var searchText = "" {
+        didSet {
+            if !searchText.isEmpty {
+                isSearching = true
+            }
+            else { isSearching = false }
+        }
+    }
+    @Published private(set) var isSearching = false
+    
+    var sanitizedSearchText: String {
+        Self.sanitizedSearchText(text: searchText)
+    }
+    
+    static func sanitizedSearchText(text: String) -> String {
+        text
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: " ", with: "-")
+            .lowercased()
+    }
+    
+    func clearText() {
+        searchText = ""
+    }
 }
 
 struct SearchBar: View {
     let placeholder: LocalizedStringKey
-    @Binding var text: String
+    @EnvironmentObject private var viewModel: SearchBarViewModel
     var action: (() -> Void)? = nil
     
     var body: some View {
         HStack {
-            TextField(text: $text, prompt: Text(placeholder)) {
+            TextField(text: $viewModel.searchText, prompt: Text(placeholder)) {
                 Text("Search bar")
             }
             .subHeaderStyle()
@@ -30,9 +53,9 @@ struct SearchBar: View {
                 action?()
             }
             
-            if !text.isEmpty {
+            if !viewModel.searchText.isEmpty {
                 Button {
-                    text = ""
+                    viewModel.clearText()
                 } label: {
                     Image(systemName: "xmark.circle.fill")
                         .renderingMode(.original)
@@ -49,7 +72,7 @@ struct SearchBar: View {
             }
         }
         .foregroundColor(.searchBarColour)
-        .animation(.easeInOut, value: text)
+        .animation(.easeInOut, value: viewModel.searchText)
         .padding()
         .background(Color.searchBarColour)
         .cornerRadius(Constants.searchBarCornerRadius)
@@ -64,6 +87,6 @@ private extension SearchBar {
 
 struct SearchBar_Previews: PreviewProvider {
     static var previews: some View {
-        SearchBar(placeholder: "Placeholder", text: .constant(""))
+        SearchBar(placeholder: "Placeholder")
     }
 }

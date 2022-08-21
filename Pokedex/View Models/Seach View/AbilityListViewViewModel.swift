@@ -19,6 +19,7 @@ final class AbilityListViewViewModel: ObservableObject {
     @Published private(set) var hasNextPage = false
     @Published var viewHasAppeared = false
     @Published private(set) var isLoading = false
+    private var task: Task<Void, Never>?
     /// The limit for the PokeAPI abilities query.
     private let limit = 20
 }
@@ -46,6 +47,31 @@ extension AbilityListViewViewModel {
 }
 
 extension AbilityListViewViewModel {
+    func getAbility(named searchText: String) {
+        task?.cancel()
+        if Task.isCancelled { return }
+        let searchText = SearchBarViewModel.sanitizedSearchText(text: searchText)
+        if searchText.isEmpty { return }
+        
+        task = Task {
+            self.isLoading = true
+            defer {
+                Task { @MainActor in
+                    self.isLoading = false
+                }
+            }
+            
+            // TODO: is this more costly than just running the network call
+            if abilities.containsItem(named: searchText) {
+                return
+            }
+            
+            let ability = try? await Ability.from(name: searchText)
+            if let ability {
+                self.abilities.insert(ability)
+            }
+        }
+    }
     /// Gets the first page of abililties from PokeAPI and sets it to the `Ability` set.
     func getAbilities() async {
         isLoading = true

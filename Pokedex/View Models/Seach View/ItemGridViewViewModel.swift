@@ -21,6 +21,8 @@ final class ItemGridViewViewModel: ObservableObject {
     }
     @Published var hasNextPage: Bool = false
     @Published var viewHasApeared = false
+    @Published private(set) var isLoading = false
+    private var task: Task<Void, Never>?
     private var limit = 20
 }
 
@@ -39,15 +41,32 @@ extension ItemGridViewViewModel {
         }
         .sorted()
     }
-    
     func getItem(searchText: String) async {
-        if searchText.isEmpty {
-            print("In \(#function). Search text is empty.")
+        task?.cancel()
+        if Task.isCancelled {
+            print("task cancelled \(#function)")
             return
         }
-        let item = try? await Item.from(name: searchText)
-        if let item {
-            items.insert(item)
+        if isLoading { return }
+        
+        task = Task {
+            isLoading = true
+            defer {
+                Task {
+                    @MainActor in isLoading = false
+                }
+            }
+         
+            let searchText = SearchBarViewModel.sanitizedSearchText(text: searchText)
+         
+            if searchText.isEmpty { return }
+            
+            if items.containsItem(named: searchText) { return }
+            
+            let item = try? await Item.from(name: searchText)
+            if let item {
+                items.insert(item)
+            }
         }
     }
     
