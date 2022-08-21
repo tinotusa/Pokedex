@@ -32,7 +32,7 @@ struct ItemGridView: View {
                 ScrollView(showsIndicators: false) {
                     LazyVGrid(columns: columns) {
                         ForEach(viewModel.filteredItems(searchText: searchText)) { item in
-                            NavigationLink(value: item) {
+                            NavigationLink(destination: Text("Item detail view for: \(item.name)")) {
                                 ItemCardView(item: item)
                             }
                             .buttonStyle(.plain)
@@ -54,9 +54,9 @@ struct ItemGridView: View {
                 viewModel.viewHasApeared = true
             }
         }
-        .navigationDestination(for: Item.self) { item in
-            Text("item view: for \(item.name)")
-        }
+//        .navigationDestination(for: Item.self) { item in
+//            Text("item view: for \(item.name)")
+//        }
         .onChange(of: searchSubmitted) { searchSubmitted in
             defer { self.searchSubmitted = false }
             if !searchSubmitted { return }
@@ -125,6 +125,7 @@ struct ItemGridView_Previews: PreviewProvider {
         NavigationStack {
             ItemGridView(searchSubmitted: .constant(false))
                 .environmentObject(ImageCache())
+                .environmentObject(ItemGridViewViewModel())
         }
     }
 }

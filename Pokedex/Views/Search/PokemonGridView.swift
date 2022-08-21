@@ -91,7 +91,7 @@ private extension PokemonGridView {
             ScrollView(showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: 20) {
                     ForEach(viewModel.filteredPokemon(searchText: searchText)) { pokemon in
-                        NavigationLink(value: pokemon) {
+                        NavigationLink(destination: PokemonDetail(pokemon: pokemon)) {
                             PokemonCard(pokemon: pokemon)
                         }
                     }
@@ -123,7 +123,10 @@ private extension PokemonGridView {
 
 struct PokemonGridView_Previews: PreviewProvider {
     static var previews: some View {
-        PokemonGridView(searchSubmitted: .constant(false))
-            .environmentObject(ImageCache())
+        NavigationStack {
+            PokemonGridView(searchSubmitted: .constant(false))
+                .environmentObject(ImageCache())
+                .environmentObject(PokemonGridViewViewModel())
+        }
     }
 }

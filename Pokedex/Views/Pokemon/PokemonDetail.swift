@@ -15,7 +15,6 @@ struct PokemonDetail: View {
     @StateObject private var viewModel = PokemonDetailViewModel()
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appSettings) private var appSettings
-    @EnvironmentObject var settingsManager: SettingsManager
     
     init(pokemon: Pokemon) {
         self.pokemon = pokemon
@@ -144,6 +143,5 @@ struct PokemonDetail_Previews: PreviewProvider {
     static var previews: some View {
         PokemonDetail(pokemon: .example)
             .environmentObject(ImageCache())
-            .environmentObject(SettingsManager())
     }
 }

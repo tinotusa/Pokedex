@@ -20,7 +20,7 @@ struct MoveGridView: View {
         ScrollView {
             LazyVGrid(columns: columns) {
                 ForEach(viewModel.filteredMoves(searchText: searchText)) { move in
-                    NavigationLink(value: move) {
+                    NavigationLink(destination: Text("Move detail page: \(move.name)")) {
                         MoveCard(move: move)
                     }
                     .buttonStyle(.plain)
@@ -35,9 +35,9 @@ struct MoveGridView: View {
             }
             .padding(.horizontal)
         }
-        .navigationDestination(for: Move.self) { move in
-            Text("Move detail page here: \(move.name)")
-        }
+//        .navigationDestination(for: Move.self) { move in
+//            Text("Move detail page here: \(move.name)")
+//        }
         .task {
             if !viewModel.viewHasAppeared {
                 await viewModel.getMoves()

@@ -19,7 +19,7 @@ struct AbilityListView: View {
         ScrollView {
             LazyVGrid(columns: columns) {
                 ForEach(viewModel.filteredAbilities(searchText: searchText)) { ability in
-                    NavigationLink(value: ability) {
+                    NavigationLink(destination: Text("Ability detail for \(ability.name)")) {
                         AbilityCardView(ability: ability)
                     }
                 }
@@ -33,9 +33,9 @@ struct AbilityListView: View {
             }
             .padding(.horizontal)
         }
-        .navigationDestination(for: Ability.self) { ability in
-            Text("Ability detail: \(ability.name)")
-        }
+//        .navigationDestination(for: Ability.self) { ability in
+//            Text("Ability detail: \(ability.name)")
+//        }
         .task {
             if !viewModel.viewHasAppeared {
                 await viewModel.getAbilities()
