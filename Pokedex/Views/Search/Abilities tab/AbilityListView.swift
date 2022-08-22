@@ -50,7 +50,7 @@ struct AbilityListView_Previews: PreviewProvider {
         NavigationStack {
             AbilityListView()
                 .environmentObject(AbilityListViewViewModel())
-                .environmentObject(SearchViewViewModel())
+                .environmentObject(SearchBarViewModel())
         }
     }
 }

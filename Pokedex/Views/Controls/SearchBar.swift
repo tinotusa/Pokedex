@@ -88,5 +88,6 @@ private extension SearchBar {
 struct SearchBar_Previews: PreviewProvider {
     static var previews: some View {
         SearchBar(placeholder: "Placeholder")
+            .environmentObject(SearchBarViewModel())
     }
 }
