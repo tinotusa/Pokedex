@@ -17,14 +17,28 @@ final class PokemonDetailViewModel: ObservableObject {
     private var settings: Settings?
 
     func setUp(pokemon: Pokemon, settings: Settings) async {
-        isLoading = true
-        defer { isLoading = false }
-        self.pokemon = pokemon
-        self.settings = settings
-        pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.name)
-        types = await getTypes()
-        eggGroups = await pokemonSpecies?.eggGroups() ?? []
-        
+        await withTaskGroup(of: Void.self) { group in
+            isLoading = true
+            defer {
+                Task { @MainActor in
+                    isLoading = false
+                }
+            }
+            self.pokemon = pokemon
+            self.settings = settings
+            group.addTask { @MainActor in
+                print("1")
+                self.pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.name)
+            }
+            group.addTask { @MainActor in
+                print("2")
+                self.types = await self.getTypes()
+            }
+            group.addTask { @MainActor in
+                print("3")
+                self.eggGroups = await self.pokemonSpecies?.eggGroups() ?? []
+            }
+        }
     }
 }
 

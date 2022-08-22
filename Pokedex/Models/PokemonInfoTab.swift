@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum PokmeonInfoTab: String, CaseIterable, Identifiable {
+enum PokemonInfoTab: String, CaseIterable, Identifiable {
     case about
     case stats
     case evolutions

@@ -7,30 +7,52 @@
 
 import SwiftUI
 
+struct HeaderBarTitleKey: EnvironmentKey {
+    static let defaultValue: String = ""
+}
+
+extension EnvironmentValues {
+    var headerBarTitle: String {
+        get { self[HeaderBarTitleKey.self] }
+        set { self[HeaderBarTitleKey.self] = newValue }
+    }
+}
+
+extension View {
+    func setHeaderTitle(_ title: String) -> some View {
+        environment(\.headerBarTitle, title)
+    }
+}
+
 struct HeaderBar<Content: View>: View {
-    let action: (() -> Void)?
     let content: () -> Content
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.headerBarTitle) private var headerBarTitle
     
-    init(action: (() -> Void)? = nil, @ViewBuilder content: @escaping () -> Content) {
-        self.action = action
+    init(@ViewBuilder content: @escaping () -> Content) {
         self.content = content
     }
     
     var body: some View {
-        HStack {
+        HStack(spacing: 0) {
             backArrow
+            Spacer()
+            Text(headerBarTitle)
+                .lineLimit(1)
+                .frame(maxWidth: .infinity, alignment: .center)
+                .headerBarTitleStyle()
             Spacer()
             content()
         }
-        .font(.title)
+        .bodyStyle()
         .foregroundColor(.textColour)
     }
     
     var backArrow: some View {
         Button {
-            action?()
+            dismiss()
         } label: {
-            Image(systemName: "arrow.left")
+            Label("Back", systemImage: "chevron.left")
         }
     }
 }
@@ -42,10 +64,20 @@ struct HeaderBar_Previews: PreviewProvider {
                 .fill(Color.blue.gradient)
                 .ignoresSafeArea()
             HeaderBar {
-                // dismiss action
-            } content: {
-                
+                HStack {
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "person")
+                    }
+                    Button {
+                        
+                    } label: {
+                        Image(systemName: "heart")
+                    }
+                }
             }
+            .setHeaderTitle("Hello world, this is a long test title.")
         }
     }
 }

@@ -23,8 +23,7 @@ struct SearchView: View {
                         .foregroundColor(.headerTextColour)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     SearchBar(placeholder: "Search")
-                    SearchTabs(selectedTab: $viewModel.searchTab)
-                        .frame(maxWidth: .infinity, alignment: .center)
+                    TabBar(tabs: SearchViewViewModel.SearchTab.self, selectedTab: $viewModel.searchTab)
                 }
                 .padding(.horizontal)
                 
@@ -56,43 +55,6 @@ struct SearchView: View {
         }
         .onAppear {
             viewModel.searchTab = .pokemon
-        }
-    }
-}
-
-private extension SearchView {
-    struct SearchTabs: View {
-        @Binding var selectedTab: SearchViewViewModel.SearchTab
-        
-        var body: some View {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack {
-                    ForEach(SearchViewViewModel.SearchTab.allCases) { tab in
-                        Button {
-                            selectedTab = tab
-                        } label: {
-                            tabButton(for: tab)
-                        }
-                    }
-                    
-                }
-            }
-        }
-        
-        func tabButton(for tab: SearchViewViewModel.SearchTab) -> some View {
-            Text(tab.rawValue.capitalized)
-                .padding(.horizontal)
-                .padding(.vertical, 5)
-                .foregroundColor(Color.white)
-                .background(isSelectedTab(tab) ? Color.selectedTabColour : Color.unselectedTabColour)
-                .cornerRadius(Constants.cornerRadius)
-        }
-        
-        func isSelectedTab(_ currentTab: SearchViewViewModel.SearchTab) -> Bool {
-            selectedTab == currentTab
-        }
-        enum Constants {
-            static let cornerRadius = 20.0
         }
     }
 }

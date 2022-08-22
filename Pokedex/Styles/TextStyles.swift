@@ -9,13 +9,15 @@ import SwiftUI
 
 struct TextStyles: View {
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             Text("Header font style")
                 .headerStyle()
             Text("Subheading font style")
                 .subHeaderStyle()
             Text("Body font style")
                 .bodyStyle()
+            Text("Header bar title font style")
+                .headerBarTitleStyle()
             Text("Pokemon tag font style")
                 .tagStyle()
             Text("Footer font style")
@@ -30,6 +32,11 @@ extension View {
             .font(.system(size: 40, weight: .regular))
     }
     
+    func headerBarTitleStyle() -> some View {
+        self
+            .font(.system(size: 16).weight(.light))
+    }
+        
     func bodyStyle() -> some View {
         self
             .font(.system(size: 20, weight: .light))
