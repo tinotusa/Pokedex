@@ -9,8 +9,7 @@ import SwiftUI
 
 struct PokemonCard: View {
     let pokemon: Pokemon
-    @State private var localizedPokemonName = ""
-    @State private var typeNames = [String]()
+    @StateObject private var viewModel = PokemonCardViewModel()
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.appSettings) var appSettings
     
@@ -18,7 +17,7 @@ struct PokemonCard: View {
         VStack(spacing: 0) {
             PokemonImage(url: pokemon.officialArtWork, imageSize: Constants.imageSize)
             VStack(alignment: .leading) {
-                Text(localizedPokemonName)
+                Text(viewModel.localizedPokemonName)
                     .bodyStyle()
                 HStack {
                     ForEach(pokemon.types, id: \.self) { type in
@@ -42,8 +41,8 @@ struct PokemonCard: View {
         .cornerRadius(Constants.backgroundCornerRadius)
         .shadow(radius: 3)
         .task {
-            localizedPokemonName = await pokemon.localizedName(language: appSettings.language)
-            typeNames = pokemon.getTypes()
+            viewModel.setUp(pokemon: pokemon, appSettings: appSettings)
+            await viewModel.loadData()
         }
     }
 }
@@ -62,6 +61,6 @@ struct PokemonRow_Previews: PreviewProvider {
     
     static var previews: some View {
         PokemonCard(pokemon: pokemon)
-            .environmentObject(ImageLoader())
+            .environmentObject(ImageCache())
     }
 }

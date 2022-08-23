@@ -22,8 +22,6 @@ struct PokemonDetail: View {
             ScrollView(showsIndicators: false) {
                 VStack {
                     PokemonImage(url: pokemon.officialArtWork, imageSize: Constants.imageSize)
-                    
-                    pokemonNameRow
                        
                     TabBar(tabs: PokemonInfoTab.self, selectedTab: $selectedTab)
                     
@@ -49,16 +47,6 @@ struct PokemonDetail: View {
 
 // MARK: - Subviews
 private extension PokemonDetail {
-    @ViewBuilder
-    var pokemonNameRow: some View {
-        HStack {
-            Text(viewModel.localizedPokemonName(language: appSettings.language))
-            Spacer()
-            Text("#\(String(format: "%03d", viewModel.pokemonID ?? 0))")
-        }
-        .headerStyle()
-    }
-    
     var header: some View {
         HeaderBar {
             Button {

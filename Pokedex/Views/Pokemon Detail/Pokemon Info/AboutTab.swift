@@ -7,91 +7,155 @@
 
 import SwiftUI
 
+struct LoadingView: View {
+    var body: some View {
+        VStack {
+            Spacer()
+            ProgressView()
+            Spacer()
+        }
+    }
+}
+
 struct AboutTab: View {
-    @StateObject private var viewModel: AboutTabViewModel
+    let pokemon: Pokemon
+    @StateObject private var viewModel = AboutTabViewModel()
     @Environment(\.appSettings) var appSettings
     
-    init(pokemon: Pokemon) {
-        _viewModel = StateObject(wrappedValue: AboutTabViewModel(pokemon: pokemon))
+    var body: some View {
+        Group {
+            if viewModel.isLoading {
+                LoadingView()
+            } else {
+                aboutTabView
+            }
+        }
+        .foregroundColor(.textColour)
+        .task {
+            viewModel.setUp(settings: appSettings, pokemon: pokemon)
+            await viewModel.loadData()
+        }
+    }
+}
+
+extension AboutTab {
+    @ViewBuilder
+    var nameRow: some View {
+        HStack {
+            Text(viewModel.localizedPokemonName(language: appSettings.language))
+            Spacer()
+            Text("#\(String(format: "%03d", viewModel.pokemonID))")
+                .fontWeight(.ultraLight)
+        }
+        .headerStyle()
     }
     
-    var body: some View {
+    @ViewBuilder
+    func gridRow(title: String, value: String) -> some View {
+        GridRow {
+            Text(title)
+                .foregroundColor(.grayTextColour)
+            Text(value)
+        }
+    }
+    
+    @ViewBuilder
+    func gridRow(title: LocalizedStringKey, value: String, comment: StaticString? = nil) -> some View {
+        GridRow {
+            Text(title, comment: comment)
+                .foregroundColor(.grayTextColour)
+            Text(value)
+        }
+    }
+    
+    @ViewBuilder
+    func gridRow<Content: View>(
+        title: LocalizedStringKey,
+        @ViewBuilder content: () -> Content,
+        comment: StaticString? = nil
+    ) -> some View {
+        GridRow {
+            Text(title, comment: comment)
+                .foregroundColor(.grayTextColour)
+            content()
+        }
+    }
+    
+    var aboutTabView: some View {
         VStack(alignment: .leading) {
+            nameRow
+            
             Text(viewModel.pokemonDescription)
-                .padding(.bottom)
-            Grid(alignment: .topLeading, verticalSpacing: 5) {
-                GridRow {
-                    Text("Species", comment: "Grid row title: The species of the pokemon.")
-                        .foregroundColor(.grayTextColour)
-                    Text(viewModel.pokemonSeedType)
-                        .bold()
+                .bodyStyle()
+            Divider()
+            Grid(alignment: .topLeading, verticalSpacing: 10) {
+                gridRow(title: "Generation", value: viewModel.localizedGenerationName)
+                gridRow(title: "Type") {
+                    HStack {
+                        ForEach(pokemon.types, id: \.self) { pokemonType in
+                            PokemonTypeTag(name: pokemonType.type.name)
+                        }
+                    }
                 }
-                GridRow {
-                    Text("Height", comment: "Grid row title: The height of the pokemon.")
-                        .foregroundColor(.grayTextColour)
-                    Text(Measurement(value: Double(viewModel.pokemonHeight), unit: UnitLength.meters).formatted())
-                        .bold()
+                gridRow(title: "Egg groups") {
+                    HStack {
+                        ForEach(viewModel.eggGroupNames, id: \.self) { name in
+                            Text(name)
+                            if name != viewModel.eggGroupNames.last! {
+                                Divider()
+                                    .frame(maxHeight: 20)
+                            }
+                        }
+                    }
                 }
-                GridRow {
-                    Text("Weight", comment: "Grid row title: The weight of the pokemon.")
-                        .foregroundColor(.grayTextColour)
-                    Text(Measurement(value: Double(viewModel.pokemonWeight), unit: UnitMass.kilograms).formatted())
-                        .bold()
-                }
-                GridRow {
-                    Text("Abilities", comment: "Grid row title: The default abilities of the pokemon.")
-                        .foregroundColor(.grayTextColour)
-                    Text(viewModel.pokemonAbilities)
-                        .bold()
-                }
-            }
-            
-            Text("Breeding", comment: "Title: The breeding information for the pokemon.")
-                .font(.title2)
-                .fontWeight(.medium)
-                .padding(.top, 2)
-            
-            Grid(alignment: .bottomLeading, verticalSpacing: 5) {
-                GridRow {
-                    Text("Gender", comment: "Grid row title: The gender percentages for the pokemon (e.g Gender: 85% male 15% female).")
-                        .foregroundColor(.grayTextColour)
+                gridRow(title: "Height") { Text(Measurement(value: viewModel.pokemonHeight, unit: UnitLength.meters).formatted()) }
+                gridRow(title: "Weight") { Text(Measurement(value: viewModel.pokemonWeight, unit: UnitMass.kilograms).formatted()) }
+                gridRow(title: "Gender") {
                     if viewModel.pokemonFemaleGenderPercentage <= 0.0 {
                         Text("No gender")
                             .bold()
                     } else {
                         HStack(alignment: .lastTextBaseline) {
                             Text("♂")
-                                .font(.title) // TODO: Make this into a modifier
                                 .foregroundColor(.blue)
                             Text("\(viewModel.pokemonMaleGenderPercentage.formatted(.percent))")
-                                .bold()
-                            
                             Text("♀")
-                                .font(.title)
                                 .foregroundColor(.pink)
                             Text("\(viewModel.pokemonFemaleGenderPercentage.formatted(.percent))")
-                                .bold()
                         }
                     }
                 }
-                
-                GridRow {
-                    Text("Egg groups")
-                        .foregroundColor(.grayTextColour)
-                    Text(viewModel.eggGroupNames)
-                        .bold()
+                Group {
+                    gridRow(title: "Genus", value: viewModel.pokemonSeedType)
+                    gridRow(title: "Capture rate", value: "\(viewModel.pokemonSpecies?.captureRate ?? 0)")
+                    gridRow(title: "Base happiness", value: "\(viewModel.pokemonSpecies?.baseHappiness ?? 0)")
+                    gridRow(title: "Growth rate", value: viewModel.localizedGrowthRateName)
+                    if viewModel.pokemonHasHabitat {
+                        gridRow(title: "Habitat", value: viewModel.localizedHabitatName)
+                    }
+                    gridRow(title: "Legendary", value: "\(viewModel.pokemonSpecies?.isLegendary ?? false ? "Yes" : "No")")
+                    gridRow(title: "Mythical", value: "\(viewModel.pokemonSpecies?.isMythical ?? false ? "Yes" : "No")")
                 }
             }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .task {
-            viewModel.setUp(settings: appSettings)
+            Divider()
+            Text("Pokedex entry numbers")
+                .subHeaderStyle()
+            Grid(alignment: .bottomLeading, verticalSpacing: 5) {
+                ForEach(viewModel.pokedexNumbers, id: \.pokedex.name) { entryNumber, pokedex in
+                    gridRow(
+                        title: pokedex.names.localizedName(language: appSettings.language, default: pokedex.name),
+                        value: "\(entryNumber)"
+                    )
+                }
+            }
         }
     }
 }
 
 struct AboutTab_Previews: PreviewProvider {
     static var previews: some View {
-        AboutTab(pokemon: .example)
+        ScrollView(showsIndicators: false) {
+            AboutTab(pokemon: .example)
+        }
     }
 }
