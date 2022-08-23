@@ -12,13 +12,13 @@ struct ItemGridView: View {
     @EnvironmentObject private var searchBar: SearchBarViewModel
     
     private let columns: [GridItem] = [
-        .init(.adaptive(minimum: 150))
+        .init(.adaptive(minimum: 400, maximum: 800))
     ]
     
     var body: some View {
         Group {
-            if viewModel.items.isEmpty || viewModel.isLoading {
-                loadingView
+            if viewModel.items.isEmpty && viewModel.isLoading {
+                LoadingView()
             } else {
                 itemsList
             }
@@ -48,15 +48,7 @@ struct ItemGridView: View {
 
 
 // MARK: - ItemCard
-extension ItemGridView {
-    var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView()
-            Spacer()
-        }
-    }
-    
+private extension ItemGridView {
     var itemsList: some View {
         ScrollView(showsIndicators: false) {
             LazyVGrid(columns: columns) {
@@ -74,49 +66,6 @@ extension ItemGridView {
                 }
             }
             .padding(.horizontal)
-        }
-    }
-    
-    struct ItemCardView: View {
-        let item: Item
-        
-        var body: some View {
-            VStack {
-                ImageLoaderView(url: item.sprites.default) {
-                    ProgressView()
-                } content: { image in
-                    image
-                        .interpolation(.none)
-                        .resizable()
-                        .scaledToFit()
-                }
-                .frame(width: Constants.imageSize, height: Constants.imageSize)
-                
-                VStack(alignment: .leading) {
-                    Text(item.names.localizedName(default: item.name))
-                    HStack{
-                        if item.cost == 0 {
-                            Text("Quest item")
-                        } else {
-                            Text("Cost")
-                            Spacer()
-                            Text("\(item.cost)")
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .bodyStyle()
-                .foregroundColor(.textColour)
-            }
-            .padding()
-            .background(Color.cardBackgroundColour)
-            .cornerRadius(Constants.cornerRadius)
-            .shadow(radius: 3)
-        }
-        
-        enum Constants {
-            static let imageSize = 100.0
-            static let cornerRadius = 20.0
         }
     }
 }
