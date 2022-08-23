@@ -84,6 +84,10 @@ extension Pokemon {
         URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/\(id).png")
     }
     
+    var iconURL: URL? {
+        URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/\(id).png")
+    }
+    
     /// An example pokemon for xcode previews.
     static var example: Pokemon {
         do {

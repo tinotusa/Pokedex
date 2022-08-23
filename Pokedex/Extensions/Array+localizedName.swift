@@ -41,3 +41,60 @@ extension Array where Element == Name {
         return defaultValue
     }
 }
+
+extension Array where Element == VersionGroupFlavorText {
+    func localizedFlavorTextEntry(language: Language?, default defaultValue: String = "Error") -> String {
+        let availableLanguageCodes = self.map { entry in
+            entry.language.name
+        }
+        
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
+        let entry = self.first { entry in
+            entry.language.name == (language?.name != nil ? language!.name : deviceLanguageCode)
+        }
+        
+        if let entry {
+            return entry.text
+        }
+
+        return defaultValue
+    }
+}
+
+extension Array where Element == Effect {
+    func localizedEffectName(language: Language?, default defaultValue: String = "Error") -> String {
+        let availableLanguageCodes = self.map { entry in
+            entry.language.name
+        }
+        
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
+        let effect = self.first { entry in
+            entry.language.name == (language?.name != nil ? language!.name : deviceLanguageCode)
+        }
+        
+        if let effect {
+            return effect.effect
+        }
+
+        return defaultValue
+    }
+}
+
+extension Array where Element == VerboseEffect {
+    func localizedEffectEntryName(language: Language?, default defaultValue: String = "Error") -> String {
+        let availableLanguageCodes = self.map { effect in
+            effect.language.name
+        }
+        
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
+        let effect = self.first { effect in
+            effect.language.name == (language?.name != nil ? language!.name : deviceLanguageCode)
+        }
+        
+        if let effect {
+            return effect.effect
+        }
+
+        return defaultValue
+    }
+}

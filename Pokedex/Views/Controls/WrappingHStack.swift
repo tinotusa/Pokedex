@@ -8,13 +8,19 @@
 import SwiftUI
 
 struct WrappingHStack: Layout {
+    var spacing = 10.0
+    
+    init(spacing: Double = 10.0) {
+        self.spacing = spacing
+    }
+    
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
         let containerWidth = proposal.replacingUnspecifiedDimensions().width
         let sizes = subviews.map { $0.sizeThatFits(.unspecified) }
         return layout(sizes: sizes, containerWidth: containerWidth).size
     }
     
-    private func layout(sizes: [CGSize], spacing: Double = 10, containerWidth: Double) -> (offsets: [CGPoint], size: CGSize) {
+    private func layout(sizes: [CGSize], containerWidth: Double) -> (offsets: [CGPoint], size: CGSize) {
         var result = [CGPoint]()
         var currentPosition = CGPoint.zero
         var lineHeight = 0.0

@@ -53,7 +53,7 @@ private extension ItemGridView {
         ScrollView(showsIndicators: false) {
             LazyVGrid(columns: columns) {
                 ForEach(viewModel.filteredItems(searchText: searchBar.sanitizedSearchText)) { item in
-                    NavigationLink(destination: Text("Item detail view for: \(item.name)")) {
+                    NavigationLink(destination: ItemDetail(item: item)) {
                         ItemCardView(item: item)
                     }
                     .buttonStyle(.plain)
