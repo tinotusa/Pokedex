@@ -81,7 +81,7 @@ extension Array where Element == Effect {
 }
 
 extension Array where Element == VerboseEffect {
-    func localizedEffectEntryName(language: Language?, default defaultValue: String = "Error") -> String {
+    func localizedEffectEntryName(shortEffect: Bool = false, language: Language?, default defaultValue: String = "Error") -> String {
         let availableLanguageCodes = self.map { effect in
             effect.language.name
         }
@@ -92,7 +92,30 @@ extension Array where Element == VerboseEffect {
         }
         
         if let effect {
-            return effect.effect
+            if shortEffect {
+                return effect.shortEffect
+            } else {
+                return effect.effect  
+            }
+        }
+
+        return defaultValue
+    }
+}
+
+extension Array where Element == MoveFlavorText {
+    func localizedMoveFlavorText(language: Language?, default defaultValue: String = "Error") -> String {
+        let availableLanguageCodes = self.map { effect in
+            effect.language.name
+        }
+        
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
+        let flavorText = self.first { text in
+            text.language.name == (language?.name != nil ? language!.name : deviceLanguageCode)
+        }
+        
+        if let flavorText {
+            return flavorText.flavorText
         }
 
         return defaultValue

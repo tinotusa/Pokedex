@@ -59,7 +59,9 @@ private extension MoveGridView {
         ScrollView {
             LazyVGrid(columns: columns) {
                 ForEach(viewModel.filteredMoves(searchText: searchBar.sanitizedSearchText)) { move in
-                    NavigationLink(destination: Text("Move detail page: \(move.name)")) {
+                    NavigationLink {
+                        MoveDetail(move: move)
+                    } label: {
                         MoveCard(move: move)
                     }
                     .buttonStyle(.plain)
@@ -83,6 +85,7 @@ struct MoveGridView_Previews: PreviewProvider {
             MoveGridView()
                 .environmentObject(MoveGridViewViewModel())
                 .environmentObject(SearchBarViewModel())
+                .environmentObject(ImageCache())
         }
     }
 }
