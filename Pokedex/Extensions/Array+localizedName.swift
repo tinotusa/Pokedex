@@ -121,3 +121,22 @@ extension Array where Element == MoveFlavorText {
         return defaultValue
     }
 }
+
+extension Array where Element == AbilityFlavorText {
+    func localizedAbilityFlavorText(language: Language?, default defaultValue: String = "Error") -> String {
+        let availableLanguageCodes = self.map { abilityFlavorText in
+            abilityFlavorText.language.name
+        }
+        
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
+        let flavorText = self.first { abilityFlavorText in
+            abilityFlavorText.language.name == (language?.name != nil ? language!.name : deviceLanguageCode)
+        }
+        
+        if let flavorText {
+            return flavorText.flavorText
+        }
+
+        return defaultValue
+    }
+}

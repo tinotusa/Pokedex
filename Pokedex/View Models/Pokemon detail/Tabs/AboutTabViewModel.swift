@@ -42,7 +42,7 @@ final class AboutTabViewModel: ObservableObject {
             isLoading = true
             print("TASK: 1")
             
-            self.pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.name)
+            self.pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.species.name)
             guard let pokemonSpecies = self.pokemonSpecies else {
                 print("Errow in \(#function). Pokemon species is nil.")
                 return
@@ -102,6 +102,14 @@ extension AboutTabViewModel {
             return "Error"
         }
         return generation.names.localizedName(language: settings.language, default: generation.name)
+    }
+    
+    var generationName: String {
+        guard let generation else {
+            print("Error in \(#function). Generation is nil.")
+            return "Error"
+        }
+        return generation.name
     }
     
     var pokemonHasHabitat: Bool {

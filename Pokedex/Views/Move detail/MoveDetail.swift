@@ -288,6 +288,7 @@ private extension MoveDetail {
             Text("Generation")
                 .gridRowTitleStyle()
             Text(viewModel.localizedGenerationName)
+                .colouredLabel(colourName: move.generation.name)
         }
     }
     

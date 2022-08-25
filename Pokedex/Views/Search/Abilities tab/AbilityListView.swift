@@ -19,7 +19,9 @@ struct AbilityListView: View {
         ScrollView {
             LazyVGrid(columns: columns) {
                 ForEach(viewModel.filteredAbilities(searchText: searchBar.sanitizedSearchText)) { ability in
-                    NavigationLink(destination: Text("Ability detail for \(ability.name)")) {
+                    NavigationLink {
+                        AbilityDetail(ability: ability)
+                    } label: {
                         AbilityCardView(ability: ability)
                     }
                 }

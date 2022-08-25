@@ -36,7 +36,6 @@ struct SearchBar: View {
         .subHeaderStyle()
         .foregroundColor(.searchBarColour)
         .animation(.easeInOut, value: viewModel.searchText)
-        .padding()
     }
 }
 

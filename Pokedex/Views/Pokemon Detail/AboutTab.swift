@@ -89,7 +89,10 @@ extension AboutTab {
                 .bodyStyle()
             Divider()
             Grid(alignment: .topLeading, verticalSpacing: 10) {
-                gridRow(title: "Generation", value: viewModel.localizedGenerationName)
+                gridRow(title: "Generation") {
+                    Text(viewModel.localizedGenerationName)
+                        .colouredLabel(colourName: viewModel.generationName)
+                }
                 gridRow(title: "Type") {
                     HStack {
                         ForEach(pokemon.types, id: \.self) { pokemonType in

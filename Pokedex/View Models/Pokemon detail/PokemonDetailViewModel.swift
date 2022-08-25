@@ -28,7 +28,7 @@ final class PokemonDetailViewModel: ObservableObject {
             self.settings = settings
             group.addTask { @MainActor in
                 print("1")
-                self.pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.name)
+                self.pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.species.name)
             }
             group.addTask { @MainActor in
                 print("2")

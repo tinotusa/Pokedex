@@ -23,7 +23,7 @@ final class PokemonCardViewModel: ObservableObject {
     func loadData() async {
         guard let pokemon else { return }
         typeNames = pokemon.getTypes()
-        pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.name)
+        pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.species.name)
     }
     
     var localizedPokemonName: String {

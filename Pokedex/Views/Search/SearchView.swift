@@ -18,11 +18,13 @@ struct SearchView: View {
         NavigationStack(path: $navigationPath) {
             VStack(spacing: 20) {
                 Group {
-                    Text(viewModel.headerTitle)
-                        .headerStyle()
-                        .foregroundColor(.headerTextColour)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    SearchBar(placeholder: "Search")
+                    VStack(spacing: 0) {
+                        Text(viewModel.headerTitle)
+                            .headerStyle()
+                            .foregroundColor(.headerTextColour)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        SearchBar(placeholder: "Search")
+                    }
                     TabBar(tabs: SearchViewViewModel.SearchTab.self, selectedTab: $viewModel.searchTab)
                 }
                 .padding(.horizontal)
@@ -40,6 +42,7 @@ struct SearchView: View {
                 
                 Spacer()
             }
+            
             .ignoresSafeArea(edges: .bottom)
             .scrollDismissesKeyboard(.immediately)
             .background {
