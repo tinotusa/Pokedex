@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MoveDetail: View {
     let move: Move
-    @Environment(\.appSettings) private var settings
+    @Environment(\.appSettings) private var appSettings
     @StateObject private var viewModel = MoveDetailViewModel()
     
     var body: some View {
@@ -32,6 +32,11 @@ struct MoveDetail: View {
                     Divider()
                     
                     Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: Constants.gridVerticalSpacing) {
+                        Group {
+                            type
+                            
+                            target
+                        }
                         Group {
                             accuracy
                             
@@ -92,19 +97,14 @@ struct MoveDetail: View {
             }
         }
         .fullScreenCover(isPresented: $viewModel.showMoreMachines) {
-            Text("More here")
-            /*
-             pass viewmodel as observed object
-             VStack(alignment: .leading) {
-                 ForEach(viewModel.machines) { machine in
-                     Text("\(machine.item.name) (\(machine.versionGroup.name))")
-                 }
-             }
-             */
+            MachinesListView(moveDetailViewModel: viewModel)
         }
         .task {
-            viewModel.setUp(move: move, settings: settings)
-            await viewModel.loadData()
+            if !viewModel.viewHasAppeared {
+                viewModel.setUp(move: move, settings: appSettings)
+                await viewModel.loadData()
+                viewModel.viewHasAppeared = true
+            }
         }
         .padding(.horizontal)
         .toolbar(.hidden)
@@ -121,11 +121,28 @@ private extension MoveDetail {
     
     enum Constants {
         static let gridVerticalSpacing = 6.0
+        static let maxMachines = 5
     }
 }
 
 // MARK: Metadata grid rows
 private extension MoveDetail {
+    var type: some View {
+        GridRow {
+            Text("Type")
+                .gridRowTitleStyle()
+            PokemonTypeTag(name: move.type.name)
+        }
+    }
+    
+    var target: some View {
+        GridRow {
+            Text("Target")
+                .gridRowTitleStyle()
+            Text(viewModel.localizedTargetName)
+        }
+    }
+    
     var ailment: some View {
         GridRow {
             Text("Ailment")
@@ -297,15 +314,30 @@ private extension MoveDetail {
             Text("Machines")
                 .gridRowTitleStyle()
             if viewModel.moveCanBeTaughtByMachines {
-                if viewModel.machines.count > 5 {
-                    VStack(alignment: .leading) {
+                if viewModel.machineItems.count > 5 {
+                    VStack(alignment: .leading, spacing: 0) {
                         ForEach(0 ..< 5) { index in
-                            Text("\(viewModel.machines[index].item.name) (\(viewModel.machines[index].versionGroup.name))")
+                            HStack {
+                                ImageLoaderView(url: viewModel.machineItems[index].sprites.default) {
+                                    ProgressView()
+                                } content: { image in
+                                    image
+                                        .interpolation(.none)
+                                        .resizable()
+                                        .scaledToFit()
+                                }
+                                .frame(width: 30)
+                                Text(viewModel.machineItems[index].names.localizedName(language: appSettings.language))
+                                Text(viewModel.machines[index].versionGroup.name)
+                                    .lineLimit(1)
+                                    .foregroundColor(.gray)
+                            }
+                             
                         }
                         Button {
                             viewModel.showMoreMachines = true
                         } label: {
-                            Label("More", systemImage: "chevron.down")
+                            Label("Show all", systemImage: "chevron.down")
                         }
                     }
                 } else {
@@ -326,5 +358,6 @@ private extension MoveDetail {
 struct MoveDetail_Previews: PreviewProvider {
     static var previews: some View {
         MoveDetail(move: .example)
+            .environmentObject(ImageCache())
     }
 }

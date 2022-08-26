@@ -14,6 +14,8 @@ final class MoveDetailViewModel: ObservableObject {
     @Published private(set) var moveDamageClass: MoveDamageClass?
     @Published private(set) var generation: Generation?
     @Published private(set) var machines = [Machine]()
+    @Published private(set) var machineItems = [Item]()
+    @Published private(set) var moveTarget: MoveTarget?
     
     // Meta data
     @Published private(set) var moveAilment: MoveAilment?
@@ -23,6 +25,7 @@ final class MoveDetailViewModel: ObservableObject {
     
     @Published var setUpLoaded = false
     @Published var isLoading = false
+    @Published var viewHasAppeared = false
 }
 
 // MARK: - Functions
@@ -40,6 +43,7 @@ extension MoveDetailViewModel {
         }
         isLoading = true
         defer { isLoading = false }
+        
         await withTaskGroup(of: Void.self) { [self] group in
             group.addTask { @MainActor [self] in
                 moveDamageClass = try? await MoveDamageClass.from(name: move.damageClass.name)
@@ -52,9 +56,14 @@ extension MoveDetailViewModel {
             for machine in move.machines {
                 group.addTask { @MainActor [self] in
                     let newMachine = try? await Machine.from(url: machine.machine.url)
-                    if let newMachine {
-                        machines.append(newMachine)
+                    guard let newMachine else {
+                        return
                     }
+                    let item = try? await Item.from(name: newMachine.item.name)
+                    if let item {
+                        machineItems.append(item)
+                    }
+                    machines.append(newMachine)
                 }
             }
             
@@ -64,6 +73,10 @@ extension MoveDetailViewModel {
             
             group.addTask { @MainActor [self] in
                 moveCategory = try? await MoveCategory.from(name: move.meta.category.name)
+            }
+            
+            group.addTask { @MainActor [self] in
+                moveTarget = try? await MoveTarget.from(name: move.target.name)
             }
         }
     }
@@ -78,6 +91,15 @@ extension MoveDetailViewModel {
                 language: settings.language,
                 default: move.name
             )
+    }
+    
+    var localizedTargetName: String {
+        if !setUpLoaded { return "Error" }
+        guard let moveTarget else {
+            print("Error in \(#function). moveTarget is nil.")
+            return "Error"
+        }
+        return moveTarget.names.localizedName(language: settings.language, default: moveTarget.name)
     }
     
     var moveID: String {

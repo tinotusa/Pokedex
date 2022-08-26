@@ -22,14 +22,7 @@ struct PokemonTypeTag: View {
     var body: some View {
         Text(localizedName ?? name.capitalized)
             .lineLimit(1)
-            .padding(.horizontal)
-            .background(Color(name))
-            .cornerRadius(Constants.cornerRadius)
-            .foregroundColor(.headerTextColour)
-            .tagStyle()
-            .task {
-                localizedName = await localizedType()
-            }
+            .colouredLabel(colourName: name)
     }
 }
 
