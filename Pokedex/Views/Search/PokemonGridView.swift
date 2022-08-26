@@ -80,7 +80,7 @@ private extension PokemonGridView {
     
     var pokemonGrid: some View {
         Group {
-            ScrollView(showsIndicators: false) {
+            ScrollView {
                 LazyVGrid(columns: columns, spacing: 20) {
                     ForEach(viewModel.filteredPokemon(searchText: searchBar.sanitizedSearchText)) { pokemon in
                         NavigationLink(destination: PokemonDetail(pokemon: pokemon)) {

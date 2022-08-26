@@ -46,6 +46,10 @@ struct AbilityDetail: View {
         .padding(.horizontal)
         .bodyStyle()
         .foregroundColor(.textColour)
+        .background {
+            Color.backgroundColour
+                .ignoresSafeArea()
+        }
         .toolbar(.hidden)
         .task {
             if viewModel.viewHasApeared { return }

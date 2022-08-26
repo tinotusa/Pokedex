@@ -102,12 +102,9 @@ struct ItemCardView: View {
                 .bodyStyle()
                 .foregroundColor(.textColour)
             }
-            .padding()
-            .background(Color.cardBackgroundColour)
-            .cornerRadius(Constants.cornerRadius)
-            
-            Divider()
         }
+        .padding()
+        .card()
         .bodyStyle()
         .task {
             viewModel.setUp(settings: appSettings, item: item)

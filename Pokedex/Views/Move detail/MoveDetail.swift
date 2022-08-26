@@ -96,6 +96,12 @@ struct MoveDetail: View {
                 .bodyStyle()
             }
         }
+        .padding(.horizontal)
+        .toolbar(.hidden)
+        .background {
+            Color.backgroundColour
+                .ignoresSafeArea()
+        }
         .fullScreenCover(isPresented: $viewModel.showMoreMachines) {
             MachinesListView(moveDetailViewModel: viewModel)
         }
@@ -106,8 +112,6 @@ struct MoveDetail: View {
                 viewModel.viewHasAppeared = true
             }
         }
-        .padding(.horizontal)
-        .toolbar(.hidden)
     }
 }
 

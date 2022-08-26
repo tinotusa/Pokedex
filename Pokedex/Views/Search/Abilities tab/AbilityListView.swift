@@ -36,7 +36,7 @@ struct AbilityListView: View {
             .padding(.horizontal)
         }
 //        .navigationDestination(for: Ability.self) { ability in
-//            Text("Ability detail: \(ability.name)")
+//            AbilityDetail(ability: ability)
 //        }
         .task {
             if !viewModel.viewHasAppeared {
@@ -50,9 +50,13 @@ struct AbilityListView: View {
 struct AbilityListView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            AbilityListView()
-                .environmentObject(AbilityListViewViewModel())
-                .environmentObject(SearchBarViewModel())
+            ZStack {
+                Color.backgroundColour
+                    .ignoresSafeArea()
+                AbilityListView()
+                    .environmentObject(AbilityListViewViewModel())
+                    .environmentObject(SearchBarViewModel())
+            }
         }
     }
 }

@@ -7,6 +7,46 @@
 
 import SwiftUI
 
+struct CardView: ViewModifier {
+    var cornerRadius: Double
+    var shadowOpacity: Double
+    var shadowRadius: Double
+    var shadowX: Double
+    var shadowY: Double
+    
+    func body(content: Content) -> some View {
+        content
+            .background(.white)
+            .cornerRadius(cornerRadius)
+            .shadow(
+                color: .black.opacity(shadowOpacity),
+                radius: shadowRadius,
+                x: shadowX,
+                y: shadowY
+            )
+    }
+}
+
+extension View {
+    func card(
+        cornerRadius: Double = 14.0,
+        shadowOpacity: Double = 0.2,
+        shadowRadius: Double = 2.0,
+        shadowX: Double = 0.0,
+        shadowY: Double = 2.0
+    ) -> some View {
+        modifier(
+            CardView(
+                cornerRadius: cornerRadius,
+                shadowOpacity: shadowOpacity,
+                shadowRadius: shadowRadius,
+                shadowX: shadowX,
+                shadowY: shadowY
+            )
+        )
+    }
+}
+
 struct AbilityCardView: View {
     let ability: Ability
     @Environment(\.appSettings) var appSettings
@@ -14,33 +54,32 @@ struct AbilityCardView: View {
     
     var body: some View {
         HStack {
-            Text("\(ability.id).")
+            
             
             VStack(alignment: .leading) {
                 HStack {
                     Text(localizedAbilityName)
+                        .subHeaderStyle()
+                    Text("\(String(format: "#%03d", ability.id)).")
+                        .fontWeight(.ultraLight)
+                        .foregroundColor(.gray)
+                    
                     Spacer()
-                    Text(localizedGenerationName)
+                        Text(localizedGenerationName)
+                        .foregroundColor(.gray)
                 }
                 Text(localizedEffectShortEntry)
-                    .lineLimit(1)
-                    .footerStyle()
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
                     .foregroundColor(.secondary)
             }
             
             Spacer()
         }
         .padding()
-        .background {
-            ZStack {
-                RoundedRectangle(cornerRadius: 24)
-                    .fill(Color.cardBackgroundColour)
-                RoundedRectangle(cornerRadius: 24)
-                    .strokeBorder(.gray.opacity(0.4), lineWidth: 1)
-            }
-        }
         .bodyStyle()
         .foregroundColor(.textColour)
+        .card()
         .task {
             await getGeneration()
         }
@@ -88,6 +127,9 @@ private extension AbilityCardView {
 
 struct AbilityCardView_Previews: PreviewProvider {
     static var previews: some View {
-        AbilityCardView(ability: .example)
+        ZStack {
+            Color.backgroundColour
+            AbilityCardView(ability: .example)
+        }
     }
 }

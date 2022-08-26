@@ -27,8 +27,12 @@ struct PokemonListView: View {
             }
         }
         .bodyStyle()
-        .foregroundColor(.textColour)
         .padding(.horizontal)
+        .foregroundColor(.textColour)
+        .background {
+            Color.backgroundColour
+                .ignoresSafeArea()
+        }
         .task {
             await viewModel.loadData(from: abilityDetailViewModel.ability.pokemon)
         }

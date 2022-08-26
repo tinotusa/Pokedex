@@ -50,7 +50,7 @@ struct ItemGridView: View {
 // MARK: - ItemCard
 private extension ItemGridView {
     var itemsList: some View {
-        ScrollView(showsIndicators: false) {
+        ScrollView {
             LazyVGrid(columns: columns) {
                 ForEach(viewModel.filteredItems(searchText: searchBar.sanitizedSearchText)) { item in
                     NavigationLink(destination: ItemDetail(item: item)) {

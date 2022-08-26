@@ -38,6 +38,7 @@ struct PokemonDetail: View {
         .padding(.horizontal)
         .background {
             Color.backgroundColour
+                .ignoresSafeArea()
         }
         .task {
             await viewModel.setUp(pokemon: pokemon, settings: appSettings)

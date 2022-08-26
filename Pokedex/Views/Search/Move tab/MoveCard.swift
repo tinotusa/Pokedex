@@ -14,26 +14,23 @@ struct MoveCard: View {
     
     var body: some View {
         HStack {
-            Text("\(move.id).", comment: "The id of the pokemon followed by a fullstop.")
-                
             VStack(alignment: .leading) {
-                Text(move.names.localizedName(language: appSettings.language, default: move.name.capitalized))
-                
-                Text(localizedDamageClassName)
-                    .footerStyle()
-                    .italic()
-                
-                PokemonTypeTag(name: move.type.name)
-            }
-            Spacer()
-            Grid(alignment: .leading) {
-                GridRow {
-                    Text("Power", comment: "Grid row title: The power(strength) of the pokemon.")
-                    Text("\(move.power ?? 0)")
+                HStack {
+                    Text(move.names.localizedName(language: appSettings.language, default: move.name.capitalized))
+                        .subHeaderStyle()
+                    Spacer()
+                    Text(String(format: "#%03d", move.id))
+                        .fontWeight(.ultraLight)
+                        .foregroundColor(.gray)
                 }
-                GridRow {
-                    Text("PP", comment: "Grid row title: PP (Power Points).")
-                    Text("\(move.pp)")
+                Text(move.effectEntries.first!.shortEffect)
+                    .lineLimit(1)
+                    .foregroundColor(.gray)
+                HStack {
+                    Text(localizedDamageClassName)
+                        .colouredLabel(colourName: move.damageClass.name)
+                    
+                    PokemonTypeTag(name: move.type.name)
                 }
             }
         }
@@ -41,10 +38,7 @@ struct MoveCard: View {
         .foregroundColor(.textColour)
         .padding(.horizontal)
         .padding(.vertical, 4)
-        .background {
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color(move.type.name).opacity(0.8))
-        }
+        .card()
         .task {
             await getMoveDamageClass()
         }

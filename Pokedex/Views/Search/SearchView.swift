@@ -42,12 +42,12 @@ struct SearchView: View {
                 
                 Spacer()
             }
-            
             .ignoresSafeArea(edges: .bottom)
             .scrollDismissesKeyboard(.immediately)
             .background {
                 ZStack {
                     Color.backgroundColour
+                        .ignoresSafeArea()
                     Circle()
                         .fill(Color.backgroundCircleColour)
                         .frame(width: 650, height: 650)

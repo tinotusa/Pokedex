@@ -83,11 +83,15 @@ struct MachinesListView: View {
                 }
             }
             .bodyStyle()
-            .foregroundColor(.textColour)
             .padding(.horizontal)
+            .foregroundColor(.textColour)
+            .background {
+                Color.backgroundColour
+                    .ignoresSafeArea()
+            }
             .task {
                 await viewModel.loadData(machines: moveDetailViewModel.machines)
-        }
+            }
         }
     }
 }
