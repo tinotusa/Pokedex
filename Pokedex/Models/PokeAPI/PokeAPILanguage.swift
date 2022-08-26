@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct PokeAPILanguage: Codable, Identifiable {
+struct PokeAPILanguage: Codable, Hashable, Identifiable {
     let id: Int?
     let name: String
     let languageCode: String?

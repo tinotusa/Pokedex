@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// The pokemon species details.
-struct PokemonSpecies: Codable, Identifiable {
+struct PokemonSpecies: Codable, Hashable, Identifiable {
     /// The identifier for this resource.
     let id: Int
     /// The name for this resource.

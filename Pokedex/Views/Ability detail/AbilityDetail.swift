@@ -7,75 +7,6 @@
 
 import SwiftUI
 
-@MainActor
-final class AbilityDetailViewModel: ObservableObject {
-    @Published var ability: Ability!
-    @Published var settings: Settings!
-    @Published private(set) var generation: Generation?
-    
-    @Published var setUpCalled = false
-    @Published private(set) var isLoading = false
-}
-
-extension AbilityDetailViewModel {
-    func setUp(ability: Ability, settings: Settings) {
-        defer { setUpCalled = true }
-        self.ability = ability
-        self.settings = settings
-    }
-    
-    func loadData() async {
-        if !setUpCalled {
-            fatalError("Error Called load data without calling set up.")
-        }
-        isLoading = true
-        defer { isLoading = false }
-        generation = try? await Generation.from(name: ability.generation.name)
-    }
-}
-
-extension AbilityDetailViewModel {
-    var localizedAbilityName: String {
-        if !setUpCalled { return "Error" }
-        return ability.names.localizedName(language: settings.language, default: ability.name)
-    }
-    
-    var abilityID: String {
-        if !setUpCalled { return "Error" }
-        return String(format: "#%03d", ability.id)
-    }
-    
-    var flavorText: String {
-        if !setUpCalled { return "Error" }
-        return ability.flavorTextEntries.localizedAbilityFlavorText(language: settings.language, default: "Error")
-    }
-    
-    var isMainSeriesAbility: String {
-        if !setUpCalled { return "Error" }
-        return ability.isMainSeries ? "Yes" : "No"
-    }
-    
-    var localizedGeneration: String {
-        if !setUpCalled { return "Error" }
-        guard let generation else {
-            print("Error in \(#function). generation is nil.")
-            return "Error"
-        }
-        return generation.names.localizedName(language: settings.language, default: "Error")
-    }
-    
-    var effectChanges: [(versionGroupName: String, effectChange: String)] {
-        if !setUpCalled { return [] }
-        var changes = [(String, String)]()
-        for effect in ability.effectChanges {
-            let effectChange = effect.effectEntries.localizedEffectName(language: settings.language, default: "Error")
-            changes.append((effect.versionGroup.name, effectChange))
-        }
-        return changes
-    }
-    
-}
-
 struct AbilityDetail: View {
     let ability: Ability
     @StateObject private var viewModel = AbilityDetailViewModel()
@@ -88,6 +19,10 @@ struct AbilityDetail: View {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading) {
                     titleAndID
+                    
+                    Text(viewModel.shortFlavorText)
+                    
+                    Divider()
                     
                     Text(viewModel.flavorText)
                     
@@ -113,13 +48,20 @@ struct AbilityDetail: View {
         .foregroundColor(.textColour)
         .toolbar(.hidden)
         .task {
+            if viewModel.viewHasApeared { return }
+            
             viewModel.setUp(ability: ability, settings: appSettings)
             await viewModel.loadData()
+            viewModel.viewHasApeared = true
+        }
+        .fullScreenCover(isPresented: $viewModel.showingPokemonView) {
+            PokemonListView(abilityDetailViewModel: viewModel)
         }
     }
 }
 
-extension AbilityDetail {
+// MARK: Subviews
+private extension AbilityDetail {
     var titleAndID: some View {
         VStack(spacing: 0) {
             HStack {
@@ -160,7 +102,16 @@ extension AbilityDetail {
         GridRow {
             Text("Pokemon")
                 .gridRowTitleStyle()
-            Text("\(ability.pokemon.count)")
+            HStack {
+                Text("\(ability.pokemon.count)")
+                Spacer()
+                Button {
+                    viewModel.showingPokemonView = true
+                } label: {
+                    Text("Show pokemon")
+                }
+                .foregroundColor(.blue)
+            }
         }
     }
     
@@ -170,7 +121,11 @@ extension AbilityDetail {
                 .gridRowTitleStyle()
             VStack {
                 ForEach(viewModel.effectChanges, id: \.effectChange) { version, effectChange in
-                    Text("\(effectChange)\n(\(version))")
+                    HStack(alignment: .top) {
+                        Text(effectChange) +
+                        Text(" \(version)")
+                            .foregroundColor(.gray)
+                    }
                 }
             }
         }
@@ -181,6 +136,7 @@ struct AbilityDetail_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             AbilityDetail(ability: .example)
+                .environmentObject(ImageCache())
         }
     }
 }
