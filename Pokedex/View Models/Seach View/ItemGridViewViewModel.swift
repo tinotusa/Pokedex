@@ -20,7 +20,7 @@ final class ItemGridViewViewModel: ObservableObject {
         }
     }
     @Published var hasNextPage: Bool = false
-    @Published var viewHasApeared = false
+    @Published var viewHasAppeared = false
     @Published private(set) var isLoading = false
     private var task: Task<Void, Never>?
     private var limit = 20
@@ -72,6 +72,12 @@ extension ItemGridViewViewModel {
     
     func getItems() async {
         do {
+            isLoading = true
+            defer {
+                Task { @MainActor in
+                    self.isLoading = false
+                }
+            }
             let list = try await PokeAPI.shared.getResourceList(fromEndpoint: "item", limit: limit)
             nextPageURL = list.next
             await getItems(from: list.results)

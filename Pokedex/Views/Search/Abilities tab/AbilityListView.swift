@@ -16,28 +16,34 @@ struct AbilityListView: View {
     ]
     
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns) {
-                ForEach(viewModel.filteredAbilities(searchText: searchBar.sanitizedSearchText)) { ability in
-                    NavigationLink {
-                        AbilityDetail(ability: ability)
-                    } label: {
-                        AbilityCardView(ability: ability)
-                    }
-                }
-                if searchBar.isSearching && viewModel.hasNextPage && !viewModel.isLoading {
-                    ProgressView()
-                        .task {
-                            print("progress view showed")
-                            await viewModel.getNextAbilitesPage()
+        Group {
+            if !viewModel.viewHasAppeared {
+                LoadingView()
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: columns) {
+                        ForEach(viewModel.filteredAbilities(searchText: searchBar.sanitizedSearchText)) { ability in
+                            NavigationLink {
+                                AbilityDetail(ability: ability)
+                            } label: {
+                                AbilityCardView(ability: ability)
+                            }
                         }
+                        if viewModel.hasNextPage && !searchBar.isSearching {
+                            ProgressView()
+                                .task {
+                                    print("progress view showed")
+                                    await viewModel.getNextAbilitesPage()
+                                }
+                        }
+                    }
+                    .padding(.horizontal)
                 }
+                //        .navigationDestination(for: Ability.self) { ability in
+                //            AbilityDetail(ability: ability)
+                //        }
             }
-            .padding(.horizontal)
         }
-//        .navigationDestination(for: Ability.self) { ability in
-//            AbilityDetail(ability: ability)
-//        }
         .task {
             if !viewModel.viewHasAppeared {
                 await viewModel.getAbilities()

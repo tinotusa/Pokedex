@@ -18,8 +18,8 @@ struct MoveGridView: View {
     
     var body: some View {
         Group {
-            if searchBar.isSearching && viewModel.isLoading {
-                loadingView
+            if !viewModel.viewHasAppeared {
+                LoadingView()
             } else {
                 movesList
             }
@@ -47,14 +47,6 @@ struct MoveGridView: View {
 }
 
 private extension MoveGridView {
-    var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView()
-            Spacer()
-        }
-    }
-    
     var movesList: some View {
         ScrollView {
             LazyVGrid(columns: columns) {

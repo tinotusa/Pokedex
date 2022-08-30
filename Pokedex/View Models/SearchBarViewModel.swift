@@ -33,4 +33,8 @@ final class SearchBarViewModel: ObservableObject {
     func clearText() {
         searchText = ""
     }
+    
+    var isEmpty: Bool {
+        searchText.isEmpty
+    }
 }

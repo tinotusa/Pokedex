@@ -8,12 +8,17 @@
 import SwiftUI
 
 struct LoadingView: View {
+    var text: LocalizedStringKey = "Loading"
+    
     var body: some View {
         VStack {
             Spacer()
             ProgressView()
+            Text(text)
             Spacer()
         }
+        .bodyStyle()
+        .foregroundColor(.textColour)
     }
 }
 

@@ -17,16 +17,16 @@ struct ItemGridView: View {
     
     var body: some View {
         Group {
-            if viewModel.items.isEmpty && viewModel.isLoading {
+            if !viewModel.viewHasAppeared {
                 LoadingView()
             } else {
                 itemsList
             }
         }
         .task {
-            if !viewModel.viewHasApeared {
+            if !viewModel.viewHasAppeared {
                 await viewModel.getItems()
-                viewModel.viewHasApeared = true
+                viewModel.viewHasAppeared = true
             }
         }
 //        .navigationDestination(for: Item.self) { item in

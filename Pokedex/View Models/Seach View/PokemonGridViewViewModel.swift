@@ -60,6 +60,13 @@ extension PokemonGridViewViewModel {
     
     func getPokemonList() async {
         await withTaskGroup(of: Pokemon?.self) { group in
+            isLoading = true
+            defer {
+                Task { @MainActor in
+                    self.isLoading = false
+                }
+            }
+            
             let resourceList = try? await PokeAPI.shared.getResourceList(fromEndpoint: "pokemon", limit: limit)
             guard let resourceList else { return }
             if let nextURL = resourceList.next {
@@ -86,7 +93,12 @@ extension PokemonGridViewViewModel {
         guard let nextPage else {
             return
         }
-        
+        isLoading = true
+        defer {
+            Task { @MainActor in
+                self.isLoading = false
+            }
+        }
         let resourceList = try? await PokeAPI.shared.getData(for: NamedAPIResourceList.self, url: nextPage)
         
         guard let resourceList else { return }

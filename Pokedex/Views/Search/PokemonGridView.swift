@@ -19,8 +19,8 @@ struct PokemonGridView: View {
               
     var body: some View {
         Group {
-            if searchBar.isSearching && viewModel.isLoading {
-                loadingView
+            if !viewModel.viewHasAppeared {
+                LoadingView()
             } else {
                 pokemonGrid
             }
@@ -70,35 +70,25 @@ private extension PokemonGridView {
         }
     }
     
-    var loadingView: some View {
-        VStack {
-            Spacer()
-            ProgressView()
-            Spacer()
-        }
-    }
-    
     var pokemonGrid: some View {
-        Group {
-            ScrollView {
-                LazyVGrid(columns: columns, spacing: 20) {
-                    ForEach(viewModel.filteredPokemon(searchText: searchBar.sanitizedSearchText)) { pokemon in
-                        NavigationLink(destination: PokemonDetail(pokemon: pokemon)) {
-                            PokemonCard(pokemon: pokemon)
-                        }
-                    }
-                    
-                    // if there is more data and user is not searching
-                    if viewModel.hasNextPage && searchBar.searchText.isEmpty {
-                        ProgressView()
-                            .frame(maxWidth: .infinity)
-                            .task {
-                                await viewModel.getNextPokemonPage()
-                            }
+        ScrollView {
+            LazyVGrid(columns: columns, spacing: 20) {
+                ForEach(viewModel.filteredPokemon(searchText: searchBar.sanitizedSearchText)) { pokemon in
+                    NavigationLink(destination: PokemonDetail(pokemon: pokemon)) {
+                        PokemonCard(pokemon: pokemon)
                     }
                 }
-                .padding(.horizontal)
+                
+                // if there is more data and user is not searching
+                if viewModel.hasNextPage && searchBar.isEmpty {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                        .task {
+                            await viewModel.getNextPokemonPage()
+                        }
+                }
             }
+            .padding(.horizontal)
         }
     }
 }
