@@ -317,42 +317,17 @@ private extension MoveDetail {
         GridRow {
             Text("Machines")
                 .gridRowTitleStyle()
-            if viewModel.moveCanBeTaughtByMachines {
-                if viewModel.machineItems.count > 5 {
-                    VStack(alignment: .leading, spacing: 0) {
-                        ForEach(0 ..< 5) { index in
-                            HStack {
-                                ImageLoaderView(url: viewModel.machineItems[index].sprites.default) {
-                                    ProgressView()
-                                } content: { image in
-                                    image
-                                        .interpolation(.none)
-                                        .resizable()
-                                        .scaledToFit()
-                                }
-                                .frame(width: 30)
-                                Text(viewModel.machineItems[index].names.localizedName(language: appSettings.language))
-                                Text(viewModel.machines[index].versionGroup.name)
-                                    .lineLimit(1)
-                                    .foregroundColor(.gray)
-                            }
-                             
-                        }
-                        Button {
-                            viewModel.showMoreMachines = true
-                        } label: {
-                            Label("Show all", systemImage: "chevron.down")
-                        }
+            HStack {
+                Text(viewModel.machinesCount)
+                Spacer()
+                if viewModel.moveCanBeTaughtByMachines {
+                    Button {
+                        viewModel.showMoreMachines = true
+                    } label: {
+                        Text("Show machines")
                     }
-                } else {
-                    VStack(alignment: .leading) {
-                        ForEach(viewModel.machines) { machine in
-                            Text("\(machine.item.name) (\(machine.versionGroup.name))")
-                        }
-                    }
+                    .foregroundColor(.blue)
                 }
-            } else {
-                Text("N/A")
             }
         }
     }

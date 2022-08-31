@@ -8,12 +8,12 @@
 import SwiftUI
 
 struct PopoverNavigationBar: View {
-    var action: (() -> Void)? = nil
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         HStack {
             Button {
-                action?()
+                dismiss()
             } label: {
                 Label("Close", systemImage: "xmark")
             }

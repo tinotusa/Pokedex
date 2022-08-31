@@ -12,7 +12,6 @@ extension ItemDetail {
         @ObservedObject var itemDetailViewModel: ItemDetailViewModel
         @StateObject var viewModel = PokemonListViewViewModel()
         @Environment(\.appSettings) var appSettings
-        @Environment(\.dismiss) var dismiss
         
         var body: some View {
             Group {
@@ -57,9 +56,7 @@ private extension ItemDetail.PokemonListView {
     
     var pokemonListView: some View {
         VStack(alignment: .leading) {
-            PopoverNavigationBar {
-                dismiss()
-            }
+            PopoverNavigationBar()
             
             ScrollView {
                 VStack(alignment: .leading) {

@@ -13,7 +13,6 @@ final class MoveDetailViewModel: ObservableObject {
     @Published private(set) var settings: Settings!
     @Published private(set) var moveDamageClass: MoveDamageClass?
     @Published private(set) var generation: Generation?
-    @Published private(set) var machines = [Machine]()
     @Published private(set) var machineItems = [Item]()
     @Published private(set) var moveTarget: MoveTarget?
     
@@ -51,20 +50,6 @@ extension MoveDetailViewModel {
             
             group.addTask { @MainActor [self] in
                 generation = try? await Generation.from(name: move.generation.name)
-            }
-            
-            for machine in move.machines {
-                group.addTask { @MainActor [self] in
-                    let newMachine = try? await Machine.from(url: machine.machine.url)
-                    guard let newMachine else {
-                        return
-                    }
-                    let item = try? await Item.from(name: newMachine.item.name)
-                    if let item {
-                        machineItems.append(item)
-                    }
-                    machines.append(newMachine)
-                }
             }
             
             group.addTask { @MainActor [self] in
@@ -105,6 +90,15 @@ extension MoveDetailViewModel {
     var moveID: String {
         if !setUpLoaded { return "Error" }
         return String(format: "#%03d", move.id)
+    }
+    
+    var machinesCount: String {
+        if !setUpLoaded { return "N/A" }
+        let count = move.machines.count
+        if count == 0 {
+            return "N/A"
+        }
+        return "\(count)"
     }
     
     var accuracy: String {
@@ -167,7 +161,8 @@ extension MoveDetailViewModel {
     }
     
     var moveCanBeTaughtByMachines: Bool {
-        !machines.isEmpty
+        if !setUpLoaded { return false }
+        return !move.machines.isEmpty
     }
 }
 
