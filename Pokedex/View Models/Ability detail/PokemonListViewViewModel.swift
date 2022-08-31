@@ -6,15 +6,16 @@
 //
 
 import Foundation
-
-@MainActor
-final class PokemonListViewViewModel: ObservableObject {
-    @Published private(set) var pokemon = Set<Pokemon>()
-    @Published private(set) var pokemonSpecies = Set<PokemonSpecies>()
-    @Published private(set) var isLoading = false
+extension AbilityDetail {
+    @MainActor
+    final class PokemonListViewViewModel: ObservableObject {
+        @Published private(set) var pokemon = Set<Pokemon>()
+        @Published private(set) var pokemonSpecies = Set<PokemonSpecies>()
+        @Published private(set) var isLoading = false
+    }
 }
 
-extension PokemonListViewViewModel {
+extension AbilityDetail.PokemonListViewViewModel {
     func loadPokemon(from abilityPokemonArray: [AbilityPokemon]) async -> Set<Pokemon> {
         await withTaskGroup(of: Pokemon?.self) { group in
             for abilityPokemon in abilityPokemonArray {

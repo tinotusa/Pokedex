@@ -6,41 +6,41 @@
 //
 
 import SwiftUI
-
-struct PokemonListView: View {
-    @ObservedObject var abilityDetailViewModel: AbilityDetailViewModel
-    
-    @StateObject private var viewModel = PokemonListViewViewModel()
-    
-    @Environment(\.dismiss) var dismiss
-    @Environment(\.appSettings) var appSettings
-    
-    var body: some View {
-        VStack(alignment: .leading) {
-            navigationBar
-            
-            if viewModel.isLoading {
-                LoadingView()
-                    .frame(maxWidth: .infinity)
-            } else {
-                pokemonList
+extension AbilityDetail {
+    struct PokemonListView: View {
+        @ObservedObject var abilityDetailViewModel: AbilityDetailViewModel
+        
+        @StateObject private var viewModel = PokemonListViewViewModel()
+        
+        @Environment(\.dismiss) var dismiss
+        @Environment(\.appSettings) var appSettings
+        
+        var body: some View {
+            VStack(alignment: .leading) {
+                navigationBar
+                
+                if viewModel.isLoading {
+                    LoadingView()
+                        .frame(maxWidth: .infinity)
+                } else {
+                    pokemonList
+                }
             }
-        }
-        .bodyStyle()
-        .padding(.horizontal)
-        .foregroundColor(.textColour)
-        .background {
-            Color.backgroundColour
-                .ignoresSafeArea()
-        }
-        .task {
-            await viewModel.loadData(from: abilityDetailViewModel.ability.pokemon)
+            .bodyStyle()
+            .padding(.horizontal)
+            .foregroundColor(.textColour)
+            .background {
+                Color.backgroundColour
+                    .ignoresSafeArea()
+            }
+            .task {
+                await viewModel.loadData(from: abilityDetailViewModel.ability.pokemon)
+            }
         }
     }
 }
 
-
-private extension PokemonListView {
+private extension AbilityDetail.PokemonListView {
     enum Constants {
         static let imageSize = 50.0
     }
@@ -114,7 +114,7 @@ struct AbilityDetail_PokemonListView_Previews: PreviewProvider {
     }()
     
     static var previews: some View {
-        PokemonListView(abilityDetailViewModel: viewModel)
+        AbilityDetail.PokemonListView(abilityDetailViewModel: viewModel)
             .environmentObject(ImageCache())
     }
 }

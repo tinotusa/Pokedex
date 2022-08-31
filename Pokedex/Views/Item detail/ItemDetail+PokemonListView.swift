@@ -109,7 +109,7 @@ private extension ItemDetail.PokemonListView {
     }
 }
 
-struct PokemonListView_Previews: PreviewProvider {
+struct ItemDetail_PokemonListView_Previews: PreviewProvider {
     static var viewModel = {
         let itemDetail = ItemDetailViewModel()
         itemDetail.setUp(item: .example, settings: .default)
