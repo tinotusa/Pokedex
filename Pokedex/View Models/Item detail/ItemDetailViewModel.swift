@@ -13,7 +13,7 @@ final class ItemDetailViewModel: ObservableObject {
     @Published private(set) var itemFlingEffect: ItemFlingEffect?
     @Published private(set) var itemAttributes = [ItemAttribute]()
     @Published private(set) var itemCategory: ItemCategory?
-    @Published private(set) var heldByPokemon = [Pokemon]()
+    @Published var showAllPokemonView = false
     @Published var viewHasLoaded = false
     
     var hasItemAttributes: Bool {
@@ -21,9 +21,13 @@ final class ItemDetailViewModel: ObservableObject {
     }
     
     var isHeldByPokemon: Bool {
-        !heldByPokemon.isEmpty
+        guard let item else { return false }
+        return !item.heldByPokemon.isEmpty
     }
-    
+    var heldByPokemonCount: Int {
+        guard let item else { return 0 }
+        return item.heldByPokemon.count
+    }
     private var settings: Settings?
 }
 
@@ -58,16 +62,6 @@ extension ItemDetailViewModel {
                 }
             }
             
-            for heldByPokemon in item.heldByPokemon {
-                self.heldByPokemon = []
-                group.addTask { @MainActor [self] in
-                    let pokemon = try? await Pokemon.from(name: heldByPokemon.pokemon.name)
-                    if let pokemon {
-                        self.heldByPokemon.append(pokemon)
-                    }
-                }
-            }
-            
             group.addTask { @MainActor [self] in
                 itemCategory = try? await ItemCategory.from(name: item.category.name)
             }
@@ -84,6 +78,11 @@ extension ItemDetailViewModel {
             return "Error"
         }
         return item.names.localizedName(language: settings.language, default: item.name)
+    }
+    
+    var itemID: String {
+        guard let item else { return "Error" }
+        return String(format: "#%03d", item.id)
     }
     
     var localizedFlavorTextEntry: String {

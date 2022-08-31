@@ -9,9 +9,7 @@ import SwiftUI
 
 struct ItemDetail: View {
     let item: Item
-    
     @StateObject private var viewModel = ItemDetailViewModel()
-    
     @Environment(\.appSettings) var appSettings
     
     var body: some View {
@@ -64,20 +62,19 @@ struct ItemDetail: View {
                             }
                         }
                         GridRowItem(title: "Category") { Text("\(viewModel.localizedCategoryName)") }
-                        if viewModel.isHeldByPokemon {
-                            // used normal grid row instead of my custom view because my custom view
-                            // adds some padding on the bottom when there is a scrollview for some reason
-                            GridRow(alignment: .center) {
-                                Text("Held by")
-                                    .foregroundColor(.gray)
-                                ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack(spacing: 0) {
-                                        ForEach(viewModel.heldByPokemon) { pokemon in
-                                            NavigationLink(destination: PokemonDetail(pokemon: pokemon)) {
-                                                smallPokemonImage(url: pokemon.sprites.frontDefault)
-                                            }
-                                        }
+                        GridRow(alignment: .center) {
+                            Text("Held by")
+                                .gridRowTitleStyle()
+                            HStack {
+                                Text("\(viewModel.heldByPokemonCount) pokemon")
+                                Spacer()
+                                if viewModel.isHeldByPokemon {
+                                    Button {
+                                        viewModel.showAllPokemonView = true
+                                    } label: {
+                                        Text("Show pokemon")
                                     }
+                                    .foregroundColor(.blue)
                                 }
                             }
                         }
@@ -90,6 +87,9 @@ struct ItemDetail: View {
         .foregroundColor(.textColour)
         .background(Color.backgroundColour)
         .toolbar(.hidden)
+        .fullScreenCover(isPresented: $viewModel.showAllPokemonView) {
+            PokemonListView(itemDetailViewModel: viewModel)
+        }
         .task {
             if !viewModel.viewHasLoaded {
                 viewModel.setUp(item: item, settings: appSettings)
@@ -123,19 +123,6 @@ private extension ItemDetail {
         }
         .frame(width: Constants.imageSize)
         .frame(maxWidth: .infinity, alignment: .center)
-    }
-    
-    @ViewBuilder
-    func smallPokemonImage(url: URL?) -> some View {
-        ImageLoaderView(url: url) {
-            ProgressView()
-        } content: { image in
-            image
-                .interpolation(.none)
-                .resizable()
-                .scaledToFit()
-        }
-        .frame(width: Constants.smallImageSize)
     }
 }
 
