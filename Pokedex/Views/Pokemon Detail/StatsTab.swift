@@ -9,75 +9,23 @@ import SwiftUI
 import Charts
 
 struct StatsTab: View {
-    private var pokemon: Pokemon
+    let pokemon: Pokemon
     @StateObject private var viewModel = StatsTabViewModel()
     
-    init(pokemon: Pokemon) {
-        self.pokemon = pokemon
-    }
-    
     var body: some View {
-        VStack(alignment: .leading) {
-            Group {
-                if !viewModel.isLoading {
-                    Chart(viewModel.valuePerStat) {
-                        BarMark(
-                            x: .value("Stat", $0.value),
-                            y: .value("Name", $0.name)
-                            
-                        )
-                        .foregroundStyle(by: .value("Colour", $0.name))
-                    }
-                    .chartForegroundStyleScale([
-                        viewModel.hpStatName: Color("hp"),
-                        viewModel.attackStatName: Color("attack"),
-                        viewModel.defenseStatName: Color("defense"),
-                        viewModel.specialAttackStatName: Color("specialAttack"),
-                        viewModel.specialDefenseStatName: Color("specialDefense"),
-                        viewModel.speedStatName: Color("speed")
-                    ])
-                } else {
-                    ProgressView()
-                }
-            }
-            .frame(minHeight: 300)
-
-            Text("Strong against", comment: "Title: The pokemon types this pokemon is strong against.")
-                .font(.title2)
-                .fontWeight(.medium) // TODO: Make this into a modifier
-                .padding(.vertical, 2)
-
-            if  viewModel.doubleDamageTo.isEmpty {
-                Text("Not strong against any type.")
-                    .bold()
+        Group {
+            if !viewModel.viewHasAppeared {
+                LoadingView()
             } else {
-                WrappingHStack {
-                    ForEach(viewModel.doubleDamageTo, id: \.self) { type in
-                        NavigationLink(value: type) {
-                            PokemonTypeTag(name: type.name)
-                        }
-                    }
-                }
-            }
-
-            Text("Weak against", comment: "Title: The pokemon types this pokemon is weak against.")
-                .font(.title2)
-                .fontWeight(.medium)
-                .padding(.vertical, 2)
-
-            WrappingHStack {
-                ForEach(viewModel.doubleDamageFrom, id: \.self) { type in
-                    NavigationLink(value: type) {
-                        PokemonTypeTag(name: type.name)
-                    }
-                }
+                statsTabView
             }
         }
+        .foregroundColor(.textColour)
         .task {
-            await viewModel.setUp(pokemon: pokemon)
-        }
-        .navigationDestination(for: `Type`.self) { type in
-            Text("Looking at: \(type.name)")
+            if !viewModel.viewHasAppeared {
+                await viewModel.setUp(pokemon: pokemon)
+                viewModel.viewHasAppeared = true
+            }
         }
     }
 }
@@ -140,6 +88,63 @@ private extension StatsTab {
 }
 
 private extension StatsTab {
+    var statsTabView: some View {
+        VStack(alignment: .leading) {
+            Chart(viewModel.valuePerStat) {
+                BarMark(
+                    x: .value("Stat", $0.value),
+                    y: .value("Name", $0.name)
+                    
+                )
+                .foregroundStyle(by: .value("Colour", $0.name))
+            }
+            .chartForegroundStyleScale([
+                viewModel.hpStatName: Color("hp"),
+                viewModel.attackStatName: Color("attack"),
+                viewModel.defenseStatName: Color("defense"),
+                viewModel.specialAttackStatName: Color("specialAttack"),
+                viewModel.specialDefenseStatName: Color("specialDefense"),
+                viewModel.speedStatName: Color("speed")
+            ])
+            .chartLegend(.hidden)
+            .frame(minHeight: 300)
+            
+            Text("Strong against", comment: "Title: The pokemon types this pokemon is strong against.")
+                .subHeaderStyle()
+            
+            if viewModel.doubleDamageTo.isEmpty {
+                Text("Not strong against any type.")
+                    .bold()
+            } else {
+                WrappingHStack {
+                    ForEach(viewModel.doubleDamageTo, id: \.self) { type in
+                        NavigationLink {
+                            Text("Looking at: \(type.name)")
+                        } label: {
+                            PokemonTypeTag(name: type.name)
+                        }
+                    }
+                }
+            }
+            
+            Text("Weak against", comment: "Title: The pokemon types this pokemon is weak against.")
+                .subHeaderStyle()
+            
+            WrappingHStack {
+                ForEach(viewModel.doubleDamageFrom, id: \.self) { type in
+                    NavigationLink {
+                        Text("Looking at: \(type.name)")
+                    } label: {
+                        PokemonTypeTag(name: type.name)
+                    }
+                }
+            }
+        }
+//        .navigationDestination(for: `Type`.self) { type in
+//            Text("Looking at: \(type.name)")
+//        }
+    }
+    
     func gridRow(title: String, value: Double, total: Double? = nil) -> some View {
         GridRow {
             Text(LocalizedStringKey(title), comment: "Grid row title: The title for the stat.")

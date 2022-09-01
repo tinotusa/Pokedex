@@ -22,7 +22,7 @@ final class StatsTabViewModel: ObservableObject {
     @Published private(set) var doubleDamageTo = [`Type`]()
     @Published private(set) var doubleDamageFrom = [`Type`]()
     @Published private(set) var types = [`Type`]()
-    
+    @Published var viewHasAppeared = false
     @Published private(set) var isLoading = false
     
     func setUp(pokemon: Pokemon) async {
