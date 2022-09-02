@@ -112,7 +112,7 @@ extension ItemDetailViewModel {
             return "Error"
         }
         
-        var text = item.effectEntries.localizedEffectEntryName(language: settings.language, default: "Error")
+        var text = item.effectEntries.localizedEffectEntry(language: settings.language, default: "Error")
         guard let colonIndex = text.firstIndex(of: ":") else {
             return text
         }

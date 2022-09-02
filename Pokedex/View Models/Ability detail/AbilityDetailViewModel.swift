@@ -55,12 +55,12 @@ extension AbilityDetailViewModel {
 
     var shortFlavorText: String {
         if !setUpCalled { return "Error" }
-        return ability.effectEntries.localizedEffectEntryName(shortEffect: true, language: settings.language, default: "Error")
+        return ability.effectEntries.localizedEffectEntry(shortEffect: true, language: settings.language, default: "Error")
     }
     
     var flavorText: String {
         if !setUpCalled { return "Error" }
-        return ability.effectEntries.localizedEffectEntryName(language: settings.language, default: "Error")
+        return ability.effectEntries.localizedEffectEntry(language: settings.language, default: "Error")
     }
     
     var isMainSeriesAbility: String {

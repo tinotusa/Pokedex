@@ -8,28 +8,51 @@
 import SwiftUI
 
 struct MovesTab: View {
-    @StateObject private var viewModel: MovesTabViewModel
-    
-    init(pokemon: Pokemon) {
-        _viewModel = StateObject(wrappedValue: MovesTabViewModel(pokemon: pokemon))
-    }
+    @State var pokemon: Pokemon
+    @StateObject private var viewModel = MovesTabViewModel()
     
     private let columns: [GridItem] = [
-        .init(.adaptive(minimum: 150))
+        .init(.adaptive(minimum: 350))
     ]
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            LazyVGrid(columns: columns) {
-                ForEach(viewModel.moves) { move in
-                    NavigationLink(value: move) {
-                        MoveGridItemView(move: move)
-                    }
-                }
+        Group {
+            if !viewModel.viewHasAppeared {
+                LoadingView()
+            } else {
+                movesList
             }
         }
-        .navigationDestination(for: Move.self) { move in
-            Text("Move detail view here.\(move.name)")
+        .task {
+            if !viewModel.viewHasAppeared {
+                viewModel.setUp(pokemon: pokemon)
+                await viewModel.loadData()
+                viewModel.viewHasAppeared = true
+            }
+        }
+//        .navigationDestination(for: Move.self) { move in
+//            Text("Move detail view here.\(move.name)")
+//        }
+    }
+}
+
+private extension MovesTab {
+    var movesList: some View {
+        LazyVGrid(columns: columns) {
+            ForEach(viewModel.moves) { move in
+                NavigationLink {
+                    MoveDetail(move: move)
+                } label: {
+                    MoveCard(move: move)
+                }
+            }
+            if viewModel.hasNextPage && !viewModel.isLoading {
+                ProgressView()
+                    .task {
+                        print("here: \(viewModel.hasNextPage) \(viewModel.isLoading)")
+                        await viewModel.getNextMoves()
+                    }
+            }
         }
     }
 }

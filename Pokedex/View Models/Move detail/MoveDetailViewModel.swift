@@ -141,7 +141,7 @@ extension MoveDetailViewModel {
     
     var localizedShortVerboseEffect: String {
         if !setUpLoaded { return "Error" }
-        return move.effectEntries.localizedEffectEntryName(shortEffect: true, language: settings.language, default: "Error")
+        return move.effectEntries.localizedEffectEntry(shortEffect: true, language: settings.language, default: "Error")
     }
     
     var localizedFlavorText: String {

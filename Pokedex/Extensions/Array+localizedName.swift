@@ -81,7 +81,7 @@ extension Array where Element == Effect {
 }
 
 extension Array where Element == VerboseEffect {
-    func localizedEffectEntryName(shortEffect: Bool = false, language: Language?, default defaultValue: String = "Error") -> String {
+    func localizedEffectEntry(shortEffect: Bool = false, language: Language?, default defaultValue: String = "Error") -> String {
         let availableLanguageCodes = self.map { effect in
             effect.language.name
         }
