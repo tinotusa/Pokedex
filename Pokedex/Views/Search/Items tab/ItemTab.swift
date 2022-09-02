@@ -1,5 +1,5 @@
 //
-//  ItemGridView.swift
+//  ItemTab.swift
 //  Pokedex
 //
 //  Created by Tino on 18/8/2022.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct ItemGridView: View {
+struct ItemTab: View {
     @EnvironmentObject private var viewModel: ItemGridViewViewModel
     @EnvironmentObject private var searchBar: SearchBarViewModel
     
@@ -48,7 +48,7 @@ struct ItemGridView: View {
 
 
 // MARK: - ItemCard
-private extension ItemGridView {
+private extension ItemTab {
     var itemsList: some View {
         ScrollView {
             LazyVGrid(columns: columns) {
@@ -70,10 +70,10 @@ private extension ItemGridView {
     }
 }
 
-struct ItemGridView_Previews: PreviewProvider {
+struct ItemTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            ItemGridView()
+            ItemTab()
                 .environmentObject(ImageCache())
                 .environmentObject(ItemGridViewViewModel())
                 .environmentObject(SearchBarViewModel())

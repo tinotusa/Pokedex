@@ -31,10 +31,10 @@ struct SearchView: View {
                 
                 Group {
                     switch viewModel.searchTab {
-                    case .pokemon: PokemonGridView()
-                    case .items: ItemGridView()
-                    case .moves: MoveGridView()
-                    case .abilities: AbilityListView()
+                    case .pokemon: PokemonTab()
+                    case .items: ItemTab()
+                    case .moves: MoveTab()
+                    case .abilities: AbilityTab()
                     }
                 }
                 .ignoresSafeArea()

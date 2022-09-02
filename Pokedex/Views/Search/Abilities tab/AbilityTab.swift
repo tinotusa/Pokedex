@@ -1,5 +1,5 @@
 //
-//  AbilityListView.swift
+//  AbilityTab.swift
 //  Pokedex
 //
 //  Created by Tino on 20/8/2022.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AbilityListView: View {
+struct AbilityTab: View {
     @EnvironmentObject private var viewModel: AbilityListViewViewModel
     @EnvironmentObject private var searchBar: SearchBarViewModel
     
@@ -53,13 +53,13 @@ struct AbilityListView: View {
     }
 }
 
-struct AbilityListView_Previews: PreviewProvider {
+struct AbilityTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             ZStack {
                 Color.backgroundColour
                     .ignoresSafeArea()
-                AbilityListView()
+                AbilityTab()
                     .environmentObject(AbilityListViewViewModel())
                     .environmentObject(SearchBarViewModel())
             }

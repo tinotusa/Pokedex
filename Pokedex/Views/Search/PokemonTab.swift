@@ -1,5 +1,5 @@
 //
-//  PokemonGridView.swift
+//  PokemonTab.swift
 //  Pokedex
 //
 //  Created by Tino on 17/8/2022.
@@ -8,7 +8,7 @@
 import SwiftUI
 import Combine
 
-struct PokemonGridView: View {
+struct PokemonTab: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @EnvironmentObject private var viewModel: PokemonGridViewViewModel
     @EnvironmentObject private var searchBar: SearchBarViewModel
@@ -52,7 +52,7 @@ struct PokemonGridView: View {
     }
 }
 
-private extension PokemonGridView {
+private extension PokemonTab {
     func setGridSize() {
         print("called")
         if horizontalSizeClass == .compact {
@@ -94,10 +94,10 @@ private extension PokemonGridView {
 }
 
 
-struct PokemonGridView_Previews: PreviewProvider {
+struct PokemonTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            PokemonGridView()
+            PokemonTab()
                 .environmentObject(ImageCache())
                 .environmentObject(PokemonGridViewViewModel())
                 .environmentObject(SearchBarViewModel())

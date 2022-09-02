@@ -1,5 +1,5 @@
 //
-//  MoveGridView.swift
+//  MoveTab.swift
 //  Pokedex
 //
 //  Created by Tino on 19/8/2022.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MoveGridView: View {
+struct MoveTab: View {
     @EnvironmentObject private var viewModel: MoveGridViewViewModel
     @EnvironmentObject private var searchBar: SearchBarViewModel
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -46,7 +46,7 @@ struct MoveGridView: View {
     }
 }
 
-private extension MoveGridView {
+private extension MoveTab {
     var movesList: some View {
         ScrollView {
             LazyVGrid(columns: columns) {
@@ -71,10 +71,10 @@ private extension MoveGridView {
     }
 }
 
-struct MoveGridView_Previews: PreviewProvider {
+struct MoveTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            MoveGridView()
+            MoveTab()
                 .environmentObject(MoveGridViewViewModel())
                 .environmentObject(SearchBarViewModel())
                 .environmentObject(ImageCache())
