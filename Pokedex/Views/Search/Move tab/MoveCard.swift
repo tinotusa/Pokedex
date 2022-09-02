@@ -9,25 +9,25 @@ import SwiftUI
 
 struct MoveCard: View {
     let move: Move
-    @Environment(\.appSettings) var appSettings
-    @State private var moveDamageClass: MoveDamageClass?
+    @Environment(\.appSettings) private var appSettings
+    @StateObject private var viewModel = MoveCardViewModel()
     
     var body: some View {
         HStack {
             VStack(alignment: .leading) {
                 HStack {
-                    Text(move.names.localizedName(language: appSettings.language, default: move.name.capitalized))
+                    Text(viewModel.localizedMoveName)
                         .subHeaderStyle()
                     Spacer()
-                    Text(String(format: "#%03d", move.id))
+                    Text(viewModel.moveID)
                         .fontWeight(.ultraLight)
                         .foregroundColor(.gray)
                 }
-                Text(move.effectEntries.first!.shortEffect)
+                Text(viewModel.localizedMoveShortEffect)
                     .lineLimit(1)
                     .foregroundColor(.gray)
                 HStack {
-                    Text(localizedDamageClassName)
+                    Text(viewModel.localizedDamageClassName)
                         .colouredLabel(colourName: move.damageClass.name)
                     
                     PokemonTypeTag(name: move.type.name)
@@ -40,24 +40,9 @@ struct MoveCard: View {
         .padding(.vertical, 4)
         .card()
         .task {
-            await getMoveDamageClass()
+            viewModel.setUp(move: move, settings: appSettings)
+            await viewModel.loadData()
         }
-    }
-}
-
-private extension MoveCard {
-    func getMoveDamageClass() async {
-        moveDamageClass = try? await MoveDamageClass.from(name: move.damageClass.name)
-    }
-    
-    var localizedDamageClassName: String {
-        guard let moveDamageClass else { return "Error" }
-        return moveDamageClass.names
-            .localizedName(
-                language: appSettings.language,
-                default: move.damageClass.name
-            )
-            .capitalized
     }
 }
 
