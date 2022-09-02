@@ -8,27 +8,22 @@
 import SwiftUI
 
 struct EvolutionsTab: View {
-    private let pokemon: Pokemon
-    @StateObject private var viewModel: EvolutionsTabViewModel
-    @State private var evolutionChain: EvolutionChain?
-    
-    init(pokemon: Pokemon) {
-        self.pokemon = pokemon
-        _viewModel = StateObject(wrappedValue: EvolutionsTabViewModel(pokemon: pokemon))
-    }
+    let pokemon: Pokemon
+    @StateObject private var viewModel = EvolutionsTabViewModel()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            if let evolutionChain = viewModel.evolutionChain, !evolutionChain.chain.evolvesTo.isEmpty {
-                ForEach(evolutionChain.allEvolutions(), id: \.self) { chain in
-                    EvolutionChainCardView(chain: chain, pokemon: pokemon)
-                }
-            } else {
-                Text(
-                    "This Pokemon has no evolutions.",
-                    comment: "Placeholder text to show that this pokemon cannot evolve into another one."
-                )
-                .foregroundColor(.secondary)
+            ForEach(viewModel.evolutionChainLinks, id: \.self) { chainLink in
+                EvolutionChainLinkRow(chainLink: chainLink)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .task {
+            if !viewModel.viewHasAppeared {
+                viewModel.setUp(pokemon: pokemon)
+                await viewModel.loadData()
+                viewModel.getAllChains()
+                viewModel.viewHasAppeared = true
             }
         }
     }
@@ -38,6 +33,7 @@ struct EvolutionsTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             EvolutionsTab(pokemon: .example)
+                .environmentObject(ImageCache())
         }
     }
 }
