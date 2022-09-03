@@ -98,7 +98,7 @@ private extension ItemDetail.PokemonListView {
                 .resizable()
                 .scaledToFit()
         }
-        .frame(width: Constants.smallImageSize)
+        .frame(width: Constants.smallImageSize, height: Constants.smallImageSize)
     }
     
     enum Constants {

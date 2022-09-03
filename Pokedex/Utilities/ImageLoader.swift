@@ -27,7 +27,10 @@ extension ImageLoader {
     @MainActor
     func getImage(url: URL?) async {
         if state == .isLoading { return }
-        
+        if url == nil  {
+            state = .error("No url")
+            return
+        }
         if let url, let image = cache?[url] {
             print("getting image")
             uiImage = image

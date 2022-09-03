@@ -121,7 +121,7 @@ private extension ItemDetail {
                 .resizable()
                 .scaledToFit()
         }
-        .frame(width: Constants.imageSize)
+        .frame(width: Constants.imageSize, height: Constants.imageSize)
         .frame(maxWidth: .infinity, alignment: .center)
     }
 }

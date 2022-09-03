@@ -37,9 +37,10 @@ struct ImageLoaderView<Content: View, PlaceholderContent: View>: View {
             case .error(_):
                 ZStack {
                     RoundedRectangle(cornerRadius: 24)
-                        .foregroundColor(.red.opacity(0.5))
-                    Text("Failed to load image")
-                        .foregroundColor(.textColour)
+                        .foregroundColor(.red)
+                    Image(systemName: "xmark")
+                        .font(.title)
+                        .foregroundColor(.white)
                 }
             }
         }
@@ -55,15 +56,13 @@ struct ImageLoaderView<Content: View, PlaceholderContent: View>: View {
 
 struct ImageLoaderView_Previews: PreviewProvider {
     static var previews: some View {
-        ImageLoaderView(
-            url: URL(string: "https://en.wikipedia.org/wiki/Tree#/media/File:Ash_Tree_-_geograph.org.uk_-_590710.jpg"))
-        {
+        ImageLoaderView(url: nil) {
             ProgressView()
         } content: { image in
             image
                 .resizable()
                 .scaledToFit()
         }
-        .environmentObject(ImageLoader())
+        .environmentObject(ImageCache())
     }
 }

@@ -65,7 +65,7 @@ private extension MoveDetail.MachinesListView {
                                         .resizable()
                                         .scaledToFit()
                                 }
-                                .frame(width: Constants.itemImageSize)
+                                .frame(width: Constants.itemImageSize, height: Constants.itemImageSize)
                                 
                                 Text(item.names.localizedName(language: appSettings.language, default: "Error"))
                                 Spacer()

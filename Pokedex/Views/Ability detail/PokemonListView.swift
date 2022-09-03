@@ -88,7 +88,7 @@ private extension AbilityDetail.PokemonListView {
                                 .resizable()
                                 .scaledToFit()
                         }
-                        .frame(width: Constants.imageSize)
+                        .frame(width: Constants.imageSize, height: Constants.imageSize)
                         
                         if let pokemonSpecies = viewModel.pokemonSpecies(name: pokemon.species.name) {
                             Text(pokemonSpecies.names.localizedName(language: appSettings.language, default: pokemonSpecies.name))
