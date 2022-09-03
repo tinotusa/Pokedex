@@ -22,32 +22,52 @@ final class PokemonStatsTabViewModel: ObservableObject {
     @Published private(set) var doubleDamageTo = [`Type`]()
     @Published private(set) var doubleDamageFrom = [`Type`]()
     @Published private(set) var types = [`Type`]()
+    
     @Published var viewHasAppeared = false
     @Published private(set) var isLoading = false
+}
+
+extension PokemonStatsTabViewModel {
+    func setUp(pokemon: Pokemon) {
+        self.pokemon = pokemon
+    }
     
-    func setUp(pokemon: Pokemon) async {
+    func loadData() async {
         isLoading = true
         defer { isLoading = false }
-        self.pokemon = pokemon
-        
-        hpStat = await getStat(for: .hp)
-        attackStat = await getStat(for: .attack)
-        defenseStat = await getStat(for: .defense)
-        specialAttackStat = await getStat(for: .specialAttack)
-        specialDefenseStat = await getStat(for: .specialDefense)
-        speedStat = await getStat(for: .speed)
-        
-        types = await getTypes()
-        doubleDamageTo = await doubleDamageTo()
-        doubleDamageFrom = await doubleDamageFrom()
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { @MainActor [self] in
+                hpStat = await getStat(for: .hp)
+            }
+            group.addTask { @MainActor [self] in
+                attackStat = await getStat(for: .attack)
+            }
+            group.addTask { @MainActor [self] in
+                defenseStat = await getStat(for: .defense)
+            }
+            group.addTask { @MainActor [self] in
+                specialAttackStat = await getStat(for: .specialAttack)
+            }
+            group.addTask { @MainActor [self] in
+                specialDefenseStat = await getStat(for: .specialDefense)
+            }
+            group.addTask { @MainActor [self] in
+                speedStat = await getStat(for: .speed)
+            }
+            group.addTask { @MainActor [self] in
+                types = await getTypes()
+                doubleDamageTo = await doubleDamageTo()
+                doubleDamageFrom = await doubleDamageFrom()
+            }
+        }
         
         valuePerStat = [
-            .init(name: hpStatName, value: hp, colour: "hp"),
-            .init(name: attackStatName, value: attack, colour: "attack"),
-            .init(name: defenseStatName, value: defense, colour: "defense"),
-            .init(name: specialAttackStatName, value: specialAttack, colour: "specialAttack"),
-            .init(name: specialDefenseStatName, value: specialDefense, colour: "specialDefense"),
-            .init(name: speedStatName, value: speed, colour: "speed"),
+            .init(name: self.hpStatName, value: hp, colour: "hp"),
+            .init(name: self.attackStatName, value: attack, colour: "attack"),
+            .init(name: self.defenseStatName, value: defense, colour: "defense"),
+            .init(name: self.specialAttackStatName, value: specialAttack, colour: "specialAttack"),
+            .init(name: self.specialDefenseStatName, value: specialDefense, colour: "specialDefense"),
+            .init(name: self.speedStatName, value: speed, colour: "speed"),
         ]
     }
 }
@@ -178,26 +198,46 @@ private extension PokemonStatsTabViewModel {
     /// Gets the types that this pokemon's type is weak against.
     /// - returns: An array of `Type` that the pokemon takes double damage from.
     func doubleDamageFrom() async -> [`Type`] {
-        var results = Set<`Type`>()
-        for type in types {
-            for type in type.damageRelations.doubleDamageFrom {
-                guard let type = try? await `Type`.from(name: type.name) else { continue }
-                results.insert(type)
+        await withTaskGroup(of: `Type`?.self) { group in
+            let doubleDamageFrom = types.flatMap { $0.damageRelations.doubleDamageFrom }
+            for type in doubleDamageFrom {
+                group.addTask {
+                    let type = try? await `Type`.from(name: type.name)
+                    return type
+                }
             }
+            
+            var results = Set<`Type`>()
+            for await type in group {
+                if let type {
+                    results.insert(type)
+                }
+            }
+            
+            return results.sorted()
         }
-        return Array(results).sorted()
     }
     
     /// Gets the types that this pokemon's type is strong against.
     /// - returns: An array of `Type` that the pokemon deals double damage to.
     func doubleDamageTo() async -> [`Type`] {
-        var results = Set<`Type`>()
-        for type in types {
-            for type in type.damageRelations.doubleDamageTo {
-                guard let type = try? await `Type`.from(name: type.name) else { continue }
-                results.insert(type)
+        await withTaskGroup(of: `Type`?.self) { group in
+            let doubleDamageTo = types.flatMap { $0.damageRelations.doubleDamageTo }
+            
+            for type in doubleDamageTo {
+                group.addTask {
+                    let type = try? await `Type`.from(name: type.name)
+                    return type
+                }
             }
+            var results = Set<`Type`>()
+            for await type in group {
+                if let type {
+                    results.insert(type)
+                }
+            }
+            
+            return results.sorted()
         }
-        return Array(results).sorted()
     }
 }

@@ -23,7 +23,8 @@ struct PokemonStatsTab: View {
         .foregroundColor(.textColour)
         .task {
             if !viewModel.viewHasAppeared {
-                await viewModel.setUp(pokemon: pokemon)
+                viewModel.setUp(pokemon: pokemon)
+                await viewModel.loadData()
                 viewModel.viewHasAppeared = true
             }
         }
