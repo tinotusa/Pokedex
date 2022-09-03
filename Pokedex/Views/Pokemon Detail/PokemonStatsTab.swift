@@ -1,5 +1,5 @@
 //
-//  StatsTab.swift
+//  PokemonStatsTab.swift
 //  Pokedex
 //
 //  Created by Tino on 23/7/2022.
@@ -8,7 +8,7 @@
 import SwiftUI
 import Charts
 
-struct StatsTab: View {
+struct PokemonStatsTab: View {
     let pokemon: Pokemon
     @StateObject private var viewModel = StatsTabViewModel()
     
@@ -30,7 +30,7 @@ struct StatsTab: View {
     }
 }
 
-private extension StatsTab {
+private extension PokemonStatsTab {
     var hpGridRow: some View {
         gridRow(
             title: viewModel.hpStatName,
@@ -87,7 +87,7 @@ private extension StatsTab {
     }
 }
 
-private extension StatsTab {
+private extension PokemonStatsTab {
     var statsTabView: some View {
         VStack(alignment: .leading) {
             Chart(viewModel.valuePerStat) {
@@ -163,6 +163,6 @@ private extension StatsTab {
 
 struct StatsTab_Previews: PreviewProvider {
     static var previews: some View {
-        StatsTab(pokemon: .example)
+        PokemonStatsTab(pokemon: .example)
     }
 }

@@ -1,5 +1,5 @@
 //
-//  MoveGridViewViewModel.swift
+//  HomeMovesTabViewModel.swift
 //  Pokedex
 //
 //  Created by Tino on 20/8/2022.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-final class MoveGridViewViewModel: ObservableObject {
+final class HomeMovesTabViewModel: ObservableObject {
     @Published var moves = Set<Move>()
     private var nextURL: URL? {
         didSet {
@@ -23,7 +23,7 @@ final class MoveGridViewViewModel: ObservableObject {
     private let limit = 20
 }
 
-extension MoveGridViewViewModel {
+extension HomeMovesTabViewModel {
     func getMove(searchText: String) async {
         task?.cancel()
         if Task.isCancelled { return }

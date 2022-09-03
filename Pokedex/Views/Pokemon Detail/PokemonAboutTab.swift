@@ -1,5 +1,5 @@
 //
-//  AboutTab.swift
+//  PokemonAboutTab.swift
 //  Pokedex
 //
 //  Created by Tino on 23/7/2022.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AboutTab: View {
+struct PokemonAboutTab: View {
     let pokemon: Pokemon
     @StateObject private var viewModel = AboutTabViewModel()
     @Environment(\.appSettings) var appSettings
@@ -28,7 +28,7 @@ struct AboutTab: View {
     }
 }
 
-extension AboutTab {
+extension PokemonAboutTab {
     @ViewBuilder
     var nameRow: some View {
         HStack {
@@ -148,7 +148,7 @@ extension AboutTab {
 struct AboutTab_Previews: PreviewProvider {
     static var previews: some View {
         ScrollView(showsIndicators: false) {
-            AboutTab(pokemon: .example)
+            PokemonAboutTab(pokemon: .example)
         }
     }
 }

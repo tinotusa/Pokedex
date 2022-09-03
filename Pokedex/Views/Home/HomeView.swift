@@ -1,5 +1,5 @@
 //
-//  SearchView.swift
+//  HomeView.swift
 //  Pokedex
 //
 //  Created by Tino on 3/8/2022.
@@ -7,12 +7,11 @@
 
 import SwiftUI
 
-struct SearchView: View {
+struct HomeView: View {
     @StateObject private var viewModel = SearchViewViewModel()
     @State private var navigationPath = NavigationPath()
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.appSettings) var appSettings
-    @EnvironmentObject private var pokemonGridViewViewModel: PokemonGridViewViewModel
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -31,10 +30,10 @@ struct SearchView: View {
                 
                 Group {
                     switch viewModel.searchTab {
-                    case .pokemon: PokemonTab()
-                    case .items: ItemTab()
-                    case .moves: MoveTab()
-                    case .abilities: AbilityTab()
+                    case .pokemon: HomePokemonTab()
+                    case .items: HomeItemsTab()
+                    case .moves: HomeMovesTab()
+                    case .abilities: HomeAbilitiesTab()
                     }
                 }
                 .ignoresSafeArea()
@@ -64,13 +63,12 @@ struct SearchView: View {
 
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        SearchView()
+        HomeView()
             .environmentObject(ImageCache())
-            .environmentObject(PokemonGridViewViewModel())
-            .environmentObject(ItemGridViewViewModel())
-            .environmentObject(MoveGridViewViewModel())
-            .environmentObject(AbilityListViewViewModel())
+            .environmentObject(HomePokemonTabViewModel())
+            .environmentObject(HomeItemsTabViewModel())
+            .environmentObject(HomeMovesTabViewModel())
+            .environmentObject(HomeAbilitiesTabViewModel())
             .environmentObject(SearchBarViewModel())
-        
     }
 }

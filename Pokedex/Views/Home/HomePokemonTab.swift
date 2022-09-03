@@ -1,5 +1,5 @@
 //
-//  PokemonTab.swift
+//  HomePokemonTab.swift
 //  Pokedex
 //
 //  Created by Tino on 17/8/2022.
@@ -8,9 +8,9 @@
 import SwiftUI
 import Combine
 
-struct PokemonTab: View {
+struct HomePokemonTab: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @EnvironmentObject private var viewModel: PokemonGridViewViewModel
+    @EnvironmentObject private var viewModel: HomePokemonTabViewModel
     @EnvironmentObject private var searchBar: SearchBarViewModel
     
     @State private var columns: [GridItem] = [
@@ -52,7 +52,7 @@ struct PokemonTab: View {
     }
 }
 
-private extension PokemonTab {
+private extension HomePokemonTab {
     func setGridSize() {
         print("called")
         if horizontalSizeClass == .compact {
@@ -93,13 +93,12 @@ private extension PokemonTab {
     }
 }
 
-
-struct PokemonTab_Previews: PreviewProvider {
+struct HomePokemonTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            PokemonTab()
+            HomePokemonTab()
                 .environmentObject(ImageCache())
-                .environmentObject(PokemonGridViewViewModel())
+                .environmentObject(HomePokemonTabViewModel())
                 .environmentObject(SearchBarViewModel())
         }
     }

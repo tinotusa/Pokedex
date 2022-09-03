@@ -1,5 +1,5 @@
 //
-//  EvolutionsTabViewModel.swift
+//  PokemonEvolutionsTabViewModel.swift
 //  Pokedex
 //
 //  Created by Tino on 30/7/2022.
@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-final class EvolutionsTabViewModel: ObservableObject {
+final class PokemonEvolutionsTabViewModel: ObservableObject {
     var pokemon: Pokemon?
     
     @Published private(set) var pokemonSpecies: PokemonSpecies?
@@ -18,7 +18,7 @@ final class EvolutionsTabViewModel: ObservableObject {
     @Published var viewHasAppeared = false
 }
 
-extension EvolutionsTabViewModel {
+extension PokemonEvolutionsTabViewModel {
     func setUp(pokemon: Pokemon) {
         self.pokemon = pokemon
     }
@@ -47,7 +47,7 @@ extension EvolutionsTabViewModel {
     }
 }
 
-private extension EvolutionsTabViewModel {
+private extension PokemonEvolutionsTabViewModel {
     var wrappedPokemon: Pokemon {
         if let pokemon {
             return pokemon

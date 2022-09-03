@@ -1,5 +1,5 @@
 //
-//  AbilityTab.swift
+//  HomeAbilitiesTab.swift
 //  Pokedex
 //
 //  Created by Tino on 20/8/2022.
@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct AbilityTab: View {
-    @EnvironmentObject private var viewModel: AbilityListViewViewModel
+struct HomeAbilitiesTab: View {
+    @EnvironmentObject private var viewModel: HomeAbilitiesTabViewModel
     @EnvironmentObject private var searchBar: SearchBarViewModel
     
     @State private var columns: [GridItem] = [
@@ -53,14 +53,14 @@ struct AbilityTab: View {
     }
 }
 
-struct AbilityTab_Previews: PreviewProvider {
+struct HomeAbilitiesTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             ZStack {
                 Color.backgroundColour
                     .ignoresSafeArea()
-                AbilityTab()
-                    .environmentObject(AbilityListViewViewModel())
+                HomeAbilitiesTab()
+                    .environmentObject(HomeAbilitiesTabViewModel())
                     .environmentObject(SearchBarViewModel())
             }
         }

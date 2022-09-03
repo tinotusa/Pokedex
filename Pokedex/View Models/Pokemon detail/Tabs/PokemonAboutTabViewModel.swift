@@ -1,5 +1,5 @@
 //
-//  AboutTabViewModel.swift
+//  PokemonAboutTabViewModel.swift
 //  Pokedex
 //
 //  Created by Tino on 23/7/2022.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-final class AboutTabViewModel: ObservableObject {
+final class PokemonAboutTabViewModel: ObservableObject {
     @Published private var pokemon: Pokemon?
     @Published private(set) var pokemonSpecies: PokemonSpecies?
     @Published private(set) var generation: Generation?
@@ -90,7 +90,7 @@ final class AboutTabViewModel: ObservableObject {
 }
 
 // MARK: Computed properties
-extension AboutTabViewModel {
+extension PokemonAboutTabViewModel {
     /// The localized name for the pokemon's generation.
     var localizedGenerationName: String {
         guard let settings else {
@@ -239,7 +239,7 @@ extension AboutTabViewModel {
 }
 
 // MARK: Private functions
-private extension AboutTabViewModel {
+private extension PokemonAboutTabViewModel {
     /// Gets the abilities of this pokemon.
     func getPokemonAbilities() async -> [Ability] {
         guard let pokemon else { return [] }

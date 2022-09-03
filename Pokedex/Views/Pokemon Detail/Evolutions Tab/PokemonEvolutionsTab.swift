@@ -1,5 +1,5 @@
 //
-//  EvolutionsTab.swift
+//  PokemonEvolutionsTab.swift
 //  Pokedex
 //
 //  Created by Tino on 23/7/2022.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct EvolutionsTab: View {
+struct PokemonEvolutionsTab: View {
     let pokemon: Pokemon
     @StateObject private var viewModel = EvolutionsTabViewModel()
     
@@ -32,7 +32,7 @@ struct EvolutionsTab: View {
 struct EvolutionsTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            EvolutionsTab(pokemon: .example)
+            PokemonEvolutionsTab(pokemon: .example)
                 .environmentObject(ImageCache())
         }
     }

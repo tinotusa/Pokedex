@@ -1,5 +1,5 @@
 //
-//  PokemonGridViewViewModel.swift
+//  HomePokemonTabViewModel.swift
 //  Pokedex
 //
 //  Created by Tino on 18/8/2022.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-final class PokemonGridViewViewModel: ObservableObject {
+final class HomePokemonTabViewModel: ObservableObject {
     @Published private(set) var pokemon: Set<Pokemon> = []
     @Published private(set) var nextPage: URL? {
         didSet {
@@ -26,7 +26,7 @@ final class PokemonGridViewViewModel: ObservableObject {
     private let limit = 20
 }
 
-extension PokemonGridViewViewModel {
+extension HomePokemonTabViewModel {
     func getPokemon(searchText: String) async {
         task?.cancel()
         print("am i called")

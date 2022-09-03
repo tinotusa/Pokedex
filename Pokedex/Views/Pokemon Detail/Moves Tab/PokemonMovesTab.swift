@@ -1,5 +1,5 @@
 //
-//  MovesTab.swift
+//  PokemonMovesTab.swift
 //  Pokedex
 //
 //  Created by Tino on 23/7/2022.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct MovesTab: View {
+struct PokemonMovesTab: View {
     @State var pokemon: Pokemon
     @StateObject private var viewModel = MovesTabViewModel()
     
@@ -36,7 +36,7 @@ struct MovesTab: View {
     }
 }
 
-private extension MovesTab {
+private extension PokemonMovesTab {
     var movesList: some View {
         LazyVGrid(columns: columns) {
             ForEach(viewModel.moves) { move in
@@ -60,7 +60,7 @@ private extension MovesTab {
 struct MovesTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            MovesTab(pokemon: .example)
+            PokemonMovesTab(pokemon: .example)
         }
     }
 }

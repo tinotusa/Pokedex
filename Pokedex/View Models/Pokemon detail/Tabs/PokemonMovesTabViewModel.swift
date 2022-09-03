@@ -1,5 +1,5 @@
 //
-//  MovesTabViewModel.swift
+//  PokemonMovesTabViewModel.swift
 //  Pokedex
 //
 //  Created by Tino on 1/8/2022.
@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-final class MovesTabViewModel: ObservableObject {
+final class PokemonMovesTabViewModel: ObservableObject {
     /// The pokemon that has the moves being listed.
     var pokemon: Pokemon?
     /// The moves of the pokemon.
@@ -27,7 +27,7 @@ final class MovesTabViewModel: ObservableObject {
 }
 
 
-extension MovesTabViewModel {
+extension PokemonMovesTabViewModel {
     func setUp(pokemon: Pokemon) {
         self.pokemon = pokemon
     }

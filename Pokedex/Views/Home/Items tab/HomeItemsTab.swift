@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct ItemTab: View {
-    @EnvironmentObject private var viewModel: ItemGridViewViewModel
+struct HomeItemsTab: View {
+    @EnvironmentObject private var viewModel: HomeItemsTabViewModel
     @EnvironmentObject private var searchBar: SearchBarViewModel
     
     private let columns: [GridItem] = [
@@ -48,7 +48,7 @@ struct ItemTab: View {
 
 
 // MARK: - ItemCard
-private extension ItemTab {
+private extension HomeItemsTab {
     var itemsList: some View {
         ScrollView {
             LazyVGrid(columns: columns) {
@@ -70,12 +70,12 @@ private extension ItemTab {
     }
 }
 
-struct ItemTab_Previews: PreviewProvider {
+struct HomeItemTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            ItemTab()
+            HomeItemsTab()
                 .environmentObject(ImageCache())
-                .environmentObject(ItemGridViewViewModel())
+                .environmentObject(HomeItemsTabViewModel())
                 .environmentObject(SearchBarViewModel())
         }
     }

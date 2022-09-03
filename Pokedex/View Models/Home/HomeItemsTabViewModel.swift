@@ -1,5 +1,5 @@
 //
-//  ItemGridViewViewModel.swift
+//  HomeItemsTabViewModel.swift
 //  Pokedex
 //
 //  Created by Tino on 18/8/2022.
@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-final class ItemGridViewViewModel: ObservableObject {
+final class HomeItemsTabViewModel: ObservableObject {
     @Published private(set) var items: Set<Item> = []
     private var nextPageURL: URL? {
         didSet {
@@ -27,7 +27,7 @@ final class ItemGridViewViewModel: ObservableObject {
 }
 
 
-extension ItemGridViewViewModel {
+extension HomeItemsTabViewModel {
     func filteredItems(searchText: String) -> [Item] {
         if searchText.isEmpty { return items.sorted() }
         if let id = Int(searchText) {

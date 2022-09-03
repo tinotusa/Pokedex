@@ -1,5 +1,5 @@
 //
-//  AbilityListViewViewModel.swift
+//  HomeAbilitiesTabViewModel.swift
 //  Pokedex
 //
 //  Created by Tino on 20/8/2022.
@@ -8,7 +8,7 @@
 import Foundation
 
 @MainActor
-final class AbilityListViewViewModel: ObservableObject {
+final class HomeAbilitiesTabViewModel: ObservableObject {
     @Published private(set) var abilities = Set<Ability>()
     @Published private(set) var nextURL: URL? {
         didSet {
@@ -24,7 +24,7 @@ final class AbilityListViewViewModel: ObservableObject {
     private let limit = 20
 }
 
-extension AbilityListViewViewModel {
+extension HomeAbilitiesTabViewModel {
     /// Returns a filtered and sorted array of Abilities
     ///
     /// - parameter searchText: The text to filter the abilities with.
@@ -46,7 +46,7 @@ extension AbilityListViewViewModel {
     }
 }
 
-extension AbilityListViewViewModel {
+extension HomeAbilitiesTabViewModel {
     func getAbility(named searchText: String) {
         task?.cancel()
         if Task.isCancelled { return }

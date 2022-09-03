@@ -1,5 +1,5 @@
 //
-//  StatsTabViewModel.swift
+//  PokemonStatsTabViewModel.swift
 //  Pokedex
 //
 //  Created by Tino on 23/7/2022.
@@ -8,7 +8,7 @@
 import SwiftUI
 
 @MainActor
-final class StatsTabViewModel: ObservableObject {
+final class PokemonStatsTabViewModel: ObservableObject {
     @Published private(set) var valuePerStat = [ValuePerStat]()
     @Published private var pokemon: Pokemon?
     
@@ -52,7 +52,7 @@ final class StatsTabViewModel: ObservableObject {
     }
 }
 
-extension StatsTabViewModel {
+extension PokemonStatsTabViewModel {
     struct ValuePerStat: Identifiable {
         let name: String
         let value: Int
@@ -71,7 +71,7 @@ extension StatsTabViewModel {
 }
 
 // MARK: - Localized stat names
-extension StatsTabViewModel {
+extension PokemonStatsTabViewModel {
     var hpStatName: String { statName(for: hpStat) }
     var attackStatName: String { statName(for: attackStat) }
     var defenseStatName: String { statName(for: defenseStat) }
@@ -81,7 +81,7 @@ extension StatsTabViewModel {
 }
 
 // MARK: - Stat values
-extension StatsTabViewModel {
+extension PokemonStatsTabViewModel {
     var hp: Int {
         guard let pokemon else { return -1 }
         let hpStat = pokemon.stats.first { stat in
@@ -137,7 +137,7 @@ extension StatsTabViewModel {
 }
 
 // MARK: Private functions
-private extension StatsTabViewModel {
+private extension PokemonStatsTabViewModel {
     /// Gets the localized name for a given stat.
     /// - parameter stat: The stat to get the name for.
     /// - returns: The localized name for the stat or Error if the `Stat` is nil.
