@@ -1,5 +1,5 @@
 //
-//  MoveDetail+MachinesListViewViewModel.swift
+//  MachinesListViewViewModel.swift
 //  Pokedex
 //
 //  Created by Tino on 31/8/2022.
@@ -7,16 +7,20 @@
 
 import Foundation
 
-extension MoveDetail {
-    @MainActor
-    final class MachinesListViewViewModel: ObservableObject {
-        @Published private(set) var items = [Item]()
-        @Published private(set) var machines = [Machine]()
-        @Published var viewHasAppeared = false
+@MainActor
+final class MachinesListViewViewModel: ObservableObject {
+    @Published private(set) var items = [Item]()
+    @Published private var machines = [Machine]()
+    @Published var viewHasAppeared = false
+}
+
+extension MachinesListViewViewModel {
+    var sortedMachines: [Machine] {
+        machines.sorted()
     }
 }
 
-extension MoveDetail.MachinesListViewViewModel {
+extension MachinesListViewViewModel {
     func loadData(machineDetails: [MachineVersionDetail]) async {
         await getMachines(machineDetails: machineDetails)
         await getItems(machines: self.machines)

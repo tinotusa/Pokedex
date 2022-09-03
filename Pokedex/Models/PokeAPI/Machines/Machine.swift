@@ -32,3 +32,9 @@ extension Machine {
         try await PokeAPI.shared.getData(for: Machine.self, url: url)
     }
 }
+
+extension Machine: Comparable {
+    static func < (lhs: Machine, rhs: Machine) -> Bool {
+        lhs.id < rhs.id
+    }
+}

@@ -7,40 +7,40 @@
 
 import SwiftUI
 
-extension MoveDetail {
-    struct MachinesListView: View {
-        @ObservedObject var moveDetailViewModel: MoveDetailViewModel
-        @Environment(\.dismiss) var dismiss
-        @Environment(\.appSettings) var appSettings
-        
-        @StateObject private var viewModel = MachinesListViewViewModel()
-        
-        var body: some View {
-            Group {
-                if !viewModel.viewHasAppeared {
-                    LoadingView()
-                } else {
-                    machinesListView
-                }
+
+struct MachinesListView: View {
+    @ObservedObject var moveDetailViewModel: MoveDetailViewModel
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.appSettings) var appSettings
+    
+    @StateObject private var viewModel = MachinesListViewViewModel()
+    
+    var body: some View {
+        Group {
+            if !viewModel.viewHasAppeared {
+                LoadingView()
+            } else {
+                machinesListView
             }
-            .bodyStyle()
-            .padding(.horizontal)
-            .foregroundColor(.textColour)
-            .background {
-                Color.backgroundColour
-                    .ignoresSafeArea()
-            }
-            .task {
-                if !viewModel.viewHasAppeared {
-                    await viewModel.loadData(machineDetails: moveDetailViewModel.move.machines)
-                    viewModel.viewHasAppeared = true
-                }
+        }
+        .bodyStyle()
+        .padding(.horizontal)
+        .foregroundColor(.textColour)
+        .background {
+            Color.backgroundColour
+                .ignoresSafeArea()
+        }
+        .task {
+            if !viewModel.viewHasAppeared {
+                await viewModel.loadData(machineDetails: moveDetailViewModel.move.machines)
+                viewModel.viewHasAppeared = true
             }
         }
     }
 }
 
-private extension MoveDetail.MachinesListView {
+
+private extension MachinesListView {
     var machinesListView: some View {
         VStack(alignment: .leading) {
             PopoverNavigationBar()
@@ -54,7 +54,7 @@ private extension MoveDetail.MachinesListView {
                     Divider()
                     
                     
-                    ForEach(viewModel.machines) { machine in
+                    ForEach(viewModel.sortedMachines) { machine in
                         HStack {
                             if let item = viewModel.itemNamed(machine.item.name) {
                                 ImageLoaderView(url: item.sprites.default) {
@@ -99,9 +99,9 @@ private extension MoveDetail.MachinesListView {
 }
 
 
-struct MoveDetail_MachinesListView_Previews: PreviewProvider {
+struct MachinesListView_Previews: PreviewProvider {
     static var viewModel = {
-       let vm = MoveDetailViewModel()
+        let vm = MoveDetailViewModel()
         vm.setUp(move: .example, settings: .default)
         Task {
             await vm.loadData()
@@ -110,7 +110,7 @@ struct MoveDetail_MachinesListView_Previews: PreviewProvider {
     }()
     
     static var previews: some View {
-        MoveDetail.MachinesListView(moveDetailViewModel: viewModel)
+        MachinesListView(moveDetailViewModel: viewModel)
             .environmentObject(ImageCache())
     }
 }
