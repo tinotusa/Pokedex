@@ -61,7 +61,6 @@ private extension HomeMovesTab {
                 if !searchBar.isSearching && viewModel.hasNextPage && !viewModel.isLoading {
                     ProgressView()
                         .task {
-                            print("Here lmao")
                             await viewModel.getNextMovesPage()
                         }
                 }

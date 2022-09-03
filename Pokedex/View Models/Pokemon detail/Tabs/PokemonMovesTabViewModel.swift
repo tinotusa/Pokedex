@@ -64,17 +64,23 @@ extension PokemonMovesTabViewModel {
     
     func getNextMoves() async {
         guard let pokemon else { return }
-        
+        print("getNextMoves: offest: \(offset) page: \(page) isLoading: \(isLoading)")
         isLoading = true
         defer { isLoading = false }
         await withTaskGroup(of: Move?.self) { group in
+//            if offset > pokemon.moves.count { return }
             for i in offset ..< pokemon.moves.count where i < offset + limit {
-                if i > pokemon.moves.count { break }
                 group.addTask {
                     let pokemonMove = pokemon.moves[i]
+                    print("getNextMoves: offest i: \(i)")
                     let name = pokemonMove.move.name
-                    let move = try? await Move.from(name: name)
-                    return move
+                    do {
+                        let move = try await Move.from(name: name)
+                        return move
+                    } catch {
+                        print("getNextMoves: \(name) \(error)")
+                    }
+                    return nil
                 }
             }
             
@@ -82,9 +88,12 @@ extension PokemonMovesTabViewModel {
             for await move in group {
                 if let move {
                     tempMoves.append(move)
+                } else {
+                    print("getNextMoves: move is nil")
                 }
             }
             if tempMoves.count < limit {
+                print("getNextMoves: limit reached count: \(tempMoves.count) offset: \(offset) page: \(page)")
                 hasNextPage = false
             }
             moves.append(contentsOf: tempMoves)

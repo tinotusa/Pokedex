@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PokemonMovesTab: View {
     @State var pokemon: Pokemon
-    @StateObject private var viewModel = MovesTabViewModel()
+    @StateObject private var viewModel = PokemonMovesTabViewModel()
     
     private let columns: [GridItem] = [
         .init(.adaptive(minimum: 350))
@@ -46,10 +46,9 @@ private extension PokemonMovesTab {
                     MoveCard(move: move)
                 }
             }
-            if viewModel.hasNextPage && !viewModel.isLoading {
+            if viewModel.hasNextPage {
                 ProgressView()
                     .task {
-                        print("here: \(viewModel.hasNextPage) \(viewModel.isLoading)")
                         await viewModel.getNextMoves()
                     }
             }
@@ -57,7 +56,7 @@ private extension PokemonMovesTab {
     }
 }
 
-struct MovesTab_Previews: PreviewProvider {
+struct PokemonMovesTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             PokemonMovesTab(pokemon: .example)

@@ -26,10 +26,10 @@ struct PokemonDetail: View {
                     TabBar(tabs: PokemonInfoTab.self, selectedTab: $selectedTab)
                     
                     switch selectedTab {
-                    case .about: AboutTab(pokemon: pokemon)
-                    case .stats: StatsTab(pokemon: pokemon)
-                    case .evolutions: EvolutionsTab(pokemon: pokemon)
-                    case .moves: MovesTab(pokemon: pokemon)
+                    case .about: PokemonAboutTab(pokemon: pokemon)
+                    case .stats: PokemonStatsTab(pokemon: pokemon)
+                    case .evolutions: PokemonEvolutionsTab(pokemon: pokemon)
+                    case .moves: PokemonMovesTab(pokemon: pokemon)
                     }
                 }
             }

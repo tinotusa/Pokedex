@@ -31,7 +31,7 @@ struct ContentView: View {
     @EnvironmentObject var settingsManager: SettingsManager
     
     var body: some View {
-        SearchView()
+        HomeView()
             .onChange(of: scenePhase) { scenePhase in
                 if scenePhase == .inactive {
                     print("about to save")

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PokemonEvolutionsTab: View {
     let pokemon: Pokemon
-    @StateObject private var viewModel = EvolutionsTabViewModel()
+    @StateObject private var viewModel = PokemonEvolutionsTabViewModel()
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -29,7 +29,7 @@ struct PokemonEvolutionsTab: View {
     }
 }
 
-struct EvolutionsTab_Previews: PreviewProvider {
+struct PokemonEvolutionsTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             PokemonEvolutionsTab(pokemon: .example)

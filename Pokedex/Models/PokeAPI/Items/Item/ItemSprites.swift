@@ -9,5 +9,5 @@ import Foundation
 
 struct ItemSprites: Codable, Hashable {
     /// The default depiction of this item.
-    let `default`: URL
+    let `default`: URL?
 }

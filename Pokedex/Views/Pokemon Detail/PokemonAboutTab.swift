@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PokemonAboutTab: View {
     let pokemon: Pokemon
-    @StateObject private var viewModel = AboutTabViewModel()
+    @StateObject private var viewModel = PokemonAboutTabViewModel()
     @Environment(\.appSettings) var appSettings
     
     var body: some View {
@@ -145,7 +145,7 @@ extension PokemonAboutTab {
     }
 }
 
-struct AboutTab_Previews: PreviewProvider {
+struct PokemonAboutTab_Previews: PreviewProvider {
     static var previews: some View {
         ScrollView(showsIndicators: false) {
             PokemonAboutTab(pokemon: .example)

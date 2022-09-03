@@ -10,7 +10,7 @@ import Charts
 
 struct PokemonStatsTab: View {
     let pokemon: Pokemon
-    @StateObject private var viewModel = StatsTabViewModel()
+    @StateObject private var viewModel = PokemonStatsTabViewModel()
     
     var body: some View {
         Group {
@@ -161,7 +161,7 @@ private extension PokemonStatsTab {
     }
 }
 
-struct StatsTab_Previews: PreviewProvider {
+struct PokemonStatsTab_Previews: PreviewProvider {
     static var previews: some View {
         PokemonStatsTab(pokemon: .example)
     }

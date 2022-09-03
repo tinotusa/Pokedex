@@ -15,10 +15,10 @@ struct PokedexApp: App {
     @StateObject var settingsManager = SettingsManager()
     
     // MARK: - View Models
-    @StateObject var pokemonGridViewViewModel = PokemonGridViewViewModel()
-    @StateObject var itemGridViewViewModel = ItemGridViewViewModel()
-    @StateObject var moveGridViewViewModel = MoveGridViewViewModel()
-    @StateObject var abilityListViewViewModel = AbilityListViewViewModel()
+    @StateObject var homePokemonTabViewModel = HomePokemonTabViewModel()
+    @StateObject var homeItemsTabViewModel = HomeItemsTabViewModel()
+    @StateObject var homeMovesTabViewModel = HomeMovesTabViewModel()
+    @StateObject var homeAbilitiesTabViewModel = HomeAbilitiesTabViewModel()
     @StateObject var searchBarViewModel = SearchBarViewModel()
     
     var body: some Scene {
@@ -26,10 +26,10 @@ struct PokedexApp: App {
             ContentView()
                 .environmentObject(imageCache)
                 .environmentObject(settingsManager)
-                .environmentObject(pokemonGridViewViewModel)
-                .environmentObject(itemGridViewViewModel)
-                .environmentObject(moveGridViewViewModel)
-                .environmentObject(abilityListViewViewModel)
+                .environmentObject(homePokemonTabViewModel)
+                .environmentObject(homeItemsTabViewModel)
+                .environmentObject(homeMovesTabViewModel)
+                .environmentObject(homeAbilitiesTabViewModel)
                 .environmentObject(searchBarViewModel)
                 .setSettings(settingsManager.settings)
         }
