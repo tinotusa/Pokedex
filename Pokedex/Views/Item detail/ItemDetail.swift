@@ -88,7 +88,7 @@ struct ItemDetail: View {
         .background(Color.backgroundColour)
         .toolbar(.hidden)
         .fullScreenCover(isPresented: $viewModel.showAllPokemonView) {
-            PokemonListView(itemDetailViewModel: viewModel)
+            ItemPokemonListView(itemDetailViewModel: viewModel)
         }
         .task {
             if !viewModel.viewHasLoaded {

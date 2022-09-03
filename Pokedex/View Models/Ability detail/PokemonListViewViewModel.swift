@@ -20,7 +20,7 @@ extension AbilityDetail.PokemonListViewViewModel {
         await withTaskGroup(of: Pokemon?.self) { group in
             for abilityPokemon in abilityPokemonArray {
                 group.addTask {
-                    return try? await Pokemon.from(name: abilityPokemon.pokemon.name)
+                    return try? await PokeAPI.shared.getData(for: Pokemon.self, url: abilityPokemon.pokemon.url)
                 }
             }
             var tempPokemon = Set<Pokemon>()
@@ -37,7 +37,7 @@ extension AbilityDetail.PokemonListViewViewModel {
         await withTaskGroup(of: PokemonSpecies?.self) { group in
             for pokemon in pokemonArray {
                 group.addTask {
-                    return try? await PokemonSpecies.from(name: pokemon.species.name)
+                    return try? await PokeAPI.shared.getData(for: PokemonSpecies.self, url: pokemon.species.url)
                 }
             }
             var tempPokemon = Set<PokemonSpecies>()

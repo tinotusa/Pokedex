@@ -1,5 +1,5 @@
 //
-//  ItemDetail+PokemonListView.swift
+//  ItemPokemonListView.swift
 //  Pokedex
 //
 //  Created by Tino on 31/8/2022.
@@ -7,40 +7,40 @@
 
 import SwiftUI
 
-extension ItemDetail {
-    struct PokemonListView: View {
-        @ObservedObject var itemDetailViewModel: ItemDetailViewModel
-        @StateObject var viewModel = PokemonListViewViewModel()
-        @Environment(\.appSettings) var appSettings
-        
-        var body: some View {
-            Group {
-                if !viewModel.viewHasAppeared {
-                    LoadingView()
-                        .frame(maxWidth: .infinity)
-                } else {
-                    pokemonListView
-                }
+
+struct ItemPokemonListView: View {
+    @ObservedObject var itemDetailViewModel: ItemDetailViewModel
+    @StateObject var viewModel = ItemPokemonListViewViewModel()
+    @Environment(\.appSettings) var appSettings
+    
+    var body: some View {
+        Group {
+            if !viewModel.viewHasAppeared {
+                LoadingView()
+                    .frame(maxWidth: .infinity)
+            } else {
+                pokemonListView
             }
-            .toolbar(.hidden)
-            .bodyStyle()
-            .foregroundColor(.textColour)
-            .padding(.horizontal)
-            .background {
-                Color.backgroundColour
-                    .ignoresSafeArea()
-            }
-            .task {
-                if !viewModel.viewHasAppeared {
-                    await viewModel.loadData(itemHolderPokemon: itemDetailViewModel.item?.heldByPokemon ?? [])
-                    viewModel.viewHasAppeared = true
-                }
+        }
+        .toolbar(.hidden)
+        .bodyStyle()
+        .foregroundColor(.textColour)
+        .padding(.horizontal)
+        .background {
+            Color.backgroundColour
+                .ignoresSafeArea()
+        }
+        .task {
+            if !viewModel.viewHasAppeared {
+                await viewModel.loadData(itemHolderPokemon: itemDetailViewModel.item?.heldByPokemon ?? [])
+                viewModel.viewHasAppeared = true
             }
         }
     }
 }
 
-private extension ItemDetail.PokemonListView {
+
+private extension ItemPokemonListView {
     var nameAndIDRow: some View {
         VStack(alignment: .leading, spacing: 0) {
             HStack {
@@ -58,7 +58,7 @@ private extension ItemDetail.PokemonListView {
         VStack(alignment: .leading) {
             PopoverNavigationBar()
             
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading) {
                     nameAndIDRow
                     
@@ -66,11 +66,11 @@ private extension ItemDetail.PokemonListView {
                     
                     Divider()
                     
-                    ForEach(viewModel.pokemon) { pokemon in
+                    ForEach(viewModel.sortedPokemon) { pokemon in
                         HStack {
                             smallPokemonImage(url: pokemon.sprites.frontDefault)
                             
-                            if let pokemonSpecies = viewModel.getPokemonSpecies(id: pokemon.id) {
+                            if let pokemonSpecies = viewModel.getPokemonSpecies(named: pokemon.species.name) {
                                 Text(pokemonSpecies.localizedName(language: appSettings.language))
                                     .textSelection(.enabled)
                                 Spacer()
@@ -106,7 +106,7 @@ private extension ItemDetail.PokemonListView {
     }
 }
 
-struct ItemDetail_PokemonListView_Previews: PreviewProvider {
+struct ItemPokemonListView_Previews: PreviewProvider {
     static var viewModel = {
         let itemDetail = ItemDetailViewModel()
         itemDetail.setUp(item: .example, settings: .default)
@@ -118,7 +118,7 @@ struct ItemDetail_PokemonListView_Previews: PreviewProvider {
     
     static var previews: some View {
         NavigationStack {
-            ItemDetail.PokemonListView(itemDetailViewModel: viewModel)
+            ItemPokemonListView(itemDetailViewModel: viewModel)
                 .environmentObject(ImageCache())
         }
     }
