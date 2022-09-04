@@ -67,6 +67,11 @@ extension MoveCardViewModel {
     var localizedMoveShortEffect: String {
         guard let move else { return "Error" }
         guard let settings else { return "Error" }
-        return move.effectEntries.localizedEffectEntry(shortEffect: true, language: settings.language)
+        
+        return move.effectEntries.localizedEffectEntry(
+            shortEffect: true,
+            language: settings.language,
+            effectChance: move.effectChance
+        )
     }
 }

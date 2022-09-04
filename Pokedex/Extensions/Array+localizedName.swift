@@ -81,7 +81,7 @@ extension Array where Element == Effect {
 }
 
 extension Array where Element == VerboseEffect {
-    func localizedEffectEntry(shortEffect: Bool = false, language: Language?, default defaultValue: String = "Error") -> String {
+    func localizedEffectEntry(shortEffect: Bool = false, language: Language?, default defaultValue: String = "Error", effectChance: Int? = nil) -> String {
         let availableLanguageCodes = self.map { effect in
             effect.language.name
         }
@@ -91,15 +91,20 @@ extension Array where Element == VerboseEffect {
             effect.language.name == (language?.name != nil ? language!.name : deviceLanguageCode)
         }
         
-        if let effect {
-            if shortEffect {
-                return effect.shortEffect
-            } else {
-                return effect.effect  
-            }
+        guard let effect else {
+            return defaultValue
         }
-
-        return defaultValue
+        
+        var text = effect.effect // long effect text (default)
+        
+        if shortEffect {
+            text = effect.shortEffect
+        }
+        
+        if let effectChance {
+            return text.replacingOccurrences(of: "$effect_chance", with: "\(effectChance)")
+        }
+        return text
     }
 }
 
