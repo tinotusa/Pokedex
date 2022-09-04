@@ -14,6 +14,7 @@ final class AbilityDetailViewModel: ObservableObject {
     @Published private(set) var generation: Generation?
     
     @Published var showingPokemonView = false
+    @Published var showEffectChangesView = false
     
     @Published var viewHasApeared = false
     @Published var setUpCalled = false

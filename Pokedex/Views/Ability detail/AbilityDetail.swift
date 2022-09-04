@@ -41,7 +41,6 @@ struct AbilityDetail: View {
                     }
                 }
             }
-            
         }
         .padding(.horizontal)
         .bodyStyle()
@@ -60,6 +59,9 @@ struct AbilityDetail: View {
         }
         .fullScreenCover(isPresented: $viewModel.showingPokemonView) {
             PokemonListView(abilityDetailViewModel: viewModel)
+        }
+        .fullScreenCover(isPresented: $viewModel.showEffectChangesView) {
+            AbilityEffectChangesView(viewModel: viewModel)
         }
     }
 }
@@ -123,15 +125,29 @@ private extension AbilityDetail {
         GridRow {
             Text("Effect changes")
                 .gridRowTitleStyle()
-            VStack {
-                ForEach(viewModel.effectChanges, id: \.effectChange) { version, effectChange in
-                    HStack(alignment: .top) {
-                        Text(effectChange) +
-                        Text(" \(version)")
-                            .foregroundColor(.gray)
+            HStack {
+                Text("\(viewModel.effectChanges.count)")
+                Spacer()
+                Button {
+                    viewModel.showEffectChangesView = true
+                } label: {
+                    if viewModel.effectChanges.count == 1 {
+                        Text("Show change")
+                    } else {
+                        Text("Show changes")
                     }
                 }
+                .foregroundColor(.blue)
             }
+//            VStack {
+//                ForEach(viewModel.effectChanges, id: \.effectChange) { version, effectChange in
+//                    HStack(alignment: .top) {
+//                        Text(effectChange) +
+//                        Text(" \(version)")
+//                            .foregroundColor(.gray)
+//                    }
+//                }
+//            }
         }
     }
 }
