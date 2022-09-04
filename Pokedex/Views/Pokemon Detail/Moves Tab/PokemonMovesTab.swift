@@ -39,7 +39,7 @@ struct PokemonMovesTab: View {
 private extension PokemonMovesTab {
     var movesList: some View {
         LazyVGrid(columns: columns) {
-            ForEach(viewModel.moves) { move in
+            ForEach(viewModel.sortedMoves) { move in
                 NavigationLink {
                     MoveDetail(move: move)
                 } label: {

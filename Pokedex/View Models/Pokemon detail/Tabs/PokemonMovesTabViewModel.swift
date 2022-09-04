@@ -12,7 +12,7 @@ final class PokemonMovesTabViewModel: ObservableObject {
     /// The pokemon that has the moves being listed.
     var pokemon: Pokemon?
     /// The moves of the pokemon.
-    @Published private(set) var moves = [Move]()
+    @Published private var moves = [Move]()
     @Published var viewHasAppeared = false // TODO: should i make this private set and set it in the loadData func
     @Published private(set) var hasNextPage = true
     @Published private(set) var isLoading = false
@@ -103,5 +103,9 @@ extension PokemonMovesTabViewModel {
     
     func loadData() async {
         await getMoves()
+    }
+    
+    var sortedMoves: [Move] {
+        moves.sorted()
     }
 }
