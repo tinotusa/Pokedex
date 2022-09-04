@@ -45,10 +45,7 @@ struct AbilityDetail: View {
         .padding(.horizontal)
         .bodyStyle()
         .foregroundColor(.textColour)
-        .background {
-            Color.backgroundColour
-                .ignoresSafeArea()
-        }
+        .backgroundColour()
         .toolbar(.hidden)
         .task {
             if viewModel.viewHasApeared { return }
@@ -58,7 +55,7 @@ struct AbilityDetail: View {
             viewModel.viewHasApeared = true
         }
         .fullScreenCover(isPresented: $viewModel.showingPokemonView) {
-            PokemonListView(abilityDetailViewModel: viewModel)
+            AbilityPokemonListView(abilityDetailViewModel: viewModel)
         }
         .fullScreenCover(isPresented: $viewModel.showEffectChangesView) {
             AbilityEffectChangesView(viewModel: viewModel)

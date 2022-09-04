@@ -149,6 +149,11 @@ extension PokemonSpecies: SearchByNameOrID {
     }
 }
 
+extension PokemonSpecies: SearchableByURL {
+    static func from(url: URL) async throws -> PokemonSpecies {
+        return try await PokeAPI.shared.getData(for: PokemonSpecies.self, url: url)
+    }
+}
 
 // MARK: Helper computed properties
 extension PokemonSpecies {

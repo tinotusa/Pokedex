@@ -58,6 +58,12 @@ extension Pokemon: SearchByNameOrID {
     }
 }
 
+extension Pokemon: SearchableByURL {
+    static func from(url: URL) async throws -> Pokemon {
+        try await PokeAPI.shared.getData(for: Pokemon.self, url: url)
+    }
+}
+
 // MARK: - Helpers
 extension Pokemon {
     /// Gets the type names for this pokemon's type.
