@@ -13,33 +13,51 @@ struct EvolutionChainLinkRow: View {
     @Environment(\.appSettings) var appSettings
     
     var body: some View {
-        Group {
-            if !viewModel.viewHasAppeared {
-                ProgressView()
-                    .frame(width: Constants.imageSize, height: Constants.imageSize)
-            } else {
-                HStack {
-                    ImageLoaderView(url: viewModel.wrappedPokemon.officialArtWork) {
+        HStack {
+            Group {
+                if let pokemon = viewModel.pokemon {
+                    ImageLoaderView(url: pokemon.officialArtWork) {
                         ProgressView()
                     } content: { image in
                         image
                             .resizable()
                             .scaledToFit()
                     }
-                    .frame(width: Constants.imageSize, height: Constants.imageSize)
-                    
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Text(viewModel.localizedPokemonName)
-                            Spacer()
-                            ForEach(viewModel.wrappedPokemon.types, id: \.self) { pokemonType in
-                                PokemonTypeTag(name: pokemonType.type.name)
-                            }
+                } else {
+                    ProgressView()
+                }
+            }
+            .frame(width: Constants.imageSize, height: Constants.imageSize)
+        
+            
+            VStack(alignment: .leading) {
+                HStack {
+                    Text(viewModel.localizedPokemonName)
+                    Spacer()
+                    if let pokemon = viewModel.pokemon {
+                        ForEach(pokemon.types, id: \.self) { pokemonType in
+                            PokemonTypeTag(name: pokemonType.type.name)
                         }
-                        
-                        ForEach(chainLink.evolutionDetails ?? [], id: \.self) { evolutionDetail in
+                    }
+                }
+                
+                if let evolutionDetails = viewModel.chainLink?.evolutionDetails, evolutionDetails.count > 1 {
+                    TabView {
+                        ForEach(evolutionDetails, id: \.self) { evolutionDetail in
                             EvolutionDetailRow(evolutionDetail: evolutionDetail)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                
                         }
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+                    .overlay(alignment: .bottomTrailing) {
+                        Text("Swipe")
+                            .footerStyle()
+                            .foregroundColor(.gray)
+                    }
+                } else if let evolutionDetails = viewModel.chainLink?.evolutionDetails {
+                    ForEach(evolutionDetails, id: \.self) { evolutionDetail in
+                        EvolutionDetailRow(evolutionDetail: evolutionDetail)
                     }
                 }
             }
@@ -64,7 +82,11 @@ private extension EvolutionChainLinkRow {
 
 struct EvolutionChainLinkRow_Previews: PreviewProvider {
     static var previews: some View {
-        EvolutionChainLinkRow(chainLink: .example)
-            .environmentObject(ImageCache())
+        ZStack {
+            Color.backgroundColour
+                .ignoresSafeArea()
+            EvolutionChainLinkRow(chainLink: .example)
+                .environmentObject(ImageCache())
+        }
     }
 }

@@ -16,33 +16,24 @@ final class EvolutionChainLinkRowViewModel: ObservableObject {
     @Published var pokemonSpecies: PokemonSpecies?
     @Published var viewHasAppeared = false
     
-    
     func setUp(chainLink: ChainLink, settings: Settings = .default) {
         self.chainLink = chainLink
         self.settings = settings
     }
     
     func loadData() async {
-        pokemonSpecies = try? await PokeAPI.shared.getData(for: PokemonSpecies.self, url: wrappedChainLink.species.url)
+        guard let chainLink else {
+            #if DEBUG
+            print("Error in \(#function). chainLink is nil.")
+            #endif
+            return
+        }
+        pokemonSpecies = try? await PokeAPI.shared.getData(for: PokemonSpecies.self, url: chainLink.species.url)
         guard let pokemonSpecies else {
             print("Error in \(#function). pokemonSpecies is nil.")
             return
         }
         pokemon = try? await Pokemon.from(id: pokemonSpecies.id)
-    }
-    
-    var wrappedChainLink: ChainLink {
-        if let chainLink {
-            return chainLink
-        }
-        fatalError("chainLink is nil. Call setUp(chainLink:) first.")
-    }
-    
-    var wrappedPokemon: Pokemon {
-        if let pokemon {
-            return pokemon
-        }
-        fatalError("pokemon is nil. Call setUp(chainLink:) first.")
     }
     
     var localizedPokemonName: String {

@@ -12,12 +12,18 @@ struct PokemonEvolutionsTab: View {
     @StateObject private var viewModel = PokemonEvolutionsTabViewModel()
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            ForEach(viewModel.evolutionChainLinks, id: \.self) { chainLink in
-                EvolutionChainLinkRow(chainLink: chainLink)
+        Group {
+            if !viewModel.viewHasAppeared {
+                LoadingView()
+            } else {
+                VStack(alignment: .leading, spacing: 20) {
+                    ForEach(viewModel.evolutionChainLinks, id: \.self) { chainLink in
+                        EvolutionChainLinkRow(chainLink: chainLink)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .task {
             if !viewModel.viewHasAppeared {
                 viewModel.setUp(pokemon: pokemon)
