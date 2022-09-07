@@ -14,13 +14,25 @@ struct ItemPokemonListView: View {
     @Environment(\.appSettings) var appSettings
     
     var body: some View {
-        Group {
-            if !viewModel.viewHasAppeared {
-                LoadingView()
-                    .frame(maxWidth: .infinity)
-            } else {
-                pokemonListView
+        VStack(alignment: .leading) {
+            PopoverNavigationBar()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading) {
+                    nameAndIDRow
+                    
+                    Text("Pokemon that can hold this item.")
+                    
+                    Divider()
+                    if !viewModel.viewHasAppeared {
+                        LoadingView()
+                    } else {
+                        pokemonList
+                    }
+                }
             }
+            
+            Spacer()
         }
         .toolbar(.hidden)
         .bodyStyle()
@@ -54,37 +66,21 @@ private extension ItemPokemonListView {
         }
     }
     
-    var pokemonListView: some View {
-        VStack(alignment: .leading) {
-            PopoverNavigationBar()
-            
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading) {
-                    nameAndIDRow
-                    
-                    Text("Pokemon that can hold this item.")
-                    
-                    Divider()
-                    
-                    ForEach(viewModel.sortedPokemon) { pokemon in
-                        HStack {
-                            smallPokemonImage(url: pokemon.sprites.frontDefault)
-                            
-                            if let pokemonSpecies = viewModel.getPokemonSpecies(named: pokemon.species.name) {
-                                Text(pokemonSpecies.localizedName(language: appSettings.language))
-                                    .textSelection(.enabled)
-                                Spacer()
-                                Text(pokemon.formattedID)
-                                    .foregroundColor(.gray)
-                                    .textSelection(.enabled)
-                            }
-                            
-                        }
-                    }
+    var pokemonList: some View {
+        ForEach(viewModel.sortedPokemon) { pokemon in
+            HStack {
+                smallPokemonImage(url: pokemon.sprites.frontDefault)
+                
+                if let pokemonSpecies = viewModel.getPokemonSpecies(named: pokemon.species.name) {
+                    Text(pokemonSpecies.localizedName(language: appSettings.language))
+                        .textSelection(.enabled)
+                    Spacer()
+                    Text(pokemon.formattedID)
+                        .foregroundColor(.gray)
+                        .textSelection(.enabled)
                 }
+                
             }
-            
-            Spacer()
         }
     }
     

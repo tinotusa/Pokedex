@@ -16,11 +16,23 @@ struct MachinesListView: View {
     @StateObject private var viewModel = MachinesListViewViewModel()
     
     var body: some View {
-        Group {
-            if !viewModel.viewHasAppeared {
-                LoadingView()
-            } else {
-                machinesListView
+        VStack(alignment: .leading) {
+            PopoverNavigationBar()
+            
+            ScrollView(showsIndicators: false) {
+                VStack(alignment: .leading) {
+                    nameAndIDRow
+                    
+                    Text("Machines that teach this move and the game in which they appear.")
+                    
+                    Divider()
+                    
+                    if !viewModel.viewHasAppeared {
+                        LoadingView()
+                    } else {
+                        machinesList
+                    }
+                }
             }
         }
         .bodyStyle()
@@ -41,39 +53,24 @@ struct MachinesListView: View {
 
 
 private extension MachinesListView {
-    var machinesListView: some View {
-        VStack(alignment: .leading) {
-            PopoverNavigationBar()
-            
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading) {
-                    nameAndIDRow
-                    
-                    Text("Machines that teach this move and the game in which they appear.")
-                    
-                    Divider()
-                    
-                    
-                    ForEach(viewModel.sortedMachines) { machine in
-                        HStack {
-                            if let item = viewModel.itemNamed(machine.item.name) {
-                                ImageLoaderView(url: item.sprites.default) {
-                                    ProgressView()
-                                } content: { image in
-                                    image
-                                        .interpolation(.none)
-                                        .resizable()
-                                        .scaledToFit()
-                                }
-                                .frame(width: Constants.itemImageSize, height: Constants.itemImageSize)
-                                
-                                Text(item.names.localizedName(language: appSettings.language, default: "Error"))
-                                Spacer()
-                                Text(machine.versionGroup.name)
-                                    .foregroundColor(.gray)
-                            }
-                        }
+    var machinesList: some View {
+        ForEach(viewModel.sortedMachines) { machine in
+            HStack {
+                if let item = viewModel.itemNamed(machine.item.name) {
+                    ImageLoaderView(url: item.sprites.default) {
+                        ProgressView()
+                    } content: { image in
+                        image
+                            .interpolation(.none)
+                            .resizable()
+                            .scaledToFit()
                     }
+                    .frame(width: Constants.itemImageSize, height: Constants.itemImageSize)
+                    
+                    Text(item.names.localizedName(language: appSettings.language, default: "Error"))
+                    Spacer()
+                    Text(machine.versionGroup.name)
+                        .foregroundColor(.gray)
                 }
             }
         }
