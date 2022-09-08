@@ -22,39 +22,50 @@ final class HomePokemonTabViewModel: ObservableObject {
     @Published private(set) var hasNextPage: Bool = false
     @Published var viewHasAppeared = false
     @Published var isLoading = false
+    @Published var state = State.idle
     private var task: Task<Void, Never>?
     private let limit = 20
 }
 
 extension HomePokemonTabViewModel {
+    enum State {
+        case idle
+        case searching
+        case found
+        case notFound
+    }
+}
+
+extension HomePokemonTabViewModel {
     func getPokemon(searchText: String) async {
         task?.cancel()
-        print("am i called")
         if Task.isCancelled {
+            #if DEBUG
             print("task is cancelled \(#function)")
+            #endif
             return
         }
         if isLoading { return }
-
+        
+        isLoading = true
+        defer { isLoading = false }
+        state = .searching
+        
         task = Task {
-            isLoading = true
-            defer {
-                Task { @MainActor in
-                    isLoading = false
-                }
-            }
-            
             let searchText = SearchBarViewModel.sanitizedSearchText(text: searchText)
             if searchText.isEmpty { return }
             
             if pokemon.containsItem(named: searchText) {
+                state = .found
                 return
             }
             
             guard let pokemon = try? await Pokemon.from(name: searchText) else {
+                state = .notFound
                 return
             }
             self.pokemon.insert(pokemon)
+            state = .found
         }
     }
     

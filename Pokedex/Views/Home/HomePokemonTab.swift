@@ -16,13 +16,21 @@ struct HomePokemonTab: View {
     @State private var columns: [GridItem] = [
         .init(.adaptive(minimum: 150))
     ]
-              
+
     var body: some View {
-        Group {
+        ScrollView {
             if !viewModel.viewHasAppeared {
                 LoadingView()
             } else {
                 pokemonGrid
+            }
+            if viewModel.state == .searching && viewModel.filteredPokemon(searchText: searchBar.searchText).isEmpty {
+                VStack {
+                    ProgressView()
+                    Text("Searching")
+                }
+            } else if viewModel.state == .notFound {
+                Text("\"\(searchBar.searchText)\" was not found.")
             }
         }
         .task {
@@ -71,25 +79,23 @@ private extension HomePokemonTab {
     }
     
     var pokemonGrid: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 20) {
-                ForEach(viewModel.filteredPokemon(searchText: searchBar.sanitizedSearchText)) { pokemon in
-                    NavigationLink(destination: PokemonDetail(pokemon: pokemon)) {
-                        PokemonCard(pokemon: pokemon)
-                    }
-                }
-                
-                // if there is more data and user is not searching
-                if viewModel.hasNextPage && searchBar.isEmpty {
-                    ProgressView()
-                        .frame(maxWidth: .infinity)
-                        .task {
-                            await viewModel.getNextPokemonPage()
-                        }
+        LazyVGrid(columns: columns, spacing: 20) {
+            ForEach(viewModel.filteredPokemon(searchText: searchBar.sanitizedSearchText)) { pokemon in
+                NavigationLink(destination: PokemonDetail(pokemon: pokemon)) {
+                    PokemonCard(pokemon: pokemon)
                 }
             }
-            .padding(.horizontal)
+            
+            // if there is more data and user is not searching
+            if viewModel.hasNextPage && searchBar.isEmpty {
+                ProgressView()
+                    .frame(maxWidth: .infinity)
+                    .task {
+                        await viewModel.getNextPokemonPage()
+                    }
+            }
         }
+        .padding(.horizontal)
     }
 }
 
