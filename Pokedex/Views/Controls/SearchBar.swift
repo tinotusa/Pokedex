@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchBar: View {
     let placeholder: LocalizedStringKey
-    @EnvironmentObject private var viewModel: SearchBarViewModel
+    @Binding var searchText: String
     
     var body: some View {
         HStack {
@@ -17,7 +17,7 @@ struct SearchBar: View {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.searchBarTextColour)
                 
-                TextField(text: $viewModel.searchText, prompt: Text(placeholder)) {
+                TextField(text: $searchText, prompt: Text(placeholder)) {
                     Text("Search bar")
                 }
                 .foregroundColor(.searchBarTextColour)
@@ -29,24 +29,32 @@ struct SearchBar: View {
             .background(Color.searchBarColour)
             .cornerRadius(Constants.searchBarCornerRadius)
             
-            if viewModel.isSearching {
+            if isSearching {
                 cancelButton
             }
         }
         .subHeaderStyle()
         .foregroundColor(.searchBarColour)
-        .animation(.easeInOut, value: viewModel.searchText)
+        .animation(.easeInOut, value: searchText)
     }
 }
 
 private extension SearchBar {
-    struct Constants {
+    enum Constants {
         static let searchBarCornerRadius = 26.0
+    }
+    
+    var isSearching: Bool {
+        !searchText.isEmpty
+    }
+    
+    func clearText() {
+        searchText = ""
     }
     
     var cancelButton: some View {
         Button {
-            viewModel.clearText()
+            clearText()
         } label: {
             Text("Cancel", comment: "Button label: Cancels the search.")
                 .bodyStyle()
@@ -59,8 +67,7 @@ struct SearchBar_Previews: PreviewProvider {
     static var previews: some View {
         ZStack {
             Color.backgroundCircleColour
-            SearchBar(placeholder: "Search")
-                .environmentObject(SearchBarViewModel())
+            SearchBar(placeholder: "Search", searchText: .constant("hello there"))
         }
     }
 }

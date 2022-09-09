@@ -8,48 +8,50 @@
 import SwiftUI
 
 struct HomeAbilitiesTab: View {
-    @EnvironmentObject private var viewModel: HomeAbilitiesTabViewModel
-    @EnvironmentObject private var searchBar: SearchBarViewModel
+    @ObservedObject var viewModel: HomeAbilitiesTabViewModel
     
     @State private var columns: [GridItem] = [
         .init(.adaptive(minimum: 300))
     ]
     
     var body: some View {
-        Group {
-            if !viewModel.viewHasAppeared {
+        ScrollView {
+            if viewModel.viewLoadingState == .loading {
                 LoadingView()
+            } else if viewModel.searchState == .searching && viewModel.filteredAbilities.isEmpty {
+                LoadingView(text: "Searching")
+            } else if viewModel.searchState == .error {
+                SearchErrorView()
             } else {
-                ScrollView {
-                    LazyVGrid(columns: columns) {
-                        ForEach(viewModel.filteredAbilities(searchText: searchBar.sanitizedSearchText)) { ability in
-                            NavigationLink {
-                                AbilityDetail(ability: ability)
-                            } label: {
-                                AbilityCardView(ability: ability)
-                            }
-                        }
-                        if viewModel.hasNextPage && !searchBar.isSearching {
-                            ProgressView()
-                                .task {
-                                    print("progress view showed")
-                                    await viewModel.getNextAbilitesPage()
-                                }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
-                //        .navigationDestination(for: Ability.self) { ability in
-                //            AbilityDetail(ability: ability)
-                //        }
+                abilitiesList
             }
         }
         .task {
-            if !viewModel.viewHasAppeared {
+            if viewModel.viewLoadingState == .loading {
                 await viewModel.getAbilities()
-                viewModel.viewHasAppeared = true
+                viewModel.viewLoadingState = .loaded
             }
         }
+    }
+}
+
+private extension HomeAbilitiesTab {
+    var abilitiesList: some View {
+        LazyVGrid(columns: columns) {
+            ForEach(viewModel.filteredAbilities) { ability in
+                NavigationLink(value: ability) {
+                    AbilityCardView(ability: ability)
+                }
+            }
+            if viewModel.hasNextPage && viewModel.searchState == .idle {
+                ProgressView()
+                    .task {
+                        print("progress view showed")
+                        await viewModel.getNextAbilitesPage()
+                    }
+            }
+        }
+        .padding(.horizontal)
     }
 }
 
@@ -59,9 +61,8 @@ struct HomeAbilitiesTab_Previews: PreviewProvider {
             ZStack {
                 Color.backgroundColour
                     .ignoresSafeArea()
-                HomeAbilitiesTab()
+                HomeAbilitiesTab(viewModel: HomeAbilitiesTabViewModel())
                     .environmentObject(HomeAbilitiesTabViewModel())
-                    .environmentObject(SearchBarViewModel())
             }
         }
     }

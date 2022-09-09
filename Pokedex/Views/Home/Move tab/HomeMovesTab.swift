@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct HomeMovesTab: View {
-    @EnvironmentObject private var viewModel: HomeMovesTabViewModel
-    @EnvironmentObject private var searchBar: SearchBarViewModel
+    @ObservedObject var viewModel: HomeMovesTabViewModel
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     
     @State private var columns: [GridItem] = [
@@ -17,30 +16,21 @@ struct HomeMovesTab: View {
     ]
     
     var body: some View {
-        Group {
-            if !viewModel.viewHasAppeared {
+        ScrollView {
+            if viewModel.viewLoadingState == .loading {
                 LoadingView()
+            } else if viewModel.searchState == .searching && viewModel.filteredMoves.isEmpty {
+                LoadingView(text: "Searching")
+            } else if viewModel.searchState == .error {
+                SearchErrorView()
             } else {
                 movesList
             }
         }
-//        .navigationDestination(for: Move.self) { move in
-//            Text("Move detail page here: \(move.name)")
-//        }
-        .onReceive(searchBar.$searchText
-            .debounce(
-                for: 0.8,
-                scheduler: RunLoop.main
-            )
-        ) { searchText in
-            Task {
-                await viewModel.getMove(searchText: searchText)
-            }
-        }
         .task {
-            if !viewModel.viewHasAppeared {
+            if viewModel.viewLoadingState == .loading{
                 await viewModel.getMoves()
-                viewModel.viewHasAppeared = true
+                viewModel.viewLoadingState = .loaded
             }
         }
     }
@@ -48,34 +38,28 @@ struct HomeMovesTab: View {
 
 private extension HomeMovesTab {
     var movesList: some View {
-        ScrollView {
-            LazyVGrid(columns: columns) {
-                ForEach(viewModel.filteredMoves(searchText: searchBar.sanitizedSearchText)) { move in
-                    NavigationLink {
-                        MoveDetail(move: move)
-                    } label: {
-                        MoveCard(move: move)
-                    }
-                    .buttonStyle(.plain)
+        LazyVGrid(columns: columns) {
+            ForEach(viewModel.filteredMoves) { move in
+                NavigationLink(value: move) {
+                    MoveCard(move: move)
                 }
-                if !searchBar.isSearching && viewModel.hasNextPage && !viewModel.isLoading {
-                    ProgressView()
-                        .task {
-                            await viewModel.getNextMovesPage()
-                        }
-                }
+                .buttonStyle(.plain)
             }
-            .padding(.horizontal)
+            if viewModel.hasNextPage && viewModel.searchState == .idle {
+                ProgressView()
+                    .task {
+                        await viewModel.getNextMovesPage()
+                    }
+            }
         }
+        .padding(.horizontal)
     }
 }
 
 struct HomeMovesTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            HomeMovesTab()
-                .environmentObject(HomeMovesTabViewModel())
-                .environmentObject(SearchBarViewModel())
+            HomeMovesTab(viewModel: HomeMovesTabViewModel())
                 .environmentObject(ImageCache())
         }
     }

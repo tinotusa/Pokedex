@@ -31,6 +31,18 @@ final class Cache<Key: Hashable, Value> {
     func removeValue(forKey key: Key) {
         cache.removeObject(forKey: WrappedKey(key: key))
     }
+    
+    func clearCache(name: String) {
+        cache.removeAllObjects()
+        let fileManager = FileManager.default
+        let folderURLs = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
+        let fileURL = folderURLs.first!.appendingPathComponent("\(name).cache")
+        do {
+            try fileManager.removeItem(atPath: fileURL.path())
+        } catch {
+            print("Error in \(#function).\n\(error)\n\(error.localizedDescription)")
+        }
+    }
 }
 
 extension Cache {

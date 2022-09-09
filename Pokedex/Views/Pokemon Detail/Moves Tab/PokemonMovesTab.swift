@@ -30,9 +30,6 @@ struct PokemonMovesTab: View {
                 viewModel.viewHasAppeared = true
             }
         }
-//        .navigationDestination(for: Move.self) { move in
-//            Text("Move detail view here.\(move.name)")
-//        }
     }
 }
 
@@ -40,9 +37,7 @@ private extension PokemonMovesTab {
     var movesList: some View {
         LazyVGrid(columns: columns) {
             ForEach(viewModel.sortedMoves) { move in
-                NavigationLink {
-                    MoveDetail(move: move)
-                } label: {
+                NavigationLink(value: move) {
                     MoveCard(move: move)
                 }
             }

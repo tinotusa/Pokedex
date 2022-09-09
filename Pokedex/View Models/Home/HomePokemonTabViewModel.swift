@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 
 @MainActor
 final class HomePokemonTabViewModel: ObservableObject {
@@ -21,8 +22,17 @@ final class HomePokemonTabViewModel: ObservableObject {
     }
     @Published private(set) var hasNextPage: Bool = false
     @Published var viewHasAppeared = false
-    @Published var isLoading = false
     @Published var state = State.idle
+    @Published var searchText = "" {
+        didSet {
+            #if DEBUG
+            print("Search text: \(searchText)")
+            #endif
+            Task {
+                await getPokemon()
+            }
+        }
+    }
     private var task: Task<Void, Never>?
     private let limit = 20
 }
@@ -34,27 +44,41 @@ extension HomePokemonTabViewModel {
         case found
         case notFound
     }
+    
+    var filteredPokemon: [Pokemon] {
+        if searchText.isEmpty {
+            return Array(pokemon).sorted()
+        }
+        return pokemon.filter { pokemon in
+            if let id = Int(searchText) {
+                return pokemon.id == id
+            }
+            return pokemon.name.contains(searchText)
+        }
+        .sorted()
+    }
 }
 
 extension HomePokemonTabViewModel {
-    func getPokemon(searchText: String) async {
+    func getPokemon() async {
         task?.cancel()
+        state = .idle
         if Task.isCancelled {
             #if DEBUG
             print("task is cancelled \(#function)")
             #endif
             return
         }
-        if isLoading { return }
-        
-        isLoading = true
-        defer { isLoading = false }
+        if searchText.isEmpty {
+            #if DEBUG
+            print("empty search text")
+            #endif
+            return
+        }
+
         state = .searching
         
         task = Task {
-            let searchText = SearchBarViewModel.sanitizedSearchText(text: searchText)
-            if searchText.isEmpty { return }
-            
             if pokemon.containsItem(named: searchText) {
                 state = .found
                 return
@@ -62,22 +86,17 @@ extension HomePokemonTabViewModel {
             
             guard let pokemon = try? await Pokemon.from(name: searchText) else {
                 state = .notFound
+                print("searchText: \(searchText) func getPokemon")
                 return
             }
             self.pokemon.insert(pokemon)
+            print("The pokemon is: \(pokemon.name)")
             state = .found
         }
     }
     
     func getPokemonList() async {
         await withTaskGroup(of: Pokemon?.self) { group in
-            isLoading = true
-            defer {
-                Task { @MainActor in
-                    self.isLoading = false
-                }
-            }
-            
             let resourceList = try? await PokeAPI.shared.getResourceList(fromEndpoint: "pokemon", limit: limit)
             guard let resourceList else { return }
             if let nextURL = resourceList.next {
@@ -104,12 +123,6 @@ extension HomePokemonTabViewModel {
         guard let nextPage else {
             return
         }
-        isLoading = true
-        defer {
-            Task { @MainActor in
-                self.isLoading = false
-            }
-        }
         let resourceList = try? await PokeAPI.shared.getData(for: NamedAPIResourceList.self, url: nextPage)
         
         guard let resourceList else { return }
@@ -133,18 +146,5 @@ extension HomePokemonTabViewModel {
             self.pokemon = self.pokemon.union(temp)
             print("should have set something")
         }
-    }
-    
-    func filteredPokemon(searchText: String) -> [Pokemon] {
-        if searchText.isEmpty {
-            return Array(pokemon).sorted()
-        }
-        return pokemon.filter { pokemon in
-            if let id = Int(searchText) {
-                return pokemon.id == id
-            }
-            return pokemon.name.contains(searchText)
-        }
-        .sorted()
     }
 }

@@ -8,41 +8,31 @@
 import SwiftUI
 
 struct HomeItemsTab: View {
-    @EnvironmentObject private var viewModel: HomeItemsTabViewModel
-    @EnvironmentObject private var searchBar: SearchBarViewModel
+    @ObservedObject var viewModel: HomeItemsTabViewModel
     
     private let columns: [GridItem] = [
         .init(.adaptive(minimum: 400, maximum: 800))
     ]
     
     var body: some View {
-        Group {
-            if !viewModel.viewHasAppeared {
+        ScrollView {
+            if viewModel.viewState == .loading {
                 LoadingView()
+            } else if viewModel.searchState == .searching && viewModel.filteredItems.isEmpty {
+                LoadingView(text: "Searching for \(viewModel.searchText)")
+            } else if viewModel.searchState == .error {
+                SearchErrorView()
             } else {
                 itemsList
             }
         }
         .task {
-            if !viewModel.viewHasAppeared {
+            if viewModel.viewState == .loading {
                 await viewModel.getItems()
-                viewModel.viewHasAppeared = true
+                viewModel.viewState = .loaded
             }
         }
-//        .navigationDestination(for: Item.self) { item in
-//            Text("item view: for \(item.name)")
-//        }
-        .onReceive(
-            searchBar.$searchText
-                .debounce(
-                    for: 0.8,
-                    scheduler: RunLoop.main
-                )
-        ) { searchText in
-            Task {
-                await viewModel.getItem(searchText: searchText)
-            }
-        }
+        
     }
 }
 
@@ -50,33 +40,29 @@ struct HomeItemsTab: View {
 // MARK: - ItemCard
 private extension HomeItemsTab {
     var itemsList: some View {
-        ScrollView {
-            LazyVGrid(columns: columns) {
-                ForEach(viewModel.filteredItems(searchText: searchBar.sanitizedSearchText)) { item in
-                    NavigationLink(destination: ItemDetail(item: item)) {
-                        ItemCardView(item: item)
-                    }
-                    .buttonStyle(.plain)
-                }
-                if viewModel.hasNextPage && !searchBar.isSearching {
-                    ProgressView()
-                        .task {
-                            await viewModel.getNextItemsPage()
-                        }
+        LazyVGrid(columns: columns) {
+            ForEach(viewModel.filteredItems) { item in
+                NavigationLink(value: item) {
+                    ItemCardView(item: item)
                 }
             }
-            .padding(.horizontal)
+            if viewModel.hasNextPage && viewModel.searchState == .idle {
+                ProgressView()
+                    .task {
+                        await viewModel.getNextItemsPage()
+                    }
+            }
         }
+        
+        .padding(.horizontal)
     }
 }
 
 struct HomeItemTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            HomeItemsTab()
+            HomeItemsTab(viewModel: HomeItemsTabViewModel())
                 .environmentObject(ImageCache())
-                .environmentObject(HomeItemsTabViewModel())
-                .environmentObject(SearchBarViewModel())
         }
     }
 }

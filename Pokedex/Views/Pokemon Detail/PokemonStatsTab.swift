@@ -119,11 +119,14 @@ private extension PokemonStatsTab {
             } else {
                 WrappingHStack {
                     ForEach(viewModel.doubleDamageTo, id: \.self) { type in
-                        NavigationLink {
-                            Text("Looking at: \(type.name)")
-                        } label: {
+                        NavigationLink(value: type) {
                             PokemonTypeTag(name: type.name)
                         }
+//                        NavigationLink {
+//                            Text("Looking at: \(type.name)")
+//                        } label: {
+//                            PokemonTypeTag(name: type.name)
+//                        }
                     }
                 }
             }
@@ -133,17 +136,20 @@ private extension PokemonStatsTab {
             
             WrappingHStack {
                 ForEach(viewModel.doubleDamageFrom, id: \.self) { type in
-                    NavigationLink {
-                        Text("Looking at: \(type.name)")
-                    } label: {
+                    NavigationLink(value: type) {
                         PokemonTypeTag(name: type.name)
                     }
+//                    NavigationLink {
+//                        Text("Looking at: \(type.name)")
+//                    } label: {
+//                        PokemonTypeTag(name: type.name)
+//                    }
                 }
             }
         }
-//        .navigationDestination(for: `Type`.self) { type in
-//            Text("Looking at: \(type.name)")
-//        }
+        .navigationDestination(for: `Type`.self) { type in
+            Text("Looking at: \(type.name)")
+        }
     }
     
     func gridRow(title: String, value: Double, total: Double? = nil) -> some View {

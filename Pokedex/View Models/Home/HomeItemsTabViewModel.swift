@@ -20,15 +20,22 @@ final class HomeItemsTabViewModel: ObservableObject {
         }
     }
     @Published var hasNextPage: Bool = false
-    @Published var viewHasAppeared = false
-    @Published private(set) var isLoading = false
+    @Published var viewState = ViewLoadingState.loading
+    @Published private(set) var searchState = SearchState.idle
+    @Published var searchText = "" {
+        didSet {
+            Task {
+                await getItem()
+            }
+        }
+    }
     private var task: Task<Void, Never>?
     private var limit = 20
 }
 
 
 extension HomeItemsTabViewModel {
-    func filteredItems(searchText: String) -> [Item] {
+    var filteredItems: [Item] {
         if searchText.isEmpty { return items.sorted() }
         if let id = Int(searchText) {
             return items.filter { item in
@@ -41,43 +48,49 @@ extension HomeItemsTabViewModel {
         }
         .sorted()
     }
-    func getItem(searchText: String) async {
+    
+    func resetSearchState() {
         task?.cancel()
+        searchState = .idle
+    }
+    
+    func getItem() async {
+        resetSearchState()
+        print("getting item 1")
+        
         if Task.isCancelled {
-            print("task cancelled \(#function)")
+            print("Task is cancelled.")
             return
         }
-        if isLoading { return }
         
+        if searchText.isEmpty {
+            return
+        }
+
+        searchState = .searching
+        print("getting item 2")
         task = Task {
-            isLoading = true
-            defer {
-                Task {
-                    @MainActor in isLoading = false
-                }
+            if items.containsItem(named: searchText) {
+                searchState = .done
+                return
             }
-         
-            let searchText = SearchBarViewModel.sanitizedSearchText(text: searchText)
-         
-            if searchText.isEmpty { return }
             
-            if items.containsItem(named: searchText) { return }
-            
-            let item = try? await Item.from(name: searchText)
-            if let item {
-                items.insert(item)
+            guard let item = try? await Item.from(name: searchText) else {
+                #if DEBUG
+                print("searchText: \(searchText) nothing was found")
+                #endif
+                searchState = .error
+                return
             }
+            
+            items.insert(item)
+            searchState = .done
+            print("getting item 3")
         }
     }
     
     func getItems() async {
         do {
-            isLoading = true
-            defer {
-                Task { @MainActor in
-                    self.isLoading = false
-                }
-            }
             let list = try await PokeAPI.shared.getResourceList(fromEndpoint: "item", limit: limit)
             nextPageURL = list.next
             await getItems(from: list.results)

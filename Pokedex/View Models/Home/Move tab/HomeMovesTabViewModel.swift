@@ -17,38 +17,48 @@ final class HomeMovesTabViewModel: ObservableObject {
         }
     }
     @Published private(set) var hasNextPage = false
-    @Published private(set) var isLoading = false
-    @Published var viewHasAppeared = false
+    @Published var viewLoadingState = ViewLoadingState.loading
+    @Published var searchState = SearchState.idle
+    @Published var searchText = "" {
+        didSet {
+            Task {
+                await getMove()
+            }
+        }
+    }
     private var task: Task<Void, Never>?
     private let limit = 20
 }
 
+private extension HomeMovesTabViewModel {
+    func resetSearchState() {
+        searchState = .idle
+    }
+}
+
 extension HomeMovesTabViewModel {
-    func getMove(searchText: String) async {
+    func getMove() async {
+        resetSearchState()
+        
         task?.cancel()
+        
         if Task.isCancelled { return }
-        
-        let searchText = SearchBarViewModel.sanitizedSearchText(text: searchText)
         if searchText.isEmpty { return }
-        if isLoading { return }
         
-        // get move
+        searchState = .searching
         task = Task {
-            isLoading = true
-            defer {
-                Task { @MainActor in
-                    isLoading = false
-                }
-            }
-            
             if moves.containsItem(named: searchText) {
+                searchState = .done
                 return
             }
             
-            let move = try? await Move.from(name: searchText)
-            if let move {
-                self.moves.insert(move)
+            guard let move = try? await Move.from(name: searchText) else {
+                searchState = .error
+                return
             }
+            
+            self.moves.insert(move)
+            searchState = .done
         }
     }
     
@@ -57,7 +67,7 @@ extension HomeMovesTabViewModel {
             print("Error in \(#function) at line: \(#line). Resource list is nil.")
             return
         }
-        isLoading = true
+        
         nextURL = resourceList.next
         await withTaskGroup(of: Move?.self) { group in
             for resource in resourceList.results {
@@ -74,13 +84,11 @@ extension HomeMovesTabViewModel {
                 }
             }
             self.moves = tempMoves
-            isLoading = false
         }
         
     }
     
     func getNextMovesPage() async {
-        if isLoading { return }
         guard let nextURL else { return }
         
         
@@ -96,7 +104,7 @@ extension HomeMovesTabViewModel {
         
     }
     
-    func filteredMoves(searchText: String) -> [Move] {
+    var filteredMoves: [Move] {
         if searchText.isEmpty { return moves.sorted() }
         
         if let id = Int(searchText) {

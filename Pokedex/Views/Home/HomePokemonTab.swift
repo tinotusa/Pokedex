@@ -6,12 +6,10 @@
 //
 
 import SwiftUI
-import Combine
 
 struct HomePokemonTab: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @EnvironmentObject private var viewModel: HomePokemonTabViewModel
-    @EnvironmentObject private var searchBar: SearchBarViewModel
+    @ObservedObject var viewModel: HomePokemonTabViewModel
     
     @State private var columns: [GridItem] = [
         .init(.adaptive(minimum: 150))
@@ -21,16 +19,12 @@ struct HomePokemonTab: View {
         ScrollView {
             if !viewModel.viewHasAppeared {
                 LoadingView()
+            } else if viewModel.state == .searching && viewModel.filteredPokemon.isEmpty {
+                LoadingView(text: "Searching")
+            } else if viewModel.state == .notFound {
+                SearchErrorView(text: "\"\(viewModel.searchText)\" was not found.")
             } else {
                 pokemonGrid
-            }
-            if viewModel.state == .searching && viewModel.filteredPokemon(searchText: searchBar.searchText).isEmpty {
-                VStack {
-                    ProgressView()
-                    Text("Searching")
-                }
-            } else if viewModel.state == .notFound {
-                Text("\"\(searchBar.searchText)\" was not found.")
             }
         }
         .task {
@@ -40,22 +34,8 @@ struct HomePokemonTab: View {
                 viewModel.viewHasAppeared = true
             }
         }
-        .navigationDestination(for: Pokemon.self) { pokemon in
-            PokemonDetail(pokemon: pokemon)
-        }
         .onChange(of: horizontalSizeClass) { horizontalSizeClass in
             setGridSize()
-        }
-        .onReceive(
-            searchBar.$searchText
-                .debounce(
-                    for: 0.8,
-                    scheduler: RunLoop.main
-                )
-        ) { searchText in
-            Task {
-                await viewModel.getPokemon(searchText: searchText)
-            }
         }
     }
 }
@@ -80,14 +60,14 @@ private extension HomePokemonTab {
     
     var pokemonGrid: some View {
         LazyVGrid(columns: columns, spacing: 20) {
-            ForEach(viewModel.filteredPokemon(searchText: searchBar.sanitizedSearchText)) { pokemon in
-                NavigationLink(destination: PokemonDetail(pokemon: pokemon)) {
+            ForEach(viewModel.filteredPokemon) { pokemon in
+                NavigationLink(value: pokemon) {
                     PokemonCard(pokemon: pokemon)
                 }
             }
             
             // if there is more data and user is not searching
-            if viewModel.hasNextPage && searchBar.isEmpty {
+            if viewModel.hasNextPage && viewModel.state == .idle {
                 ProgressView()
                     .frame(maxWidth: .infinity)
                     .task {
@@ -102,10 +82,8 @@ private extension HomePokemonTab {
 struct HomePokemonTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            HomePokemonTab()
+            HomePokemonTab(viewModel: HomePokemonTabViewModel())
                 .environmentObject(ImageCache())
-                .environmentObject(HomePokemonTabViewModel())
-                .environmentObject(SearchBarViewModel())
         }
     }
 }

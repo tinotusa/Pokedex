@@ -18,7 +18,7 @@ final class PokeAPI: ObservableObject {
     
     private init() {
         print("PokeAPI Init called")
-        cache.loadFromDisk(fromName: Self.cacheFilename)
+//        cache.loadFromDisk(fromName: Self.cacheFilename)
     }
     
     var shouldCacheResults = true {
@@ -73,6 +73,10 @@ extension PokeAPI {
         }
     }
     
+    func clearCache() {
+        cache.clearCache(name: Self.cacheFilename)
+    }
+    
     private func sanitizeFilename(name: String) -> String {
         return name.replacingOccurrences(of: "/", with: "-")
     }
@@ -83,7 +87,7 @@ extension PokeAPI {
         guard let url = URL(string: "\(Self.apiURL)/\(endpoint)") else {
             throw PokeAPIError.invalidEndPoint
         }
-        let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
+        let request = URLRequest(url: url)
         let endpoint = sanitizeFilename(name: endpoint)
         print("About to get from \(endpoint)")
         if let cachedData = cache[endpoint] {
@@ -120,7 +124,7 @@ extension PokeAPI {
     func getData<T>(for type: T.Type, url: URL) async throws -> T
         where T: Codable
     {
-        let request = URLRequest(url: url, cachePolicy: .returnCacheDataElseLoad)
+        let request = URLRequest(url: url)
         let filename = sanitizeFilename(name: url.absoluteString)
         
         if let cachedResult = cache[filename] {

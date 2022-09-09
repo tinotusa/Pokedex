@@ -8,10 +8,16 @@
 import SwiftUI
 
 struct HomeView: View {
-    @StateObject private var viewModel = SearchViewViewModel()
+    @StateObject private var viewModel = HomeViewViewModel()
     @State private var navigationPath = NavigationPath()
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.appSettings) var appSettings
+    
+    // MARK: - Tab view models
+    @StateObject var homePokemonTabViewModel = HomePokemonTabViewModel()
+    @StateObject var homeItemsTabViewModel = HomeItemsTabViewModel()
+    @StateObject var homeMovesTabViewModel = HomeMovesTabViewModel()
+    @StateObject var homeAbilitiesTabViewModel = HomeAbilitiesTabViewModel()
     
     var body: some View {
         NavigationStack(path: $navigationPath) {
@@ -22,24 +28,37 @@ struct HomeView: View {
                             .headerStyle()
                             .foregroundColor(.headerTextColour)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        SearchBar(placeholder: "Search")
+                        SearchBar(placeholder: "Search", searchText: $viewModel.searchText)
                     }
-                    TabBar(tabs: SearchViewViewModel.SearchTab.self, selectedTab: $viewModel.searchTab)
+                    TabBar(tabs: HomeViewViewModel.SearchTab.self, selectedTab: $viewModel.searchTab)
                 }
                 .padding(.horizontal)
                 
-                Group {
-                    switch viewModel.searchTab {
-                    case .pokemon: HomePokemonTab()
-                    case .items: HomeItemsTab()
-                    case .moves: HomeMovesTab()
-                    case .abilities: HomeAbilitiesTab()
-                    }
+                switch viewModel.searchTab {
+                case .pokemon: HomePokemonTab(viewModel: homePokemonTabViewModel)
+                case .items: HomeItemsTab(viewModel: homeItemsTabViewModel)
+                case .moves: HomeMovesTab(viewModel: homeMovesTabViewModel)
+                case .abilities: HomeAbilitiesTab(viewModel: homeAbilitiesTabViewModel)
                 }
-                .ignoresSafeArea()
-                
                 
                 Spacer()
+            }
+            // TODO: This seems wrong because they are not near the corresponding navigation  link
+            // but this is the only way it works.
+            .navigationDestination(for: Pokemon.self) { pokemon in
+                PokemonDetail(pokemon: pokemon)
+            }
+            .navigationDestination(for: Item.self) { item in
+                ItemDetail(item: item)
+            }
+            .navigationDestination(for: Move.self) { move in
+                MoveDetail(move: move)
+            }
+            .navigationDestination(for: Ability.self) { ability in
+                AbilityDetail(ability: ability)
+            }
+            .navigationDestination(for: `Type`.self) { type in
+                Text("Looking at: \(type.name)")
             }
             .ignoresSafeArea(edges: .bottom)
             .scrollDismissesKeyboard(.immediately)
@@ -54,10 +73,28 @@ struct HomeView: View {
                 }
             }
             .ignoresSafeArea(.keyboard, edges: .bottom)
+            .onReceive(
+                viewModel.$searchText
+                    .dropFirst()
+                    .debounce(for: .seconds(0.8), scheduler: RunLoop.main)
+                    .map { $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                        .lowercased()
+                        .replacingOccurrences(of: " ", with: "-")
+                    }
+            ) { searchText in
+                Task {
+                    print("Search text: \(searchText)")
+                    switch viewModel.searchTab {
+                    case .pokemon: homePokemonTabViewModel.searchText = searchText
+                    case .items: homeItemsTabViewModel.searchText = searchText
+                    case .moves: homeMovesTabViewModel.searchText = searchText
+                    case .abilities: homeAbilitiesTabViewModel.searchText = searchText
+                    default: return
+                    }
+                }
+            }
         }
-        .onAppear {
-            viewModel.searchTab = .pokemon
-        }
+        
     }
 }
 
@@ -65,10 +102,5 @@ struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
             .environmentObject(ImageCache())
-            .environmentObject(HomePokemonTabViewModel())
-            .environmentObject(HomeItemsTabViewModel())
-            .environmentObject(HomeMovesTabViewModel())
-            .environmentObject(HomeAbilitiesTabViewModel())
-            .environmentObject(SearchBarViewModel())
     }
 }

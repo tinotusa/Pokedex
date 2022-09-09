@@ -9,22 +9,38 @@ import SwiftUI
 
 struct LoadingView: View {
     var text: LocalizedStringKey = "Loading"
+    var spinnerImage: String? = nil
+    @State private var isSpinning = false
     
     var body: some View {
         VStack {
-            Spacer()
-            ProgressView()
+            Image(spinnerImage ?? "pokeball")
+                .interpolation(.none)
+                .resizable()
+                .scaledToFit()
+                .frame(width: Constants.imageSize, height: Constants.imageSize)
+                .rotationEffect(.degrees(isSpinning ? 360 : 0))
             Text(text)
-            Spacer()
+                .multilineTextAlignment(.center)
         }
-        .frame(maxWidth: .infinity)
         .bodyStyle()
         .foregroundColor(.textColour)
+        .task {
+            withAnimation(Animation.linear(duration: 0.8).repeatForever(autoreverses: false)) {
+                isSpinning = true
+            }
+        }
+    }
+}
+
+private extension LoadingView {
+    enum Constants {
+        static let imageSize = 25.0
     }
 }
 
 struct LoadingView_Previews: PreviewProvider {
     static var previews: some View {
-        LoadingView()
+        LoadingView(text: "Loading something.")
     }
 }
