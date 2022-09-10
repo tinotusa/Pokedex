@@ -86,7 +86,7 @@ extension PokemonAboutTab {
                 gridRow(title: "Type") {
                     HStack {
                         ForEach(pokemon.types, id: \.self) { pokemonType in
-                            PokemonTypeTag(name: pokemonType.type.name)
+                            PokemonTypeTag(pokemonType: pokemonType)
                         }
                     }
                 }

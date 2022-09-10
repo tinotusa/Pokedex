@@ -135,7 +135,7 @@ private extension MoveDetail {
         GridRow {
             Text("Type")
                 .gridRowTitleStyle()
-            PokemonTypeTag(name: move.type.name)
+            PokemonTypeTag(move: move)
         }
     }
     

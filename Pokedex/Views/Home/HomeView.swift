@@ -89,7 +89,6 @@ struct HomeView: View {
                     case .items: homeItemsTabViewModel.searchText = searchText
                     case .moves: homeMovesTabViewModel.searchText = searchText
                     case .abilities: homeAbilitiesTabViewModel.searchText = searchText
-                    default: return
                     }
                 }
             }

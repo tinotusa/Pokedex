@@ -9,42 +9,70 @@ import SwiftUI
 
 /// A small rounded rectangle with the name and colour of the pokemon's type.
 struct PokemonTypeTag: View {
-    /// The label of the tag.
-    let name: String
-    /// The localized name of the tag name.
+    /// The name for the type.
+    /// This is also the name of the colour in the asset catalog
+    private let name: String
+    
     @State private var localizedName: String?
+    @State private var type: `Type`?
     @Environment(\.appSettings) var appSettings
     
-    init(name: String) {
-        self.name = name
+    // MARK: Initializers
+    init(move: Move) {
+        self.name = move.type.name
     }
     
-    var body: some View {
-        Text(localizedName ?? name.capitalized)
-            .lineLimit(1)
-            .colouredLabel(colourName: name)
+    init(pokemonType: PokemonType) {
+        self.name = pokemonType.type.name
     }
-}
-
-extension PokemonTypeTag {
-    struct Constants {
-        static let cornerRadius = 18.0
+    
+    init(type: `Type`) {
+        self.name = type.name
+    }
+    
+    init(namedAPIResource: NamedAPIResource) {
+        self.name = namedAPIResource.name
+    }
+    
+    // MARK: Body
+    var body: some View {
+        Group {
+            if let type {
+                NavigationLink(value: type) {
+                    typePill
+                }
+            } else {
+                ProgressView()
+            }
+        }
+        .task {
+            await getType()
+        }
     }
 }
 
 private extension PokemonTypeTag {
-    func localizedType() async -> String {
-        guard let type = try? await `Type`.from(name: name) else { return name }
-        return type.names.localizedName(language: appSettings.language, default: name)
+    struct Constants {
+        static let cornerRadius = 18.0
+    }
+    
+    var typePill: some View {
+        Text(localizedName ?? name.capitalized)
+            .lineLimit(1)
+            .colouredLabel(colourName: name)
+    }
+    
+    func getType() async {
+        type = try? await `Type`.from(name: self.name)
+        guard let type else { return }
+        localizedName = type.names.localizedName(language: appSettings.language, default: self.name)
     }
 }
 
 struct PokemonTypeTag_Previews: PreviewProvider {
     static var previews: some View {
-        HStack {
-            ForEach(["bug", "normal", "fire", "flying", "ghost"], id: \.self) { typeName in
-                PokemonTypeTag(name: typeName)
-            }
+        NavigationStack {
+            PokemonTypeTag(move: .example)
         }
     }
 }

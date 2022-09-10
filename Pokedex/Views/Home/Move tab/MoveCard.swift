@@ -30,7 +30,7 @@ struct MoveCard: View {
                     Text(viewModel.localizedDamageClassName)
                         .colouredLabel(colourName: move.damageClass.name)
                     
-                    PokemonTypeTag(name: move.type.name)
+                    PokemonTypeTag(move: move)
                 }
             }
         }

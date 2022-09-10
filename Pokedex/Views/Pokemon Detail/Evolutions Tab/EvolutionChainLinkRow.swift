@@ -36,7 +36,7 @@ struct EvolutionChainLinkRow: View {
                     Spacer()
                     if let pokemon = viewModel.pokemon {
                         ForEach(pokemon.types, id: \.self) { pokemonType in
-                            PokemonTypeTag(name: pokemonType.type.name)
+                            PokemonTypeTag(pokemonType: pokemonType)
                         }
                     }
                 }

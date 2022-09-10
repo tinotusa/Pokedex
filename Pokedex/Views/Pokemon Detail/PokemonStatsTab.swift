@@ -119,14 +119,7 @@ private extension PokemonStatsTab {
             } else {
                 WrappingHStack {
                     ForEach(viewModel.doubleDamageTo, id: \.self) { type in
-                        NavigationLink(value: type) {
-                            PokemonTypeTag(name: type.name)
-                        }
-//                        NavigationLink {
-//                            Text("Looking at: \(type.name)")
-//                        } label: {
-//                            PokemonTypeTag(name: type.name)
-//                        }
+                        PokemonTypeTag(type: type)
                     }
                 }
             }
@@ -136,19 +129,9 @@ private extension PokemonStatsTab {
             
             WrappingHStack {
                 ForEach(viewModel.doubleDamageFrom, id: \.self) { type in
-                    NavigationLink(value: type) {
-                        PokemonTypeTag(name: type.name)
-                    }
-//                    NavigationLink {
-//                        Text("Looking at: \(type.name)")
-//                    } label: {
-//                        PokemonTypeTag(name: type.name)
-//                    }
+                    PokemonTypeTag(type: type)
                 }
             }
-        }
-        .navigationDestination(for: `Type`.self) { type in
-            Text("Looking at: \(type.name)")
         }
     }
     

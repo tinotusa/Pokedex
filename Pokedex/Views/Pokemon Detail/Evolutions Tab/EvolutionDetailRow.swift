@@ -137,7 +137,7 @@ private extension EvolutionDetailRow {
             GridRow {
                 Text("Known move type")
                     .gridRowTitleStyle()
-                PokemonTypeTag(name: knownMoveType.name)
+                PokemonTypeTag(namedAPIResource: knownMoveType)
             }
         }
     }
@@ -231,7 +231,7 @@ private extension EvolutionDetailRow {
             GridRow {
                 Text("Party Type")
                     .gridRowTitleStyle()
-                PokemonTypeTag(name: partyType.name)
+                PokemonTypeTag(namedAPIResource: partyType)
             }
         }
     }

@@ -20,8 +20,8 @@ struct PokemonCard: View {
                 Text(viewModel.localizedPokemonName)
                     .bodyStyle()
                 HStack {
-                    ForEach(pokemon.types, id: \.self) { type in
-                        PokemonTypeTag(name: type.type.name)
+                    ForEach(pokemon.types, id: \.self) { pokemonType in
+                        PokemonTypeTag(pokemonType: pokemonType)
                     }
                     Spacer()
 
