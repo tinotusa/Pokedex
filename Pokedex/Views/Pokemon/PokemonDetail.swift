@@ -16,6 +16,12 @@ struct PokemonDetail: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.appSettings) private var appSettings
     
+    // MARK: Tab view models
+    @StateObject private var pokemonAboutTabViewModel = PokemonAboutTabViewModel()
+    @StateObject private var pokemonStatsTabViewModel = PokemonStatsTabViewModel()
+    @StateObject private var pokemonEvolutionsTabViewModel = PokemonEvolutionsTabViewModel()
+    @StateObject private var pokemonMovesTabViewModel = PokemonMovesTabViewModel()
+    
     var body: some View {
         VStack {
             header
@@ -26,10 +32,10 @@ struct PokemonDetail: View {
                     TabBar(tabs: PokemonInfoTab.self, selectedTab: $selectedTab)
                     
                     switch selectedTab {
-                    case .about: PokemonAboutTab(pokemon: pokemon)
-                    case .stats: PokemonStatsTab(pokemon: pokemon)
-                    case .evolutions: PokemonEvolutionsTab(pokemon: pokemon)
-                    case .moves: PokemonMovesTab(pokemon: pokemon)
+                    case .about: PokemonAboutTab(pokemon: pokemon, viewModel: pokemonAboutTabViewModel)
+                    case .stats: PokemonStatsTab(pokemon: pokemon, viewModel: pokemonStatsTabViewModel)
+                    case .evolutions: PokemonEvolutionsTab(pokemon: pokemon, viewModel: pokemonEvolutionsTabViewModel)
+                    case .moves: PokemonMovesTab(pokemon: pokemon, viewModel: pokemonMovesTabViewModel)
                     }
                 }
             }

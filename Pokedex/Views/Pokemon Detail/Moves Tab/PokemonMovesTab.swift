@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PokemonMovesTab: View {
     let pokemon: Pokemon
-    @StateObject private var viewModel = PokemonMovesTabViewModel()
+    @ObservedObject var viewModel: PokemonMovesTabViewModel
     
     private let columns: [GridItem] = [
         .init(.adaptive(minimum: 350))
@@ -53,7 +53,7 @@ private extension PokemonMovesTab {
 struct PokemonMovesTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            PokemonMovesTab(pokemon: .example)
+            PokemonMovesTab(pokemon: .example, viewModel: PokemonMovesTabViewModel())
         }
     }
 }

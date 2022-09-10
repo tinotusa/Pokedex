@@ -9,7 +9,7 @@ import SwiftUI
 
 struct PokemonEvolutionsTab: View {
     let pokemon: Pokemon
-    @StateObject private var viewModel = PokemonEvolutionsTabViewModel()
+    @ObservedObject var viewModel: PokemonEvolutionsTabViewModel
     
     var body: some View {
         Group {
@@ -38,7 +38,7 @@ struct PokemonEvolutionsTab: View {
 struct PokemonEvolutionsTab_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
-            PokemonEvolutionsTab(pokemon: .example)
+            PokemonEvolutionsTab(pokemon: .example, viewModel: PokemonEvolutionsTabViewModel())
                 .environmentObject(ImageCache())
         }
     }
