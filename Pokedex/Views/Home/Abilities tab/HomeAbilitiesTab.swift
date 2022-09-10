@@ -16,20 +16,24 @@ struct HomeAbilitiesTab: View {
     
     var body: some View {
         ScrollView {
-            if viewModel.viewLoadingState == .loading {
+            switch viewModel.viewLoadingState {
+            case .loading:
                 LoadingView()
-            } else if viewModel.searchState == .searching && viewModel.filteredAbilities.isEmpty {
-                LoadingView(text: "Searching")
-            } else if viewModel.searchState == .error {
-                SearchErrorView()
-            } else {
-                abilitiesList
-            }
-        }
-        .task {
-            if viewModel.viewLoadingState == .loading {
-                await viewModel.getAbilities()
-                viewModel.viewLoadingState = .loaded
+                    .task {
+                        await viewModel.getAbilities()
+                    }
+            case .loaded:
+                if viewModel.searchState == .searching && viewModel.filteredAbilities.isEmpty {
+                    LoadingView(text: "Searching")
+                } else if viewModel.searchState == .error {
+                    SearchErrorView()
+                } else {
+                    abilitiesList
+                }
+            case .error(let error):
+                Text(error.localizedDescription)
+            case .empty:
+                Text("Empty")
             }
         }
     }

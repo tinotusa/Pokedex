@@ -24,10 +24,18 @@ struct ItemPokemonListView: View {
                     Text("Pokemon that can hold this item.")
                     
                     Divider()
-                    if !viewModel.viewHasAppeared {
+                    switch viewModel.viewState {
+                    case .loading:
                         LoadingView()
-                    } else {
+                            .task {
+                                await viewModel.loadData(itemHolderPokemon: itemDetailViewModel.item?.heldByPokemon)
+                            }
+                    case .loaded:
                         pokemonList
+                    case .error(let error):
+                        Text(error.localizedDescription)
+                    case .empty:
+                        Text("Empty")
                     }
                 }
             }
@@ -41,12 +49,6 @@ struct ItemPokemonListView: View {
         .background {
             Color.backgroundColour
                 .ignoresSafeArea()
-        }
-        .task {
-            if !viewModel.viewHasAppeared {
-                await viewModel.loadData(itemHolderPokemon: itemDetailViewModel.item?.heldByPokemon ?? [])
-                viewModel.viewHasAppeared = true
-            }
         }
     }
 }
@@ -105,9 +107,8 @@ private extension ItemPokemonListView {
 struct ItemPokemonListView_Previews: PreviewProvider {
     static var viewModel = {
         let itemDetail = ItemDetailViewModel()
-        itemDetail.setUp(item: .example, settings: .default)
         Task {
-            await itemDetail.loadData()
+            await itemDetail.loadData(item: .example, settings: .default)
         }
         return itemDetail
     }()

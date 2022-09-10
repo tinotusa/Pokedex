@@ -17,20 +17,24 @@ struct HomeMovesTab: View {
     
     var body: some View {
         ScrollView {
-            if viewModel.viewLoadingState == .loading {
+            switch viewModel.viewState {
+            case .loading:
                 LoadingView()
-            } else if viewModel.searchState == .searching && viewModel.filteredMoves.isEmpty {
-                LoadingView(text: "Searching")
-            } else if viewModel.searchState == .error {
-                SearchErrorView()
-            } else {
-                movesList
-            }
-        }
-        .task {
-            if viewModel.viewLoadingState == .loading{
-                await viewModel.getMoves()
-                viewModel.viewLoadingState = .loaded
+                    .task {
+                        await viewModel.getMoves()
+                    }
+            case .loaded:
+                if viewModel.searchState == .searching && viewModel.filteredMoves.isEmpty {
+                    LoadingView(text: "Searching")
+                } else if viewModel.searchState == .error {
+                    SearchErrorView()
+                } else {
+                    movesList
+                }
+            case .error(let error):
+                Text(error.localizedDescription)
+            case .empty:
+                Text("Empty")
             }
         }
     }

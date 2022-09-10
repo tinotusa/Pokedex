@@ -18,17 +18,12 @@ final class EvolutionDetailRowViewModel: ObservableObject {
     @Published var partySpecies: PokemonSpecies?
     @Published var tradeSpecies: PokemonSpecies?
     
-    var _settings: Settings?
+    var settings: Settings?
 }
 
 extension EvolutionDetailRowViewModel {
     func setUp(settings: Settings) {
-        self._settings = settings
-    }
-    
-    var settings: Settings {
-        if let _settings { return _settings }
-        fatalError("settings is nil. Call setUp(settings:) first.")
+        self.settings = settings
     }
 }
 
@@ -67,36 +62,43 @@ extension EvolutionDetailRowViewModel {
 extension EvolutionDetailRowViewModel {
     var localizedItemName: String {
         guard let item else { return "Error" }
+        guard let settings else { return "Error" }
         return item.names.localizedName(language: settings.language, default: item.name)
     }
     
     var localizedHeldItemName: String {
         guard let heldItem else { return "Error" }
+        guard let settings else { return "Error" }
         return heldItem.names.localizedName(language: settings.language, default: heldItem.name)
     }
 
     var localizedTrigger: String {
         guard let evolutionTrigger else { return "Error" }
+        guard let settings else { return "Error" }
         return evolutionTrigger.names.localizedName(language: settings.language, default: evolutionTrigger.name)
     }
     
     var localizedKnownMoveName: String {
         guard let knownMove else { return "Error" }
+        guard let settings else { return "Error" }
         return knownMove.names.localizedName(language: settings.language, default: knownMove.name)
     }
     
     var localizedLocationName: String {
         guard let location else { return "Error" }
+        guard let settings else { return "Error" }
         return location.names.localizedName(language: settings.language, default: location.name)
     }
     
     var localizedPartySpeciesName: String {
         guard let partySpecies else { return "Error" }
+        guard let settings else { return "Error" }
         return partySpecies.names.localizedName(language: settings.language, default: partySpecies.name)
     }
     
     var localizedTradeSpeciesName: String {
         guard let tradeSpecies else { return "Error" }
+        guard let settings else { return "Error" }
         return tradeSpecies.names.localizedName(language: settings.language, default: tradeSpecies.name)
     }
 }

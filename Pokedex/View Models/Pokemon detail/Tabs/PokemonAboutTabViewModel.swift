@@ -17,29 +17,25 @@ final class PokemonAboutTabViewModel: ObservableObject {
     @Published private(set) var pokedexNumbers = [(entryNumber: Int, pokedex: Pokedex)]()
     @Published private(set) var eggGroups = [EggGroup]()
     @Published private(set) var abilities = [Ability]()
-    @Published private(set) var isLoading = false
-    
+    @Published private(set) var viewLoadingState = ViewState.loading
     private var settings: Settings?
     
     init() { }
     
-    func setUp(settings: Settings, pokemon: Pokemon) {
+    private func setUp(settings: Settings, pokemon: Pokemon) {
         self.settings = settings
         self.pokemon = pokemon
     }
     
-    func loadData() async {
+    func loadData(settings: Settings, pokemon: Pokemon) async {
+        setUp(settings: settings, pokemon: pokemon)
+        
         defer {
-            isLoading = false
+            viewLoadingState = .loaded
             print("TASK: FIRST DEFER")
         }
         
         await withTaskGroup(of: Void.self) { group in
-            guard let pokemon else {
-                print("Error in \(#function) at \(#line).\nCalled function without pokemon being set.")
-                return
-            }
-            isLoading = true
             print("TASK: 1")
             
             self.pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.species.name)

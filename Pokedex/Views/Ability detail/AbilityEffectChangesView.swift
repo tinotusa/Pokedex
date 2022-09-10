@@ -16,10 +16,12 @@ struct AbilityEffectChangesView: View {
             
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading) {
-                    HeaderWithID(
-                        title: viewModel.localizedAbilityName,
-                        id: viewModel.ability.id
-                    )
+                    if let ability = viewModel.ability {
+                        HeaderWithID(
+                            title: viewModel.localizedAbilityName,
+                            id: ability.id
+                        )
+                    }
                     
                     Text("Ability changes.")
                     
@@ -64,9 +66,8 @@ private extension AbilityEffectChangesView {
 struct AbilityEffectChangesView_Previews: PreviewProvider {
     static var viewModel = {
         let vm = AbilityDetailViewModel()
-        vm.setUp(ability: .example, settings: .default)
         Task {
-            await vm.loadData()
+            await vm.loadData(ability: .example, settings: .default)
         }
         return vm
     }()

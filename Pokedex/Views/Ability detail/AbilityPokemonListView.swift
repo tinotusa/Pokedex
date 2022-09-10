@@ -20,19 +20,26 @@ struct AbilityPokemonListView: View {
             
             ScrollView(showsIndicators: false) {
                 LazyVStack(alignment: .leading) {
-                    HeaderWithID(
-                        title: abilityDetailViewModel.localizedAbilityName,
-                        id: abilityDetailViewModel.ability.id
-                    )
+                    if let ability = abilityDetailViewModel.ability {
+                        HeaderWithID(
+                            title: abilityDetailViewModel.localizedAbilityName,
+                            id: ability.id
+                        )
+                    }
                     
                     Text("Pokémon that could potentially have this ability.")
                     
                     Divider()
                     
-                    if !viewModel.viewHasAppeared {
+                    switch viewModel.viewState {
+                    case .loading:
                         LoadingView()
-                    } else {
+                            .task {
+                                await viewModel.getPokemonAndSpecies(from: abilityDetailViewModel.ability?.pokemon)
+                            }
+                    case .loaded:
                         pokemonList
+                    default: Text("Not possible")
                     }
                 }
                 
@@ -42,12 +49,6 @@ struct AbilityPokemonListView: View {
         .padding(.horizontal)
         .foregroundColor(.textColour)
         .backgroundColour()
-        .task {
-            if !viewModel.viewHasAppeared {
-                await viewModel.getPokemonAndSpecies(from: abilityDetailViewModel.ability.pokemon)
-                viewModel.viewHasAppeared = true
-            }
-        }
     }
 }
 
@@ -84,7 +85,7 @@ private extension AbilityPokemonListView {
         if viewModel.hasNextPage {
             ProgressView()
                 .task {
-                    await viewModel.getNextPokemonAndSpeciesPage(abilityPokemonArray: abilityDetailViewModel.ability.pokemon)
+                    await viewModel.getNextPokemonAndSpeciesPage(abilityPokemonArray: abilityDetailViewModel.ability?.pokemon)
                 }
                 .onDisappear {
                     print("disappeared \(viewModel.hasNextPage)")
@@ -97,9 +98,10 @@ private extension AbilityPokemonListView {
 struct AbilityPokemonListView_Previews: PreviewProvider {
     static var viewModel = {
         let vm = AbilityDetailViewModel()
-        vm.setUp(ability: .example, settings: .default)
         vm.setGeneration(generation: .example)
-        
+        Task {
+            await vm.loadData(ability: .example, settings: .default)
+        }
         return vm
     }()
     

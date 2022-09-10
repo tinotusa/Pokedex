@@ -14,17 +14,23 @@ struct PokemonAboutTab: View {
     
     var body: some View {
         Group {
-            if viewModel.isLoading {
+            switch viewModel.viewLoadingState {
+            case .loading:
                 LoadingView()
-            } else {
+                    .task {
+                        await viewModel.loadData(settings: appSettings, pokemon: pokemon)
+                    }
+            case .loaded:
                 aboutTabView
+            case .error(let error):
+                Text(error.localizedDescription)
+            case .empty:
+                Text("Empty")
             }
         }
+        .bodyStyle()
         .foregroundColor(.textColour)
-        .task {
-            viewModel.setUp(settings: appSettings, pokemon: pokemon)
-            await viewModel.loadData()
-        }
+        
     }
 }
 
@@ -134,7 +140,7 @@ extension PokemonAboutTab {
             Text("Pokedex entry numbers")
                 .subHeaderStyle()
             Grid(alignment: .bottomLeading, verticalSpacing: 5) {
-                ForEach(viewModel.pokedexNumbers, id: \.pokedex.name) { entryNumber, pokedex in
+                ForEach(viewModel.pokedexNumbers, id: \.pokedex.id) { entryNumber, pokedex in
                     gridRow(
                         title: pokedex.names.localizedName(language: appSettings.language, default: pokedex.name),
                         value: "\(entryNumber)"

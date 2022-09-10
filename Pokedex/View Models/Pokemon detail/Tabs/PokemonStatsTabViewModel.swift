@@ -23,18 +23,15 @@ final class PokemonStatsTabViewModel: ObservableObject {
     @Published private(set) var doubleDamageFrom = [`Type`]()
     @Published private(set) var types = [`Type`]()
     
-    @Published var viewHasAppeared = false
-    @Published private(set) var isLoading = false
+    @Published private(set) var viewState = ViewState.loading
 }
 
 extension PokemonStatsTabViewModel {
-    func setUp(pokemon: Pokemon) {
-        self.pokemon = pokemon
-    }
     
-    func loadData() async {
-        isLoading = true
-        defer { isLoading = false }
+    
+    func loadData(pokemon: Pokemon) async {
+        setUp(pokemon: pokemon)
+        
         await withTaskGroup(of: Void.self) { group in
             group.addTask { @MainActor [self] in
                 hpStat = await getStat(for: .hp)
@@ -59,6 +56,9 @@ extension PokemonStatsTabViewModel {
                 doubleDamageTo = await doubleDamageTo()
                 doubleDamageFrom = await doubleDamageFrom()
             }
+            
+            await group.waitForAll()
+            viewState = .loaded
         }
         
         valuePerStat = [
@@ -158,6 +158,10 @@ extension PokemonStatsTabViewModel {
 
 // MARK: Private functions
 private extension PokemonStatsTabViewModel {
+    private func setUp(pokemon: Pokemon) {
+        self.pokemon = pokemon
+    }
+    
     /// Gets the localized name for a given stat.
     /// - parameter stat: The stat to get the name for.
     /// - returns: The localized name for the stat or Error if the `Stat` is nil.

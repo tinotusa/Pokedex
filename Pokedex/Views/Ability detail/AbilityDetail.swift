@@ -17,29 +17,42 @@ struct AbilityDetail: View {
             headerBar
             
             ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading) {
-                    titleAndID
-                    
-                    Text(viewModel.shortFlavorText)
-                    
-                    Divider()
-                    
-                    Text(viewModel.flavorText)
-                    
-                    Divider()
-                    
-                    Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: 6) {
-                        isMainSeries
+                switch viewModel.viewState {
+                case .loading:
+                    LoadingView()
+                        .task {
+                            await viewModel.loadData(ability: ability, settings: appSettings)
+                        }
+                case .loaded:
+                    VStack(alignment: .leading) {
+                        titleAndID
                         
-                        generation
+                        Text(viewModel.shortFlavorText)
                         
-                        pokemon
+                        Divider()
                         
-                        if !viewModel.effectChanges.isEmpty {
-                            effectChanges
+                        Text(viewModel.flavorText)
+                        
+                        Divider()
+                        
+                        Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: 6) {
+                            isMainSeries
+                            
+                            generation
+                            
+                            pokemon
+                            
+                            if !viewModel.effectChanges.isEmpty {
+                                effectChanges
+                            }
                         }
                     }
+                case .error(let error):
+                    Text(error.localizedDescription)
+                case .empty:
+                    Text("Failed to load data.")
                 }
+                
             }
         }
         .padding(.horizontal)
@@ -47,13 +60,6 @@ struct AbilityDetail: View {
         .foregroundColor(.textColour)
         .backgroundColour()
         .toolbar(.hidden)
-        .task {
-            if viewModel.viewHasApeared { return }
-            
-            viewModel.setUp(ability: ability, settings: appSettings)
-            await viewModel.loadData()
-            viewModel.viewHasApeared = true
-        }
         .fullScreenCover(isPresented: $viewModel.showingPokemonView) {
             AbilityPokemonListView(abilityDetailViewModel: viewModel)
         }

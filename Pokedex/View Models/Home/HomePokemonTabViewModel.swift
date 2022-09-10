@@ -21,8 +21,8 @@ final class HomePokemonTabViewModel: ObservableObject {
         }
     }
     @Published private(set) var hasNextPage: Bool = false
-    @Published var viewHasAppeared = false
-    @Published var state = State.idle
+    @Published var viewState = ViewState.loading
+    @Published var searchState = SearchState.idle
     @Published var searchText = "" {
         didSet {
             #if DEBUG
@@ -60,9 +60,15 @@ extension HomePokemonTabViewModel {
 }
 
 extension HomePokemonTabViewModel {
+    private func resetSearchState() {
+        searchState = .idle
+    }
+    
     func getPokemon() async {
+        resetSearchState()
+        
         task?.cancel()
-        state = .idle
+        
         if Task.isCancelled {
             #if DEBUG
             print("task is cancelled \(#function)")
@@ -76,22 +82,22 @@ extension HomePokemonTabViewModel {
             return
         }
 
-        state = .searching
+        searchState = .searching
         
         task = Task {
             if pokemon.containsItem(named: searchText) {
-                state = .found
+                searchState = .done
                 return
             }
             
             guard let pokemon = try? await Pokemon.from(name: searchText) else {
-                state = .notFound
+                searchState = .error
                 print("searchText: \(searchText) func getPokemon")
                 return
             }
             self.pokemon.insert(pokemon)
             print("The pokemon is: \(pokemon.name)")
-            state = .found
+            searchState = .done
         }
     }
     
@@ -116,6 +122,7 @@ extension HomePokemonTabViewModel {
                 }
             }
             self.pokemon = temp
+            viewState = .loaded
         }
     }
     

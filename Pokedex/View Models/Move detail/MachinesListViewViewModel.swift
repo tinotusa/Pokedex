@@ -10,8 +10,8 @@ import Foundation
 @MainActor
 final class MachinesListViewViewModel: ObservableObject {
     @Published private(set) var items = [Item]()
-    @Published private var machines = [Machine]()
-    @Published var viewHasAppeared = false
+    @Published private(set) var machines = [Machine]()
+    @Published private(set) var viewState = ViewState.loading
 }
 
 extension MachinesListViewViewModel {
@@ -21,9 +21,14 @@ extension MachinesListViewViewModel {
 }
 
 extension MachinesListViewViewModel {
-    func loadData(machineDetails: [MachineVersionDetail]) async {
+    func loadData(machineDetails: [MachineVersionDetail]?) async {
+        guard let machineDetails else {
+            viewState = .empty
+            return
+        }
         await getMachines(machineDetails: machineDetails)
         await getItems(machines: self.machines)
+        viewState = .loaded
     }
     
     func getMachines(machineDetails: [MachineVersionDetail]) async {

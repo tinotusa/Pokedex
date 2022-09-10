@@ -14,8 +14,13 @@ final class ItemDetailViewModel: ObservableObject {
     @Published private(set) var itemAttributes = [ItemAttribute]()
     @Published private(set) var itemCategory: ItemCategory?
     @Published var showAllPokemonView = false
-    @Published var viewHasLoaded = false
-    
+    @Published private(set) var viewState = ViewState.loading
+
+    private var settings: Settings?
+}
+
+// MARK: Computed properties
+extension ItemDetailViewModel {
     var hasItemAttributes: Bool {
         !itemAttributes.isEmpty
     }
@@ -27,45 +32,6 @@ final class ItemDetailViewModel: ObservableObject {
     var heldByPokemonCount: Int {
         guard let item else { return 0 }
         return item.heldByPokemon.count
-    }
-    private var settings: Settings?
-}
-
-extension ItemDetailViewModel {
-    func setUp(item: Item, settings: Settings) {
-        self.item = item
-        self.settings = settings
-        
-    }
-    
-    func loadData() async {
-        guard let item else {
-            print("Error in \(#function). Item is nil.")
-            return
-        }
-        
-        await withTaskGroup(of: Void.self) { group in
-            group.addTask { @MainActor [self] in
-                guard let flingEffect = item.flingEffect else {
-                    return
-                }
-                itemFlingEffect = try? await ItemFlingEffect.from(name: flingEffect.name)
-            }
-            
-            for attribute in item.attributes {
-                group.addTask { @MainActor [self] in
-                    self.itemAttributes = []
-                    let itemAttribute = try? await ItemAttribute.from(name: attribute.name)
-                    if let itemAttribute {
-                        itemAttributes.append(itemAttribute)
-                    }
-                }
-            }
-            
-            group.addTask { @MainActor [self] in
-                itemCategory = try? await ItemCategory.from(name: item.category.name)
-            }
-        }
     }
     
     var localizedItemName: String {
@@ -149,5 +115,43 @@ extension ItemDetailViewModel {
             return "Error"
         }
         return itemFlingEffect.effectEntries.localizedEffectName(language: settings.language, default: itemFlingEffect.name)
+    }
+}
+
+extension ItemDetailViewModel {
+    private func setUp(item: Item, settings: Settings) {
+        self.item = item
+        self.settings = settings
+    }
+    
+    func loadData(item: Item, settings: Settings) async {
+        setUp(item: item, settings: settings)
+        
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { @MainActor [self] in
+                guard let flingEffect = item.flingEffect else {
+                    return
+                }
+                itemFlingEffect = try? await ItemFlingEffect.from(name: flingEffect.name)
+                // TODO: do i want to show a different view if this is nil?
+            }
+            
+            for attribute in item.attributes {
+                group.addTask { @MainActor [self] in
+                    self.itemAttributes = []
+                    let itemAttribute = try? await ItemAttribute.from(name: attribute.name)
+                    if let itemAttribute {
+                        itemAttributes.append(itemAttribute)
+                    }
+                }
+            }
+            
+            group.addTask { @MainActor [self] in
+                itemCategory = try? await ItemCategory.from(name: item.category.name)
+            }
+            
+            await group.waitForAll()
+            viewState = .loaded
+        }
     }
 }

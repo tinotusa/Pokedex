@@ -20,7 +20,7 @@ final class HomeItemsTabViewModel: ObservableObject {
         }
     }
     @Published var hasNextPage: Bool = false
-    @Published var viewState = ViewLoadingState.loading
+    @Published private(set) var viewState = ViewState.loading
     @Published private(set) var searchState = SearchState.idle
     @Published var searchText = "" {
         didSet {
@@ -94,8 +94,10 @@ extension HomeItemsTabViewModel {
             let list = try await PokeAPI.shared.getResourceList(fromEndpoint: "item", limit: limit)
             nextPageURL = list.next
             await getItems(from: list.results)
+            viewState = .loaded
         } catch {
             print("Error in \(#function).\n\(error)")
+            viewState = .error(error)
         }
     }
     

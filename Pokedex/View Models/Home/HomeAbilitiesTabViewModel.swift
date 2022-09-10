@@ -17,7 +17,7 @@ final class HomeAbilitiesTabViewModel: ObservableObject {
         }
     }
     @Published private(set) var hasNextPage = false
-    @Published var viewLoadingState = ViewLoadingState.loading
+    @Published var viewLoadingState = ViewState.loading
     @Published private(set) var searchState = SearchState.idle
     @Published var searchText = "" {
         didSet {
@@ -82,11 +82,16 @@ extension HomeAbilitiesTabViewModel {
     
     /// Gets the first page of abililties from PokeAPI and sets it to the `Ability` set.
     func getAbilities() async {
-        guard let resourceList = try? await PokeAPI.shared.getResourceList(fromEndpoint: "ability", limit: limit) else {
+        do {
+            let resourceList = try await PokeAPI.shared.getResourceList(fromEndpoint: "ability", limit: limit)
+            await getAbilities(from: resourceList)
+            viewLoadingState = .loaded
+        } catch {
+            #if DEBUG
             print("Error in \(#function).\nResource list was nil.")
-            return
+            #endif
+            viewLoadingState = .error(error)
         }
-        await getAbilities(from: resourceList)
     }
     
     /// Gets and sets the abilities from the named api resource.

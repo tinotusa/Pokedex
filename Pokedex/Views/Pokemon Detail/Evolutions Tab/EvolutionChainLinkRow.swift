@@ -13,6 +13,28 @@ struct EvolutionChainLinkRow: View {
     @Environment(\.appSettings) var appSettings
     
     var body: some View {
+        switch viewModel.viewState {
+        case .loading:
+            LoadingView()
+                .task {
+                    await viewModel.loadData(chainLink: chainLink, settings: appSettings)
+                }
+        case .loaded:
+            evolutionChainLinkRow
+        case .error(let error):
+            Text(error.localizedDescription)
+        case .empty:
+            Text("Failed to load data.")
+        }
+    }
+}
+
+private extension EvolutionChainLinkRow {
+    enum Constants {
+        static let imageSize = 140.0
+    }
+    
+    var evolutionChainLinkRow: some View {
         HStack {
             Group {
                 if let pokemon = viewModel.pokemon {
@@ -41,7 +63,7 @@ struct EvolutionChainLinkRow: View {
                     }
                 }
                 
-                if let evolutionDetails = viewModel.chainLink?.evolutionDetails, evolutionDetails.count > 1 {
+                if let evolutionDetails = chainLink.evolutionDetails, evolutionDetails.count > 1 {
                     TabView {
                         ForEach(evolutionDetails, id: \.self) { evolutionDetail in
                             EvolutionDetailRow(evolutionDetail: evolutionDetail)
@@ -55,7 +77,7 @@ struct EvolutionChainLinkRow: View {
                             .footerStyle()
                             .foregroundColor(.gray)
                     }
-                } else if let evolutionDetails = viewModel.chainLink?.evolutionDetails {
+                } else if let evolutionDetails = chainLink.evolutionDetails {
                     ForEach(evolutionDetails, id: \.self) { evolutionDetail in
                         EvolutionDetailRow(evolutionDetail: evolutionDetail)
                     }
@@ -64,19 +86,6 @@ struct EvolutionChainLinkRow: View {
         }
         .bodyStyle()
         .foregroundColor(.textColour)
-        .task {
-            if !viewModel.viewHasAppeared {
-                viewModel.setUp(chainLink: chainLink, settings: appSettings)
-                await viewModel.loadData()
-                viewModel.viewHasAppeared = true
-            }
-        }
-    }
-}
-
-private extension EvolutionChainLinkRow {
-    enum Constants {
-        static let imageSize = 140.0
     }
 }
 

@@ -9,32 +9,33 @@ import Foundation
 
 @MainActor
 final class AbilityDetailViewModel: ObservableObject {
-    @Published var ability: Ability!
-    @Published var settings: Settings!
+    @Published var ability: Ability?
+    @Published var settings: Settings?
     @Published private(set) var generation: Generation?
     
     @Published var showingPokemonView = false
     @Published var showEffectChangesView = false
     
-    @Published var viewHasApeared = false
-    @Published var setUpCalled = false
-    @Published private(set) var isLoading = false
+    @Published private(set) var viewState = ViewState.loading
 }
 
 extension AbilityDetailViewModel {
-    func setUp(ability: Ability, settings: Settings) {
-        defer { setUpCalled = true }
+    private func setUp(ability: Ability, settings: Settings) {
         self.ability = ability
         self.settings = settings
     }
     
-    func loadData() async {
-        if !setUpCalled {
-            fatalError("Error Called load data without calling set up.")
+    func loadData(ability: Ability, settings: Settings) async {
+        setUp(ability: ability, settings: settings)
+        do {
+            generation = try await Generation.from(name: ability.generation.name)
+            viewState = .loaded
+        } catch {
+            #if DEBUG
+            print("Error in \(#function).\n\(error)")
+            #endif
+            viewState = .error(error)
         }
-        isLoading = true
-        defer { isLoading = false }
-        generation = try? await Generation.from(name: ability.generation.name)
     }
     
     /// This is for previews only
@@ -45,41 +46,46 @@ extension AbilityDetailViewModel {
 
 extension AbilityDetailViewModel {
     var localizedAbilityName: String {
-        if !setUpCalled { return "Error" }
+        guard let ability else { return "Error" }
+        guard let settings else { return "Error" }
         return ability.names.localizedName(language: settings.language, default: ability.name)
     }
     
     var abilityID: String {
-        if !setUpCalled { return "Error" }
+        guard let ability else { return "Error" }
         return String(format: "#%03d", ability.id)
     }
 
     var shortFlavorText: String {
-        if !setUpCalled { return "Error" }
+        guard let ability else { return "Error" }
+        guard let settings else { return "Error" }
         return ability.effectEntries.localizedEffectEntry(shortEffect: true, language: settings.language, default: "Error")
     }
     
     var flavorText: String {
-        if !setUpCalled { return "Error" }
+        guard let ability else { return "Error" }
+        guard let settings else { return "Error" }
         return ability.effectEntries.localizedEffectEntry(language: settings.language, default: "Error")
     }
     
     var isMainSeriesAbility: String {
-        if !setUpCalled { return "Error" }
+        guard let ability else { return "Error" }
         return ability.isMainSeries ? "Yes" : "No"
     }
     
     var localizedGeneration: String {
-        if !setUpCalled { return "Error" }
         guard let generation else {
             print("Error in \(#function). generation is nil.")
             return "Error"
         }
+        guard let settings else { return "Error" }
         return generation.names.localizedName(language: settings.language, default: "Error")
     }
     
     var effectChanges: [(versionGroupName: String, effectChange: String)] {
-        if !setUpCalled { return [] }
+        guard let ability else { return [] }
+        guard let settings else { return [] }
+        
         var changes = [(String, String)]()
         for effect in ability.effectChanges {
             let effectChange = effect.effectEntries.localizedEffectName(language: settings.language, default: "Error")

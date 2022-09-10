@@ -10,9 +10,9 @@ import Foundation
 
 @MainActor
 final class ItemPokemonListViewViewModel: ObservableObject {
-    @Published var viewHasAppeared = false
-    @Published private var pokemon = [Pokemon]()
-    @Published private var pokemonSpecies = [PokemonSpecies]()
+    @Published private(set) var viewState = ViewState.loading
+    @Published private(set) var pokemon = [Pokemon]()
+    @Published private(set) var pokemonSpecies = [PokemonSpecies]()
 }
 
 
@@ -23,9 +23,14 @@ extension ItemPokemonListViewViewModel {
 }
 
 extension ItemPokemonListViewViewModel {
-    func loadData(itemHolderPokemon: [ItemHolderPokemon]) async {
+    func loadData(itemHolderPokemon: [ItemHolderPokemon]?) async {
+        guard let itemHolderPokemon else {
+            viewState = .empty
+            return
+        }
         await getPokemon(itemHolderPokemon: itemHolderPokemon)
         await getPokemonSpecies(pokemonArray: pokemon)
+        viewState = .loaded
     }
     
     func getPokemon(itemHolderPokemon: [ItemHolderPokemon]) async {
@@ -49,7 +54,6 @@ extension ItemPokemonListViewViewModel {
         await withTaskGroup(of: PokemonSpecies?.self) { group in
             for pokemon in pokemonArray {
                 group.addTask {
-//                        let pokemonSpecies = try? await PokemonSpecies.from(id: pokemon.id)
                     let pokemonSpecies = try? await PokeAPI.shared.getData(for: PokemonSpecies.self, url: pokemon.species.url)
                     return pokemonSpecies
                 }

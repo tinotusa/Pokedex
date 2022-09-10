@@ -106,11 +106,7 @@ struct MoveDetail: View {
             MachinesListView(moveDetailViewModel: viewModel)
         }
         .task {
-            if !viewModel.viewHasAppeared {
-                viewModel.setUp(move: move, settings: appSettings)
-                await viewModel.loadData()
-                viewModel.viewHasAppeared = true
-            }
+            await viewModel.loadData(move: move, settings: appSettings)
         }
     }
 }

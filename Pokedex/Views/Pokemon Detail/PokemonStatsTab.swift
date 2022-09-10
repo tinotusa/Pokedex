@@ -14,23 +14,24 @@ struct PokemonStatsTab: View {
     
     var body: some View {
         Group {
-            if !viewModel.viewHasAppeared {
+            switch viewModel.viewState {
+            case .loading:
                 LoadingView()
-            } else {
+                    .task {
+                        await viewModel.loadData(pokemon: pokemon)
+                    }
+            case .loaded:
                 statsTabView
+            default:
+                Text("Error view not loaded.")
             }
         }
+        .bodyStyle()
         .foregroundColor(.textColour)
-        .task {
-            if !viewModel.viewHasAppeared {
-                viewModel.setUp(pokemon: pokemon)
-                await viewModel.loadData()
-                viewModel.viewHasAppeared = true
-            }
-        }
     }
 }
 
+// MARK: Grid row subviews
 private extension PokemonStatsTab {
     var hpGridRow: some View {
         gridRow(

@@ -27,10 +27,18 @@ struct MachinesListView: View {
                     
                     Divider()
                     
-                    if !viewModel.viewHasAppeared {
+                    switch viewModel.viewState {
+                    case .loading:
                         LoadingView()
-                    } else {
+                            .task {
+                                await viewModel.loadData(machineDetails: moveDetailViewModel.move?.machines)
+                            }
+                    case .loaded:
                         machinesList
+                    case .error(let error):
+                        Text(error.localizedDescription)
+                    case .empty:
+                        Text("Empty")
                     }
                 }
             }
@@ -41,12 +49,6 @@ struct MachinesListView: View {
         .background {
             Color.backgroundColour
                 .ignoresSafeArea()
-        }
-        .task {
-            if !viewModel.viewHasAppeared {
-                await viewModel.loadData(machineDetails: moveDetailViewModel.move.machines)
-                viewModel.viewHasAppeared = true
-            }
         }
     }
 }
@@ -99,9 +101,8 @@ private extension MachinesListView {
 struct MachinesListView_Previews: PreviewProvider {
     static var viewModel = {
         let vm = MoveDetailViewModel()
-        vm.setUp(move: .example, settings: .default)
         Task {
-            await vm.loadData()
+            await vm.loadData(move: .example, settings: .default)
         }
         return vm
     }()

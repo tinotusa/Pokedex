@@ -16,23 +16,26 @@ struct HomeItemsTab: View {
     
     var body: some View {
         ScrollView {
-            if viewModel.viewState == .loading {
+            switch viewModel.viewState {
+            case .loading:
                 LoadingView()
-            } else if viewModel.searchState == .searching && viewModel.filteredItems.isEmpty {
-                LoadingView(text: "Searching for \(viewModel.searchText)")
-            } else if viewModel.searchState == .error {
-                SearchErrorView()
-            } else {
-                itemsList
+                    .task {
+                        await viewModel.getItems()
+                    }
+            case .loaded:
+                if viewModel.searchState == .searching && viewModel.filteredItems.isEmpty {
+                    LoadingView(text: "Searching for \(viewModel.searchText)")
+                } else if viewModel.searchState == .error {
+                    SearchErrorView()
+                } else {
+                    itemsList
+                }
+            case .error(let error):
+                Text(error.localizedDescription)
+            case .empty:
+                Text("Empty")
             }
         }
-        .task {
-            if viewModel.viewState == .loading {
-                await viewModel.getItems()
-                viewModel.viewState = .loaded
-            }
-        }
-        
     }
 }
 

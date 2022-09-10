@@ -9,8 +9,8 @@ import Foundation
 
 @MainActor
 final class MoveDetailViewModel: ObservableObject {
-    @Published private(set) var move: Move!
-    @Published private(set) var settings: Settings!
+    @Published private(set) var move: Move?
+    @Published private(set) var settings: Settings?
     @Published private(set) var moveDamageClass: MoveDamageClass?
     @Published private(set) var generation: Generation?
     @Published private(set) var machineItems = [Item]()
@@ -21,28 +21,31 @@ final class MoveDetailViewModel: ObservableObject {
     @Published private(set) var moveCategory: MoveCategory?
     // other
     @Published var showMoreMachines = false
-    
-    @Published var setUpLoaded = false
-    @Published var isLoading = false
-    @Published var viewHasAppeared = false
+    @Published var viewState = ViewState.loading
 }
 
-// MARK: - Functions
-extension MoveDetailViewModel {
-    func setUp(move: Move, settings: Settings) {
-        defer { setUpLoaded = true }
+private extension MoveDetailViewModel {
+    private func setUp(move: Move, settings: Settings) {
         self.move = move
         self.settings = settings
     }
     
-    func loadData() async {
-        if !setUpLoaded {
-            print("Error in \(#function). setUp function has not been called.")
-            return
+    private func getInt(_ value: Int?, formatStyle: FloatingPointFormatStyle<Double>.Percent? = nil) -> String {
+        guard let value else {
+            return "N/A"
         }
-        isLoading = true
-        defer { isLoading = false }
-        
+        if let formatStyle {
+            return formatStyle.format(Double(value) / 100.0)
+        }
+        return "\(value)"
+    }
+}
+
+// MARK: - Functions
+extension MoveDetailViewModel {
+    func loadData(move: Move, settings: Settings) async {
+        setUp(move: move, settings: settings)
+
         await withTaskGroup(of: Void.self) { [self] group in
             group.addTask { @MainActor [self] in
                 moveDamageClass = try? await MoveDamageClass.from(name: move.damageClass.name)
@@ -63,6 +66,9 @@ extension MoveDetailViewModel {
             group.addTask { @MainActor [self] in
                 moveTarget = try? await MoveTarget.from(name: move.target.name)
             }
+            
+            await group.waitForAll()
+            viewState = .loaded
         }
     }
 }
@@ -70,7 +76,8 @@ extension MoveDetailViewModel {
 // MARK: - Computed properties
 extension MoveDetailViewModel {
     var localizedMoveName: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error"}
+        guard let settings else { return "Error"}
         return move.names
             .localizedName(
                 language: settings.language,
@@ -79,7 +86,7 @@ extension MoveDetailViewModel {
     }
     
     var localizedTargetName: String {
-        if !setUpLoaded { return "Error" }
+        guard let settings else { return "Error" }
         guard let moveTarget else {
             print("Error in \(#function). moveTarget is nil.")
             return "Error"
@@ -88,12 +95,12 @@ extension MoveDetailViewModel {
     }
     
     var moveID: String {
-        if !setUpLoaded { return "Error" }
-        return String(format: "#%03d", move.id)
+        guard let move else { return "Error"}
+        return move.formattedID()
     }
     
     var machinesCount: String {
-        if !setUpLoaded { return "N/A" }
+        guard let move else { return "Error" }
         let count = move.machines.count
         if count == 0 {
             return "N/A"
@@ -102,7 +109,7 @@ extension MoveDetailViewModel {
     }
     
     var accuracy: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         if let accuracy = move.accuracy {
             return "\(accuracy.formatted(.percent))"
         }
@@ -110,7 +117,7 @@ extension MoveDetailViewModel {
     }
     
     var effectChance: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         if let effect = move.effectChance {
             return "\(effect.formatted(.percent))"
         }
@@ -118,7 +125,7 @@ extension MoveDetailViewModel {
     }
     
     var power: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         if let power = move.power {
             return "\(power)"
         }
@@ -130,6 +137,8 @@ extension MoveDetailViewModel {
             print("Error in \(#function). moveDamageClass is nil.")
             return "Error"
         }
+        guard let settings else { return "Error" }
+        
         return moveDamageClass
             .names
             .localizedName(
@@ -140,8 +149,8 @@ extension MoveDetailViewModel {
     }
     
     var localizedShortVerboseEffect: String {
-        if !setUpLoaded { return "Error" }
         guard let move else { return "Error" }
+        guard let settings else { return "Error" }
         return move.effectEntries.localizedEffectEntry(
             shortEffect: true,
             language: settings.language,
@@ -151,23 +160,24 @@ extension MoveDetailViewModel {
     }
     
     var localizedFlavorText: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
+        guard let settings else { return "Error" }
         var text = move.flavorTextEntries.localizedMoveFlavorText(language: settings.language)
         text = text.replacingOccurrences(of: "[\\s\n]+", with: " ", options: .regularExpression, range: nil)
         return text
     }
     
     var localizedGenerationName: String {
-        if !setUpLoaded { return "Error" }
         guard let generation else {
             print("Error in \(#function). generation is nil.")
             return "Error"
         }
+        guard let settings else { return "Error" }
         return generation.names.localizedName(language: settings.language, default: "Error")
     }
     
     var moveCanBeTaughtByMachines: Bool {
-        if !setUpLoaded { return false }
+        guard let move else { return false }
         return !move.machines.isEmpty
     }
 }
@@ -175,16 +185,15 @@ extension MoveDetailViewModel {
 // MARK: Move metadata computed properties
 extension MoveDetailViewModel {
     var localizedMoveAilmentName: String {
-        if !setUpLoaded { return "Error" }
         guard let moveAilment else {
             print("Error in \(#function). move ailment is nil.")
             return "Error"
         }
+        guard let settings else { return "Error" }
         return moveAilment.names.localizedName(language: settings.language, default: moveAilment.name)
     }
     
     var moveCategoryName: String {
-        if !setUpLoaded { return "Error" }
         guard let moveCategory else {
             print("Error in \(#function). move category is nil.")
             return "Error"
@@ -192,58 +201,48 @@ extension MoveDetailViewModel {
         return moveCategory.name.localizedCapitalized
     }
     
-    private func getInt(_ value: Int?, formatStyle: FloatingPointFormatStyle<Double>.Percent? = nil) -> String {
-        guard let value else {
-            return "N/A"
-        }
-        if let formatStyle {
-            return formatStyle.format(Double(value) / 100.0)
-        }
-        return "\(value)"
-    }
-    
     var minHits: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         return getInt(move.meta.minHits)
     }
     
     var maxHits: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         return getInt(move.meta.maxHits)
     }
     
     var maxTurns: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         return getInt(move.meta.maxTurns)
     }
     
     var drain: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         return getInt(move.meta.drain)
     }
     
     var healing: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         return getInt(move.meta.healing)
     }
     
     var critRate: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         return getInt(move.meta.critRate)
     }
     
     var ailmentChance: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         return getInt(move.meta.ailmentChance, formatStyle: .percent)
     }
     
     var flinchChance: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         return getInt(move.meta.flinchChance, formatStyle: .percent)
     }
     
     var statChance: String {
-        if !setUpLoaded { return "Error" }
+        guard let move else { return "Error" }
         return getInt(move.meta.statChance, formatStyle: .percent)
     }
 }

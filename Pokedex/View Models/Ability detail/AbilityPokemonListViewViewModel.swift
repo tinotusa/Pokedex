@@ -14,7 +14,7 @@ final class AbilityPokemonListViewViewModel: ObservableObject {
 
     @Published private(set) var isLoading = false
     @Published private(set) var hasNextPage = true
-    @Published var viewHasAppeared = false
+    @Published private(set) var viewState = ViewState.loading
     
     private let limit = 10
     private var offset = 0
@@ -27,7 +27,12 @@ final class AbilityPokemonListViewViewModel: ObservableObject {
 
 
 extension AbilityPokemonListViewViewModel {
-    func getPokemonAndSpecies(from abilityPokemonArray: [AbilityPokemon]) async {
+    func getPokemonAndSpecies(from abilityPokemonArray: [AbilityPokemon]?) async {
+        guard let abilityPokemonArray else {
+            viewState = .empty
+            return
+        }
+        
         await withTaskGroup(of: Pokemon?.self) { group in
             for (i, pokemonAbility) in abilityPokemonArray.enumerated()
                 where i < limit
@@ -53,10 +58,17 @@ extension AbilityPokemonListViewViewModel {
                 hasNextPage = true
             }
             page += 1
+            viewState = .loaded
         }
     }
 
-    func getNextPokemonAndSpeciesPage(abilityPokemonArray: [AbilityPokemon]) async {
+    func getNextPokemonAndSpeciesPage(abilityPokemonArray: [AbilityPokemon]?) async {
+        guard let abilityPokemonArray else {
+            #if DEBUG
+            print("Error in \(#function). Ability pokemon array is nil.")
+            #endif
+            return
+        }
         await withTaskGroup(of: Pokemon?.self) { group in
             for i in offset ..< abilityPokemonArray.count where i < offset + limit {
                 if i > abilityPokemonArray.count { break }

@@ -9,13 +9,10 @@ import Foundation
 
 @MainActor
 final class PokemonMovesTabViewModel: ObservableObject {
-    /// The pokemon that has the moves being listed.
-    var pokemon: Pokemon?
-    /// The moves of the pokemon.
-    @Published private var moves = [Move]()
-    @Published var viewHasAppeared = false // TODO: should i make this private set and set it in the loadData func
+    private var pokemon: Pokemon?
+    @Published private(set) var moves = [Move]()
+    @Published private(set) var viewState = ViewState.loading
     @Published private(set) var hasNextPage = true
-    @Published private(set) var isLoading = false
     
     private var page = 0 {
         didSet {
@@ -28,15 +25,12 @@ final class PokemonMovesTabViewModel: ObservableObject {
 
 
 extension PokemonMovesTabViewModel {
-    func setUp(pokemon: Pokemon) {
+    private func setUp(pokemon: Pokemon) {
         self.pokemon = pokemon
     }
     
-    func getMoves() async {
-        guard let pokemon else { return }
-        
-        isLoading = true
-        defer { isLoading = false }
+    func getMoves(pokemon: Pokemon) async {
+        setUp(pokemon: pokemon)
         
         await withTaskGroup(of: Move?.self) { group in
             for (i, pokemonMove) in pokemon.moves.enumerated() where i < limit {
@@ -59,16 +53,13 @@ extension PokemonMovesTabViewModel {
             }
             moves = tempMoves
             page += 1
+            viewState = .loaded
         }
     }
     
     func getNextMoves() async {
         guard let pokemon else { return }
-        print("getNextMoves: offest: \(offset) page: \(page) isLoading: \(isLoading)")
-        isLoading = true
-        defer { isLoading = false }
         await withTaskGroup(of: Move?.self) { group in
-//            if offset > pokemon.moves.count { return }
             for i in offset ..< pokemon.moves.count where i < offset + limit {
                 group.addTask {
                     let pokemonMove = pokemon.moves[i]
@@ -100,11 +91,7 @@ extension PokemonMovesTabViewModel {
             page += 1
         }
     }
-    
-    func loadData() async {
-        await getMoves()
-    }
-    
+
     var sortedMoves: [Move] {
         moves.sorted()
     }

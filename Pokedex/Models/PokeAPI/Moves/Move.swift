@@ -103,15 +103,3 @@ extension Move: Comparable {
         lhs.id < rhs.id
     }
 }
-
-
-// MARK: - Helpers
-extension Move {
-    static var example: Move {
-        do {
-            return try Bundle.main.loadJSON(ofType: Move.self, filename: "move", extension: "json")
-        } catch {
-            fatalError("Error in \(#function).\n\(error)")
-        }
-    }
-}

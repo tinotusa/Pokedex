@@ -15,21 +15,34 @@ final class PokemonEvolutionsTabViewModel: ObservableObject {
     @Published private(set) var evolutionChain: EvolutionChain?
     @Published private(set) var evolutionChainLinks = [ChainLink]()
     
-    @Published var viewHasAppeared = false
+    @Published private(set) var viewState = ViewState.loading
 }
 
 extension PokemonEvolutionsTabViewModel {
+    func loadData(pokemon: Pokemon) async {
+        setUp(pokemon: pokemon)
+        do {
+            pokemonSpecies = try await PokemonSpecies.from(name: pokemon.species.name)
+            guard let evolutionChainURL = pokemonSpecies?.evolutionChain?.url else {
+                print("Error in \(#function). Failed to get evolutoin chain url.")
+                viewState = .empty
+                return
+            }
+            evolutionChain = try await PokeAPI.shared.getData(for: EvolutionChain.self, url: evolutionChainURL)
+            getAllChains()
+            viewState = .loaded
+        } catch {
+            #if DEBUG
+            print("Error in \(#function).\n\(error)")
+            #endif
+            viewState = .error(error)
+        }
+    }
+}
+
+private extension PokemonEvolutionsTabViewModel {
     func setUp(pokemon: Pokemon) {
         self.pokemon = pokemon
-    }
-    
-    func loadData() async {
-        pokemonSpecies = try? await PokemonSpecies.from(name: wrappedPokemon.species.name)
-        guard let evolutionChainURL = pokemonSpecies?.evolutionChain?.url else {
-            print("Error in \(#function). Failed to get evolutoin chain url.")
-            return
-        }
-        evolutionChain = try? await PokeAPI.shared.getData(for: EvolutionChain.self, url: evolutionChainURL)
     }
     
     func getAllChains() {
@@ -45,14 +58,4 @@ extension PokemonEvolutionsTabViewModel {
         }
         evolutionChainLinks = temp
     }
-}
-
-private extension PokemonEvolutionsTabViewModel {
-    var wrappedPokemon: Pokemon {
-        if let pokemon {
-            return pokemon
-        }
-        fatalError("Error pokemon is nil. Call setUp(pokemon:) before calling other view model functions.")
-    }
-    
 }

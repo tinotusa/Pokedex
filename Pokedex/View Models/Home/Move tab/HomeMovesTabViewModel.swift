@@ -17,8 +17,8 @@ final class HomeMovesTabViewModel: ObservableObject {
         }
     }
     @Published private(set) var hasNextPage = false
-    @Published var viewLoadingState = ViewLoadingState.loading
-    @Published var searchState = SearchState.idle
+    @Published private(set) var viewState = ViewState.loading
+    @Published private(set) var searchState = SearchState.idle
     @Published var searchText = "" {
         didSet {
             Task {
@@ -84,6 +84,7 @@ extension HomeMovesTabViewModel {
                 }
             }
             self.moves = tempMoves
+            viewState = .loaded
         }
         
     }

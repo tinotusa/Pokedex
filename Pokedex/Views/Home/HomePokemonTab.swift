@@ -17,21 +17,24 @@ struct HomePokemonTab: View {
 
     var body: some View {
         ScrollView {
-            if !viewModel.viewHasAppeared {
+            switch viewModel.viewState {
+            case .loading:
                 LoadingView()
-            } else if viewModel.state == .searching && viewModel.filteredPokemon.isEmpty {
-                LoadingView(text: "Searching")
-            } else if viewModel.state == .notFound {
-                SearchErrorView(text: "\"\(viewModel.searchText)\" was not found.")
-            } else {
-                pokemonGrid
-            }
-        }
-        .task {
-            if !viewModel.viewHasAppeared {
-                await viewModel.getPokemonList()
-                print("loaded the pokemon")
-                viewModel.viewHasAppeared = true
+                    .task {
+                        await viewModel.getPokemonList()
+                    }
+            case .loaded:
+                if viewModel.searchState == .searching && viewModel.filteredPokemon.isEmpty {
+                    LoadingView(text: "Searching")
+                } else if viewModel.searchState == .error {
+                    SearchErrorView(text: "\"\(viewModel.searchText)\" was not found.")
+                } else {
+                    pokemonGrid
+                }
+            case .error(let error):
+                Text(error.localizedDescription)
+            case .empty:
+                Text("Empty")
             }
         }
         .onChange(of: horizontalSizeClass) { horizontalSizeClass in
@@ -67,7 +70,7 @@ private extension HomePokemonTab {
             }
             
             // if there is more data and user is not searching
-            if viewModel.hasNextPage && viewModel.state == .idle {
+            if viewModel.hasNextPage && viewModel.searchState == .idle {
                 ProgressView()
                     .frame(maxWidth: .infinity)
                     .task {

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct PokemonMovesTab: View {
-    @State var pokemon: Pokemon
+    let pokemon: Pokemon
     @StateObject private var viewModel = PokemonMovesTabViewModel()
     
     private let columns: [GridItem] = [
@@ -17,17 +17,16 @@ struct PokemonMovesTab: View {
     
     var body: some View {
         Group {
-            if !viewModel.viewHasAppeared {
+            switch viewModel.viewState {
+            case .loading:
                 LoadingView()
-            } else {
+                    .task {
+                        await viewModel.getMoves(pokemon: pokemon)
+                    }
+            case .loaded:
                 movesList
-            }
-        }
-        .task {
-            if !viewModel.viewHasAppeared {
-                viewModel.setUp(pokemon: pokemon)
-                await viewModel.loadData()
-                viewModel.viewHasAppeared = true
+            default:
+                Text("Error view not possible")
             }
         }
     }

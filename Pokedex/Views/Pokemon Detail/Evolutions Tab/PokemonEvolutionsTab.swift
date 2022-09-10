@@ -13,23 +13,23 @@ struct PokemonEvolutionsTab: View {
     
     var body: some View {
         Group {
-            if !viewModel.viewHasAppeared {
+            switch viewModel.viewState {
+            case .loading:
                 LoadingView()
-            } else {
+                    .task {
+                        await viewModel.loadData(pokemon: pokemon)
+                    }
+            case .loaded:
                 VStack(alignment: .leading, spacing: 20) {
                     ForEach(viewModel.evolutionChainLinks, id: \.self) { chainLink in
                         EvolutionChainLinkRow(chainLink: chainLink)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-        .task {
-            if !viewModel.viewHasAppeared {
-                viewModel.setUp(pokemon: pokemon)
-                await viewModel.loadData()
-                viewModel.getAllChains()
-                viewModel.viewHasAppeared = true
+            case .error(let error):
+                Text(error.localizedDescription)
+            case .empty:
+                Text("No data loaded.")
             }
         }
     }
