@@ -10,7 +10,7 @@ import SwiftUI
 struct AbilityDetail: View {
     let ability: Ability
     @StateObject private var viewModel = AbilityDetailViewModel()
-    @Environment(\.appSettings) var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -21,7 +21,7 @@ struct AbilityDetail: View {
                 case .loading:
                     LoadingView()
                         .task {
-                            await viewModel.loadData(ability: ability, settings: appSettings)
+                            await viewModel.loadData(ability: ability, settings: settingsManager.settings)
                         }
                 case .loaded:
                     VStack(alignment: .leading) {
@@ -102,8 +102,7 @@ private extension AbilityDetail {
         GridRow {
             Text("Generation")
                 .gridRowTitleStyle()
-            Text(viewModel.localizedGeneration)
-                .colouredLabel(colourName: ability.generation.name)
+            GenerationTag(name: ability.generation.name)
         }
     }
     
@@ -131,26 +130,19 @@ private extension AbilityDetail {
             HStack {
                 Text("\(viewModel.effectChanges.count)")
                 Spacer()
-                Button {
-                    viewModel.showEffectChangesView = true
-                } label: {
-                    if viewModel.effectChanges.count == 1 {
-                        Text("Show change")
-                    } else {
-                        Text("Show changes")
+                if !viewModel.effectChanges.isEmpty {
+                    Button {
+                        viewModel.showEffectChangesView = true
+                    } label: {
+                        if viewModel.effectChanges.count == 1 {
+                            Text("Show change")
+                        } else {
+                            Text("Show changes")
+                        }
                     }
+                    .foregroundColor(.blue)
                 }
-                .foregroundColor(.blue)
             }
-//            VStack {
-//                ForEach(viewModel.effectChanges, id: \.effectChange) { version, effectChange in
-//                    HStack(alignment: .top) {
-//                        Text(effectChange) +
-//                        Text(" \(version)")
-//                            .foregroundColor(.gray)
-//                    }
-//                }
-//            }
         }
     }
 }
@@ -160,6 +152,7 @@ struct AbilityDetail_Previews: PreviewProvider {
         NavigationStack {
             AbilityDetail(ability: .example)
                 .environmentObject(ImageCache())
+                .environmentObject(SettingsManager())
         }
     }
 }

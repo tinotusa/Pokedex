@@ -10,7 +10,7 @@ import SwiftUI
 struct EvolutionDetailRow: View {
     let evolutionDetail: EvolutionDetail
     @StateObject private var viewModel = EvolutionDetailRowViewModel()
-    @Environment(\.appSettings) private var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         Grid(alignment: .leadingFirstTextBaseline) {
@@ -38,7 +38,7 @@ struct EvolutionDetailRow: View {
             }
         }
         .task {
-            viewModel.setUp(settings: appSettings)
+            viewModel.setUp(settings: settingsManager.settings)
         }
     }
 }
@@ -298,5 +298,6 @@ struct EvolutionDetailRow_Previews: PreviewProvider {
             }
         }
         .environmentObject(ImageCache())
+        .environmentObject(SettingsManager())
     }
 }

@@ -10,38 +10,47 @@ import SwiftUI
 struct PokemonCard: View {
     let pokemon: Pokemon
     @StateObject private var viewModel = PokemonCardViewModel()
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    @Environment(\.appSettings) var appSettings
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         VStack(spacing: 0) {
-            PokemonImage(url: pokemon.officialArtWork, imageSize: Constants.imageSize)
+            PokemonImage(
+                url: pokemon.officialArtWork,
+                imageSize: Constants.imageSize
+            )
             VStack(alignment: .leading) {
                 Text(viewModel.localizedPokemonName)
-                    .bodyStyle()
+                    
                 HStack {
                     ForEach(pokemon.types, id: \.self) { pokemonType in
                         PokemonTypeTag(pokemonType: pokemonType)
                     }
                     Spacer()
-
                 }
             }
         }
         .overlay(alignment: .topLeading) {
-            Text(String(format: "#%03d", pokemon.id))
+            Text(pokemon.formattedID)
         }
         .padding()
+        .bodyStyle()
         .foregroundColor(.textColour)
+        
         .background {
             RoundedRectangle(cornerRadius: Constants.backgroundCornerRadius)
                 .strokeBorder(pokemon.primaryTypeColour, lineWidth: 2)
                 .background(Color.cardBackgroundColour)
         }
-        .cornerRadius(Constants.backgroundCornerRadius)
-        .shadow(radius: 3)
+        .card(
+            cornerRadius: Constants.backgroundCornerRadius,
+            shadowOpacity: Constants.shadowOpacity,
+            shadowRadius: Constants.shadowRadius,
+            shadowX: 0,
+            shadowY: 0
+        )
         .task {
-            viewModel.setUp(pokemon: pokemon, appSettings: appSettings)
+            viewModel.setUp(pokemon: pokemon, appSettings: settingsManager.settings)
             await viewModel.loadData()
         }
     }
@@ -53,6 +62,9 @@ private extension PokemonCard {
         static let backgroundCornerRadius = 30.0
         static let backgroundHeightPercentage = 0.6
         static let imageSize = 150.0
+        
+        static let shadowRadius = 3.0
+        static let shadowOpacity = 0.5
     }
 }
 
@@ -62,5 +74,6 @@ struct PokemonRow_Previews: PreviewProvider {
     static var previews: some View {
         PokemonCard(pokemon: pokemon)
             .environmentObject(ImageCache())
+            .environmentObject(SettingsManager())
     }
 }

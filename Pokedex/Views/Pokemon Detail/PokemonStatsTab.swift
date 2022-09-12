@@ -11,6 +11,7 @@ import Charts
 struct PokemonStatsTab: View {
     let pokemon: Pokemon
     @ObservedObject var viewModel: PokemonStatsTabViewModel
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         Group {
@@ -18,7 +19,7 @@ struct PokemonStatsTab: View {
             case .loading:
                 LoadingView()
                     .task {
-                        await viewModel.loadData(pokemon: pokemon)
+                        await viewModel.loadData(pokemon: pokemon, settings: settingsManager.settings)
                     }
             case .loaded:
                 statsTabView
@@ -155,5 +156,6 @@ private extension PokemonStatsTab {
 struct PokemonStatsTab_Previews: PreviewProvider {
     static var previews: some View {
         PokemonStatsTab(pokemon: .example, viewModel: PokemonStatsTabViewModel())
+            .environmentObject(SettingsManager())
     }
 }

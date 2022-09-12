@@ -67,9 +67,14 @@ extension PokeAPI {
     }
     
     func saveCache() {
-        if shouldCacheResults {
-            print("About to save to the cache")
-            try? cache.saveToDisk(withName: Self.cacheFilename)
+        if !shouldCacheResults { return }
+        print("About to save to the cache")
+        do {
+            try cache.saveToDisk(withName: Self.cacheFilename)
+        } catch {
+            #if DEBUG
+            print("Error in \(#function).\n\(error)")
+            #endif
         }
     }
     

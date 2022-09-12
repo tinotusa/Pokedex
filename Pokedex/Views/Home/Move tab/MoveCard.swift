@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MoveCard: View {
     let move: Move
-    @Environment(\.appSettings) private var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     @StateObject private var viewModel = MoveCardViewModel()
     
     var body: some View {
@@ -40,8 +40,7 @@ struct MoveCard: View {
         .padding(.vertical, 4)
         .card()
         .task {
-            viewModel.setUp(move: move, settings: appSettings)
-            await viewModel.loadData()
+            await viewModel.loadData(move: move, settings: settingsManager.settings)
         }
     }
 }
@@ -49,5 +48,6 @@ struct MoveCard: View {
 struct MoveCard_Previews: PreviewProvider {
     static var previews: some View {
         MoveCard(move: .example)
+            .environmentObject(SettingsManager())
     }
 }

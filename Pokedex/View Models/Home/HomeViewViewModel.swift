@@ -16,6 +16,7 @@ final class HomeViewViewModel: ObservableObject {
     }
     @Published var headerTitle: LocalizedStringKey = defaultSearchTab.localizedString
     @Published var searchText: String = ""
+    @Published var showSettingsView = false
 }
 
 extension HomeViewViewModel {

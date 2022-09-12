@@ -7,28 +7,9 @@
 
 import SwiftUI
 
-final class ContentViewViewModel: ObservableObject {
-    @Published var settings: Settings?
-    @Published var settingsManager: SettingsManager?
-    
-    @MainActor
-    func setUp(settingsManager: SettingsManager) {
-        self.settingsManager = settingsManager
-    }
-    
-    var isDarkMode: Bool {
-        guard let settings = settingsManager?.settings else {
-            return false
-        }
-        return settings.isDarkMode
-    }
-}
-
 struct ContentView: View {
     @Environment(\.scenePhase) var scenePhase
-    @Environment(\.appSettings) var appSettings
-    @StateObject var viewModel = ContentViewViewModel()
-    @EnvironmentObject var settingsManager: SettingsManager
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         HomeView()
@@ -38,17 +19,14 @@ struct ContentView: View {
                     PokeAPI.shared.saveCache()
                 }
             }
-            .task {
-                viewModel.setUp(settingsManager: settingsManager)
-            }
-            .environment(\.colorScheme, appSettings.isDarkMode ? .dark : .light)
+            .environment(\.colorScheme, settingsManager.isDarkMode ? .dark : .light)
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
+            .environmentObject(ImageCache())
             .environmentObject(SettingsManager())
-            .environmentObject(ImageLoader())
     }
 }

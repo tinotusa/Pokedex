@@ -10,14 +10,14 @@ import SwiftUI
 struct EvolutionChainLinkRow: View {
     let chainLink: ChainLink
     @StateObject var viewModel = EvolutionChainLinkRowViewModel()
-    @Environment(\.appSettings) var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         switch viewModel.viewState {
         case .loading:
             LoadingView()
                 .task {
-                    await viewModel.loadData(chainLink: chainLink, settings: appSettings)
+                    await viewModel.loadData(chainLink: chainLink, settings: settingsManager.settings)
                 }
         case .loaded:
             evolutionChainLinkRow
@@ -96,6 +96,7 @@ struct EvolutionChainLinkRow_Previews: PreviewProvider {
                 .ignoresSafeArea()
             EvolutionChainLinkRow(chainLink: .example)
                 .environmentObject(ImageCache())
+                .environmentObject(SettingsManager())
         }
     }
 }

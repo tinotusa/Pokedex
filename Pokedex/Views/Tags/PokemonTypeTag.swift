@@ -15,7 +15,7 @@ struct PokemonTypeTag: View {
     
     @State private var localizedName: String?
     @State private var type: `Type`?
-    @Environment(\.appSettings) var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     // MARK: Initializers
     init(move: Move) {
@@ -32,6 +32,10 @@ struct PokemonTypeTag: View {
     
     init(namedAPIResource: NamedAPIResource) {
         self.name = namedAPIResource.name
+    }
+    
+    init(name: String) {
+        self.name = name
     }
     
     // MARK: Body
@@ -65,7 +69,7 @@ private extension PokemonTypeTag {
     func getType() async {
         type = try? await `Type`.from(name: self.name)
         guard let type else { return }
-        localizedName = type.names.localizedName(language: appSettings.language, default: self.name)
+        localizedName = type.names.localizedName(language: settingsManager.settings.language, default: self.name)
     }
 }
 
@@ -73,6 +77,7 @@ struct PokemonTypeTag_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             PokemonTypeTag(move: .example)
+                .environmentObject(SettingsManager())
         }
     }
 }

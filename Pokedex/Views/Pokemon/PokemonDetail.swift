@@ -14,7 +14,7 @@ struct PokemonDetail: View {
     
     @StateObject private var viewModel = PokemonDetailViewModel()
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.appSettings) private var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     // MARK: Tab view models
     @StateObject private var pokemonAboutTabViewModel = PokemonAboutTabViewModel()
@@ -27,28 +27,36 @@ struct PokemonDetail: View {
             header
             ScrollView(showsIndicators: false) {
                 VStack {
-                    PokemonImage(url: pokemon.officialArtWork, imageSize: Constants.imageSize)
-                       
-                    TabBar(tabs: PokemonInfoTab.self, selectedTab: $selectedTab)
-                    
-                    switch selectedTab {
-                    case .about: PokemonAboutTab(pokemon: pokemon, viewModel: pokemonAboutTabViewModel)
-                    case .stats: PokemonStatsTab(pokemon: pokemon, viewModel: pokemonStatsTabViewModel)
-                    case .evolutions: PokemonEvolutionsTab(pokemon: pokemon, viewModel: pokemonEvolutionsTabViewModel)
-                    case .moves: PokemonMovesTab(pokemon: pokemon, viewModel: pokemonMovesTabViewModel)
+                    switch viewModel.viewState {
+                    case .loading:
+                        LoadingView()
+                            .task {
+                                await viewModel.load(pokemon: pokemon, settings: settingsManager.settings)
+                            }
+                    case .loaded:
+                        VStack {
+                            PokemonImage(url: pokemon.officialArtWork, imageSize: Constants.imageSize)
+                            
+                            TabBar(tabs: PokemonInfoTab.self, selectedTab: $selectedTab)
+                            
+                            switch selectedTab {
+                            case .about: PokemonAboutTab(pokemon: pokemon, viewModel: pokemonAboutTabViewModel)
+                            case .stats: PokemonStatsTab(pokemon: pokemon, viewModel: pokemonStatsTabViewModel)
+                            case .evolutions: PokemonEvolutionsTab(pokemon: pokemon, viewModel: pokemonEvolutionsTabViewModel)
+                            case .moves: PokemonMovesTab(pokemon: pokemon, viewModel: pokemonMovesTabViewModel)
+                            }
+                        }
+                    default:
+                        Text("Error loading")
                     }
                 }
             }
         }
         .toolbar(.hidden)
+        .bodyStyle()
+        .foregroundColor(.textColour)
         .padding(.horizontal)
-        .background {
-            Color.backgroundColour
-                .ignoresSafeArea()
-        }
-        .task {
-            await viewModel.setUp(pokemon: pokemon, settings: appSettings)
-        }
+        .backgroundColour()
     }
 }
 
@@ -78,6 +86,7 @@ struct PokemonDetail_Previews: PreviewProvider {
         NavigationStack {
             PokemonDetail(pokemon: .example)
                 .environmentObject(ImageCache())
+                .environmentObject(SettingsManager())
         }
     }
 }

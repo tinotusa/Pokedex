@@ -40,6 +40,7 @@ struct PokemonEvolutionsTab_Previews: PreviewProvider {
         NavigationStack {
             PokemonEvolutionsTab(pokemon: .example, viewModel: PokemonEvolutionsTabViewModel())
                 .environmentObject(ImageCache())
+                .environmentObject(SettingsManager())
         }
     }
 }

@@ -46,7 +46,7 @@ private extension HomeItemsTab {
         LazyVGrid(columns: columns) {
             ForEach(viewModel.filteredItems) { item in
                 NavigationLink(value: item) {
-                    ItemCardView(item: item)
+                    ItemCard(item: item)
                 }
             }
             if viewModel.hasNextPage && viewModel.searchState == .idle {

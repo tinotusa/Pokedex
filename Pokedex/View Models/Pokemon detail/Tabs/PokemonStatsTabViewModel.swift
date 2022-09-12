@@ -24,13 +24,13 @@ final class PokemonStatsTabViewModel: ObservableObject {
     @Published private(set) var types = [`Type`]()
     
     @Published private(set) var viewState = ViewState.loading
+    
+    private var settings: Settings?
 }
 
 extension PokemonStatsTabViewModel {
-    
-    
-    func loadData(pokemon: Pokemon) async {
-        setUp(pokemon: pokemon)
+    func loadData(pokemon: Pokemon, settings: Settings) async {
+        setUp(pokemon: pokemon, settings: settings)
         
         await withTaskGroup(of: Void.self) { group in
             group.addTask { @MainActor [self] in
@@ -158,8 +158,9 @@ extension PokemonStatsTabViewModel {
 
 // MARK: Private functions
 private extension PokemonStatsTabViewModel {
-    private func setUp(pokemon: Pokemon) {
+    private func setUp(pokemon: Pokemon, settings: Settings) {
         self.pokemon = pokemon
+        self.settings = settings
     }
     
     /// Gets the localized name for a given stat.
@@ -167,7 +168,7 @@ private extension PokemonStatsTabViewModel {
     /// - returns: The localized name for the stat or Error if the `Stat` is nil.
     func statName(for stat: Stat?) -> String {
         guard let stat else { return "Error" }
-        return stat.names.localizedName(default: stat.name)
+        return stat.names.localizedName(language: settings?.language, default: stat.name)
     }
     
     /// Gets the types for this pokemon.

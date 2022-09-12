@@ -9,92 +9,24 @@ import SwiftUI
 
 struct MoveDetail: View {
     let move: Move
-    @Environment(\.appSettings) private var appSettings
     @StateObject private var viewModel = MoveDetailViewModel()
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         VStack(alignment: .leading) {
             headerBar
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading) {
-                    VStack(alignment: .leading, spacing: 0) {
-                        HStack {
-                            Text(viewModel.localizedMoveName)
-                            Spacer()
-                            Text(viewModel.moveID)
-                                .fontWeight(.ultraLight)
-                        }
-                        .headerStyle()
-                        Divider()
+            switch viewModel.viewState {
+            case .loading:
+                LoadingView()
+                    .task {
+                        await viewModel.loadData(move: move, settings: settingsManager.settings)
                     }
-                    Text(viewModel.localizedFlavorText)
-                        
-                    Divider()
-                    
-                    Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: Constants.gridVerticalSpacing) {
-                        Group {
-                            type
-                            
-                            target
-                        }
-                        Group {
-                            accuracy
-                            
-                            effectChance
-                            
-                            powerPoints
-                            
-                            priority
-                            
-                            power
-                            
-                            damageClass
-                            
-                            effect
-                            
-                            learnedBy
-                            
-                            generation
-                            
-                            machines
-                        }
-                        
-                        Divider()
-                        
-                        Group {
-                            Text("Metadata")
-                                .subHeaderStyle()
-                            
-                            Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: Constants.gridVerticalSpacing) {
-                                Group {
-                                    ailment
-                                    
-                                    category
-                                    
-                                    minHits
-                                    
-                                    maxHits
-                                    
-                                    maxTurns
-                                    
-                                    drain
-                                    
-                                    healing
-                                    
-                                    critRate
-                                    
-                                    ailmentChance
-                                    
-                                    flinchChance
-                                }
-                                
-                                statChance
-                            }
-                        }
-                    }
-                }
-                .bodyStyle()
+            case .loaded:
+                moveDetail
+            default:
+                Text("Error loading.")
             }
+            
         }
         .padding(.horizontal)
         .toolbar(.hidden)
@@ -102,17 +34,119 @@ struct MoveDetail: View {
             Color.backgroundColour
                 .ignoresSafeArea()
         }
-        .fullScreenCover(isPresented: $viewModel.showMoreMachines) {
+        .fullScreenCover(isPresented: $viewModel.showMachinesList) {
             MachinesListView(moveDetailViewModel: viewModel)
         }
-        .task {
-            await viewModel.loadData(move: move, settings: appSettings)
+        .fullScreenCover(isPresented: $viewModel.showPokemonList) {
+            MovePokemonListView(moveDetailViewModel: viewModel)
         }
     }
 }
 
 // MARK: - General
 private extension MoveDetail {
+    var pokemonList: some View {
+        HStack {
+            Text(viewModel.moveInfo[.learnedBy, default: "Error"])
+            Spacer()
+            Button(action: viewModel.showLearnedByPokemonView) {
+                HStack {
+                    Text("List")
+                    Image(systemName: "chevron.right")
+                }
+            }
+        }
+    }
+    
+    var machinesList: some View {
+        HStack {
+            Text(viewModel.moveInfo[.machines, default: "Error"])
+            Spacer()
+            Button(action: viewModel.showMachinesListView) {
+                HStack {
+                    Text("List")
+                    Image(systemName: "chevron.right")
+                }
+            }
+        }
+    }
+    var moveDetail: some View {
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading) {
+                HeaderWithID(title: viewModel.localizedMoveName, id: viewModel.moveID)
+                    
+                Text(viewModel.localizedFlavorText)
+                    
+                Divider()
+                
+                Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: Constants.gridVerticalSpacing) {
+                    ForEach(MoveDetailViewModel.MoveInfoKey.allCases) { moveInfoKey in
+                        GridRow {
+                            Text(moveInfoKey.rawValue.localizedCapitalized)
+                                .gridRowTitleStyle()
+                            switch moveInfoKey {
+                            case .type: PokemonTypeTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
+                            case .damageClass: DamageClassTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
+                            case .learnedBy: pokemonList
+                            case .generation: GenerationTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
+                            case .machines: machinesList
+                            default: Text(viewModel.moveInfo[moveInfoKey, default: "Error"])
+                            }
+                            
+                        }
+                    }
+                    
+                    Divider()
+                    
+                    ForEach(MoveDetailViewModel.MoveMetaInfoKey.allCases) { metaInfoKey in
+                        GridRow {
+                            Text(metaInfoKey.rawValue.localizedCapitalized)
+                                .gridRowTitleStyle()
+                            
+                            switch metaInfoKey {
+                            case .ailment:
+                                Text(viewModel.moveMetaInfo[.ailment, default: "Error"])
+                                    .colouredLabel(colourName: viewModel.moveMetaInfo[.ailment, default: "Error"])
+                            default: Text(viewModel.moveMetaInfo[metaInfoKey, default: "Error"])
+                            }
+                        }
+                    }
+                    
+//                    Group {
+//                        Text("Metadata")
+//                            .subHeaderStyle()
+//
+//                        Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: Constants.gridVerticalSpacing) {
+//                            Group {
+//                                ailment
+//
+//                                category
+//
+//                                minHits
+//
+//                                maxHits
+//
+//                                maxTurns
+//
+//                                drain
+//
+//                                healing
+//
+//                                critRate
+//
+//                                ailmentChance
+//
+//                                flinchChance
+//                            }
+//
+//                            statChance
+//                        }
+//                    }
+                }
+            }
+            .bodyStyle()
+        }
+    }
     var headerBar: some View {
         HeaderBar {
             
@@ -127,22 +161,6 @@ private extension MoveDetail {
 
 // MARK: Metadata grid rows
 private extension MoveDetail {
-    var type: some View {
-        GridRow {
-            Text("Type")
-                .gridRowTitleStyle()
-            PokemonTypeTag(move: move)
-        }
-    }
-    
-    var target: some View {
-        GridRow {
-            Text("Target")
-                .gridRowTitleStyle()
-            Text(viewModel.localizedTargetName)
-        }
-    }
-    
     var ailment: some View {
         GridRow {
             Text("Ailment")
@@ -233,106 +251,11 @@ private extension MoveDetail {
     }
 }
 
-// MARK: Grid rows
-private extension MoveDetail {
-    var accuracy: some View {
-        GridRow {
-            Text("Accuracy")
-                .gridRowTitleStyle()
-            Text(viewModel.accuracy)
-        }
-    }
-    
-    var effectChance: some View {
-        GridRow {
-            Text("Effect chance")
-                .gridRowTitleStyle()
-            Text(viewModel.effectChance)
-        }
-    }
-    
-    var powerPoints: some View {
-        GridRow {
-            Text("PP (Power Points)")
-                .gridRowTitleStyle()
-            Text("\(move.pp)")
-        }
-    }
-    
-    var priority: some View {
-        GridRow {
-            Text("Priority")
-                .gridRowTitleStyle()
-            Text("\(move.priority)")
-        }
-    }
-    
-    var power: some View {
-        GridRow {
-            Text("Power")
-                .gridRowTitleStyle()
-            Text(viewModel.power)
-        }
-    }
-    
-    var damageClass: some View {
-        GridRow {
-            Text("Damage class")
-                .gridRowTitleStyle()
-            Text(viewModel.localizedMoveDamageClassName)
-                .colouredLabel(colourName: viewModel.moveDamageClass?.name ?? "none")
-        }
-    }
-    
-    var effect: some View {
-        GridRow {
-            Text("Effect")
-                .gridRowTitleStyle()
-            Text(viewModel.localizedShortVerboseEffect)
-        }
-    }
-    
-    var learnedBy: some View {
-        GridRow {
-            Text("Learned by")
-                .gridRowTitleStyle()
-            Text("\(move.learnedByPokemon.count) Pokemon")
-        }
-    }
-    
-    var generation: some View {
-        GridRow {
-            Text("Generation")
-                .gridRowTitleStyle()
-            Text(viewModel.localizedGenerationName)
-                .colouredLabel(colourName: move.generation.name)
-        }
-    }
-    
-    var machines: some View {
-        GridRow {
-            Text("Machines")
-                .gridRowTitleStyle()
-            HStack {
-                Text(viewModel.machinesCount)
-                Spacer()
-                if viewModel.moveCanBeTaughtByMachines {
-                    Button {
-                        viewModel.showMoreMachines = true
-                    } label: {
-                        Text("Show machines")
-                    }
-                    .foregroundColor(.blue)
-                }
-            }
-        }
-    }
-}
-
 // MARK: - Previews
 struct MoveDetail_Previews: PreviewProvider {
     static var previews: some View {
         MoveDetail(move: .example)
             .environmentObject(ImageCache())
+            .environmentObject(SettingsManager())
     }
 }

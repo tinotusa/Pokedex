@@ -10,16 +10,14 @@ import SwiftUI
 @main
 struct PokedexApp: App {
     
-    // MARK: - Managers
-    @StateObject var imageCache = ImageCache()
-    @StateObject var settingsManager = SettingsManager()
+    @StateObject private var imageCache = ImageCache()
+    @StateObject private var settingsManager = SettingsManager()
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(imageCache)
                 .environmentObject(settingsManager)
-                .setSettings(settingsManager.settings)
         }
     }
 }

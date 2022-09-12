@@ -12,7 +12,7 @@ struct AbilityPokemonListView: View {
     @StateObject private var viewModel = AbilityPokemonListViewViewModel()
 
     @Environment(\.dismiss) var dismiss
-    @Environment(\.appSettings) var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -73,7 +73,7 @@ private extension AbilityPokemonListView {
                 if let pokemonSpecies = viewModel.pokemonSpecies(named: pokemon.species.name) {
                     Text(
                         pokemonSpecies.names.localizedName(
-                            language: appSettings.language,
+                            language: settingsManager.language,
                             default: pokemonSpecies.name)
                     )
                     Spacer()
@@ -108,5 +108,6 @@ struct AbilityPokemonListView_Previews: PreviewProvider {
     static var previews: some View {
         AbilityPokemonListView(abilityDetailViewModel: viewModel)
             .environmentObject(ImageCache())
+            .environmentObject(SettingsManager())
     }
 }

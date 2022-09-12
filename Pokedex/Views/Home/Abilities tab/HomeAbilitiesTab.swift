@@ -44,7 +44,7 @@ private extension HomeAbilitiesTab {
         LazyVGrid(columns: columns) {
             ForEach(viewModel.filteredAbilities) { ability in
                 NavigationLink(value: ability) {
-                    AbilityCardView(ability: ability)
+                    AbilityCard(ability: ability)
                 }
             }
             if viewModel.hasNextPage && viewModel.searchState == .idle {

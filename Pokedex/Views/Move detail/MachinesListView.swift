@@ -11,7 +11,7 @@ import SwiftUI
 struct MachinesListView: View {
     @ObservedObject var moveDetailViewModel: MoveDetailViewModel
     @Environment(\.dismiss) var dismiss
-    @Environment(\.appSettings) var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     @StateObject private var viewModel = MachinesListViewViewModel()
     
@@ -21,7 +21,7 @@ struct MachinesListView: View {
             
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading) {
-                    nameAndIDRow
+                    HeaderWithID(title: moveDetailViewModel.localizedMoveName, id: moveDetailViewModel.moveID)
                     
                     Text("Machines that teach this move and the game in which they appear.")
                     
@@ -69,26 +69,12 @@ private extension MachinesListView {
                     }
                     .frame(width: Constants.itemImageSize, height: Constants.itemImageSize)
                     
-                    Text(item.names.localizedName(language: appSettings.language, default: "Error"))
+                    Text(item.names.localizedName(language: settingsManager.language, default: "Error"))
                     Spacer()
                     Text(machine.versionGroup.name)
                         .foregroundColor(.gray)
                 }
             }
-        }
-    }
-    
-    var nameAndIDRow: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text(moveDetailViewModel.localizedMoveName)
-                Spacer()
-                Text(moveDetailViewModel.moveID)
-                    .fontWeight(.ultraLight)
-            }
-            .headerStyle()
-            
-            Divider()
         }
     }
     
@@ -110,5 +96,6 @@ struct MachinesListView_Previews: PreviewProvider {
     static var previews: some View {
         MachinesListView(moveDetailViewModel: viewModel)
             .environmentObject(ImageCache())
+            .environmentObject(SettingsManager())
     }
 }

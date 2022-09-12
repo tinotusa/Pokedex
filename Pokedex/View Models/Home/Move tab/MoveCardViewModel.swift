@@ -9,23 +9,20 @@ import Foundation
 
 @MainActor
 final class MoveCardViewModel: ObservableObject {
-    private var move: Move?
-    private var settings: Settings?
+    @Published private var move: Move?
+    @Published private var settings: Settings?
     
     @Published var moveDamageClass: MoveDamageClass?
 }
 
 extension MoveCardViewModel {
-    func setUp(move: Move, settings: Settings) {
+    private func setUp(move: Move, settings: Settings) {
         self.settings = settings
         self.move = move
     }
     
-    func loadData() async {
-        guard let move else {
-            print("Error in \(#function). move is nil.")
-            return
-        }
+    func loadData(move: Move, settings: Settings) async {
+        setUp(move: move, settings: settings)
         moveDamageClass = try? await MoveDamageClass.from(name: move.damageClass.name)
     }
 }
@@ -71,6 +68,7 @@ extension MoveCardViewModel {
         return move.effectEntries.localizedEffectEntry(
             shortEffect: true,
             language: settings.language,
+            default: move.effectEntries.first?.shortEffect ?? "Error",
             effectChance: move.effectChance
         )
     }

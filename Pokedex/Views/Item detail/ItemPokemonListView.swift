@@ -11,7 +11,7 @@ import SwiftUI
 struct ItemPokemonListView: View {
     @ObservedObject var itemDetailViewModel: ItemDetailViewModel
     @StateObject var viewModel = ItemPokemonListViewViewModel()
-    @Environment(\.appSettings) var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -74,7 +74,7 @@ private extension ItemPokemonListView {
                 smallPokemonImage(url: pokemon.sprites.frontDefault)
                 
                 if let pokemonSpecies = viewModel.getPokemonSpecies(named: pokemon.species.name) {
-                    Text(pokemonSpecies.localizedName(language: appSettings.language))
+                    Text(pokemonSpecies.localizedName(language: settingsManager.language))
                         .textSelection(.enabled)
                     Spacer()
                     Text(pokemon.formattedID)

@@ -10,7 +10,7 @@ import SwiftUI
 struct PokemonAboutTab: View {
     let pokemon: Pokemon
     @ObservedObject var viewModel: PokemonAboutTabViewModel
-    @Environment(\.appSettings) var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         Group {
@@ -18,7 +18,7 @@ struct PokemonAboutTab: View {
             case .loading:
                 LoadingView()
                     .task {
-                        await viewModel.loadData(settings: appSettings, pokemon: pokemon)
+                        await viewModel.loadData(settings: settingsManager.settings, pokemon: pokemon)
                     }
             case .loaded:
                 aboutTabView
@@ -38,7 +38,7 @@ extension PokemonAboutTab {
     @ViewBuilder
     var nameRow: some View {
         HStack {
-            Text(viewModel.localizedPokemonName(language: appSettings.language))
+            Text(viewModel.localizedPokemonName(language: settingsManager.settings.language))
             Spacer()
             Text("#\(String(format: "%03d", viewModel.pokemonID))")
                 .fontWeight(.ultraLight)
@@ -86,8 +86,7 @@ extension PokemonAboutTab {
             Divider()
             Grid(alignment: .topLeading, verticalSpacing: 10) {
                 gridRow(title: "Generation") {
-                    Text(viewModel.localizedGenerationName)
-                        .colouredLabel(colourName: viewModel.generationName)
+                    GenerationTag(name: viewModel.generationName)
                 }
                 gridRow(title: "Type") {
                     HStack {
@@ -142,7 +141,7 @@ extension PokemonAboutTab {
             Grid(alignment: .bottomLeading, verticalSpacing: 5) {
                 ForEach(viewModel.pokedexNumbers, id: \.pokedex.id) { entryNumber, pokedex in
                     gridRow(
-                        title: pokedex.names.localizedName(language: appSettings.language, default: pokedex.name),
+                        title: pokedex.names.localizedName(language: settingsManager.settings.language, default: pokedex.name),
                         value: "\(entryNumber)"
                     )
                 }
@@ -155,6 +154,7 @@ struct PokemonAboutTab_Previews: PreviewProvider {
     static var previews: some View {
         ScrollView(showsIndicators: false) {
             PokemonAboutTab(pokemon: .example, viewModel: PokemonAboutTabViewModel())
+                .environmentObject(SettingsManager())
         }
     }
 }

@@ -7,7 +7,6 @@
 
 import Foundation
 
-@MainActor
 final class MoveDetailViewModel: ObservableObject {
     @Published private(set) var move: Move?
     @Published private(set) var settings: Settings?
@@ -20,8 +19,13 @@ final class MoveDetailViewModel: ObservableObject {
     @Published private(set) var moveAilment: MoveAilment?
     @Published private(set) var moveCategory: MoveCategory?
     // other
-    @Published var showMoreMachines = false
+    @Published var showMachinesList = false
+    @Published var showPokemonList = false
     @Published var viewState = ViewState.loading
+    
+    let unavailableField = "N/A"
+    @Published private(set) var moveInfo = [MoveInfoKey: String]()
+    @Published private(set) var moveMetaInfo = [MoveMetaInfoKey: String]()
 }
 
 private extension MoveDetailViewModel {
@@ -43,6 +47,7 @@ private extension MoveDetailViewModel {
 
 // MARK: - Functions
 extension MoveDetailViewModel {
+    @MainActor
     func loadData(move: Move, settings: Settings) async {
         setUp(move: move, settings: settings)
 
@@ -68,8 +73,118 @@ extension MoveDetailViewModel {
             }
             
             await group.waitForAll()
+            getMoveInfo()
+            getMoveMetaInfo()
             viewState = .loaded
         }
+    }
+    
+    enum MoveInfoKey: String, CaseIterable, Identifiable{
+        case type = "type"
+        case target = "target"
+        case accuracy = "accuracy"
+        case effectChance = "effect chance"
+        case powerPoints = "power points"
+        case priority = "priority"
+        case power = "power"
+        case damageClass = "damage class"
+        case effect = "effect"
+        case learnedBy = "learned by"
+        case generation = "generation"
+        case machines = "machines"
+        
+        var id: Self { self }
+    }
+    
+    private func getMoveInfo() {
+        guard let move else { return }
+
+        moveInfo[.type] = move.type.name
+        moveInfo[.target] = localizedTargetName
+        
+        if let accuracy = move.accuracy {
+            moveInfo[.accuracy] = accuracy.formatted(.percent)
+        } else {
+            moveInfo[.accuracy] = unavailableField
+        }
+        
+        if let effectChance = move.effectChance {
+            moveInfo[.effectChance] = String(effectChance)
+        } else {
+            moveInfo[.effectChance] = unavailableField
+        }
+        
+        moveInfo[.powerPoints] = String(move.pp)
+        moveInfo[.priority] = String(move.priority)
+        if let power = move.power {
+            moveInfo[.power] = String(power)
+        } else {
+            moveInfo[.power] = unavailableField
+        }
+        
+        moveInfo[.damageClass] = "\(move.damageClass.name)"
+        moveInfo[.effect] = localizedShortVerboseEffect
+        moveInfo[.learnedBy] = "\(move.learnedByPokemon.count) pokemon"
+        moveInfo[.generation] = "\(move.generation.name)"
+        
+        switch move.machines.count {
+        case 1: moveInfo[.machines] = "\(move.machines.count) machine"
+        default: moveInfo[.machines] = "\(move.machines.count) machines"
+        }
+    }
+    
+    enum MoveMetaInfoKey: String, CaseIterable, Identifiable {
+        case ailment = "ailment"
+        case category = "category"
+        case minHits = "min hits"
+        case maxHits = "max hits"
+        case maxTurns = "max turns"
+        case drain = "drain"
+        case healing = "healing"
+        case critRate = "crit rate"
+        case ailmentChance = "ailment chance"
+        case flinchChance = "flinch chance"
+        case statChance = "stat chance"
+        
+        var id: Self { self }
+    }
+    
+    private func getMoveMetaInfo() {
+        guard let move else { return }
+        moveMetaInfo[.ailment] = move.meta.ailment.name
+        moveMetaInfo[.category] = move.meta.category.name.localizedCapitalized
+        if let minHits = move.meta.minHits {
+            moveMetaInfo[.minHits] = "\(minHits)"
+        } else {
+            moveMetaInfo[.minHits] = unavailableField
+        }
+        
+        if let maxHits = move.meta.maxHits {
+            moveMetaInfo[.maxHits] = "\(maxHits)"
+        } else {
+            moveMetaInfo[.maxHits] = unavailableField
+        }
+        
+        if let maxTurns = move.meta.maxTurns {
+            moveMetaInfo[.maxTurns] = "\(maxTurns)"
+        } else {
+            moveMetaInfo[.maxTurns] = unavailableField
+        }
+        
+        moveMetaInfo[.drain] = "\(move.meta.drain)"
+        moveMetaInfo[.healing] = "\(move.meta.healing)"
+        moveMetaInfo[.critRate] = "\(move.meta.critRate)"
+        moveMetaInfo[.ailmentChance] = move.meta.ailmentChance.formatted(.percent)
+        moveMetaInfo[.flinchChance] = move.meta.flinchChance.formatted(.percent)
+        moveMetaInfo[.statChance] = move.meta.statChance.formatted(.percent)
+    }
+    
+    func showLearnedByPokemonView() {
+        showPokemonList = true
+    }
+    
+    func showMachinesListView() {
+        showMachinesList = true
     }
 }
 
@@ -94,9 +209,9 @@ extension MoveDetailViewModel {
         return moveTarget.names.localizedName(language: settings.language, default: moveTarget.name)
     }
     
-    var moveID: String {
-        guard let move else { return "Error"}
-        return move.formattedID()
+    var moveID: Int {
+        guard let move else { return -1 }
+        return move.id
     }
     
     var machinesCount: String {
@@ -162,9 +277,7 @@ extension MoveDetailViewModel {
     var localizedFlavorText: String {
         guard let move else { return "Error" }
         guard let settings else { return "Error" }
-        var text = move.flavorTextEntries.localizedMoveFlavorText(language: settings.language)
-        text = text.replacingOccurrences(of: "[\\s\n]+", with: " ", options: .regularExpression, range: nil)
-        return text
+        return move.flavorTextEntries.localizedMoveFlavorText(language: settings.language, default: "Error")
     }
     
     var localizedGenerationName: String {

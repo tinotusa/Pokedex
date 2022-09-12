@@ -10,8 +10,6 @@ import SwiftUI
 struct HomeView: View {
     @StateObject private var viewModel = HomeViewViewModel()
     @State private var navigationPath = NavigationPath()
-    @Environment(\.colorScheme) var colorScheme
-    @Environment(\.appSettings) var appSettings
     
     // MARK: - Tab view models
     @StateObject var homePokemonTabViewModel = HomePokemonTabViewModel()
@@ -24,10 +22,18 @@ struct HomeView: View {
             VStack(spacing: 20) {
                 Group {
                     VStack(spacing: 0) {
-                        Text(viewModel.headerTitle)
-                            .headerStyle()
-                            .foregroundColor(.headerTextColour)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack {
+                            Text(viewModel.headerTitle)
+                                .headerStyle()
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            Button(action: showSettingsView) {
+                                Image(systemName: "gearshape.fill")
+                                    .subHeaderStyle()
+                            }
+                        }
+                        
+                        .foregroundColor(.headerTextColour)
+                        
                         SearchBar(placeholder: "Search", searchText: $viewModel.searchText)
                     }
                     TabBar(tabs: HomeViewViewModel.SearchTab.self, selectedTab: $viewModel.searchTab)
@@ -42,6 +48,11 @@ struct HomeView: View {
                 }
                 
                 Spacer()
+            }
+            .popover(isPresented: $viewModel.showSettingsView) {
+                SettingsView()
+                    .presentationDetents([.large])
+                    .presentationDragIndicator(.visible)
             }
             // TODO: This seems wrong because they are not near the corresponding navigation  link
             // but this is the only way it works.
@@ -59,6 +70,12 @@ struct HomeView: View {
             }
             .navigationDestination(for: `Type`.self) { type in
                 Text("Looking at: \(type.name)")
+            }
+            .navigationDestination(for: Generation.self) { generation in
+                Text("Looking at: \(generation.name)")
+            }
+            .navigationDestination(for: MoveDamageClass.self) { damageClass in
+                Text("Looking at: \(damageClass.name)")
             }
             .ignoresSafeArea(edges: .bottom)
             .scrollDismissesKeyboard(.immediately)
@@ -93,7 +110,12 @@ struct HomeView: View {
                 }
             }
         }
-        
+    }
+}
+
+private extension HomeView {
+    func showSettingsView() {
+        viewModel.showSettingsView = true
     }
 }
 
@@ -101,5 +123,6 @@ struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
             .environmentObject(ImageCache())
+            .environmentObject(SettingsManager())
     }
 }

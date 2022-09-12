@@ -13,55 +13,53 @@ final class PokemonDetailViewModel: ObservableObject {
     @Published private(set) var pokemonSpecies: PokemonSpecies?
     @Published private(set) var eggGroups = [EggGroup]()
     @Published private(set) var types = [`Type`]()
-    @Published private(set) var isLoading = false
+    @Published private(set) var viewState = ViewState.loading
     private var settings: Settings?
-
-    func setUp(pokemon: Pokemon, settings: Settings) async {
-        await withTaskGroup(of: Void.self) { group in
-            isLoading = true
-            defer {
-                Task { @MainActor in
-                    isLoading = false
-                }
-            }
-            self.pokemon = pokemon
-            self.settings = settings
-            group.addTask { @MainActor in
-                print("1")
-                self.pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.species.name)
-            }
-            group.addTask { @MainActor in
-                print("2")
-                self.types = await self.getTypes()
-            }
-            group.addTask { @MainActor in
-                print("3")
-                self.eggGroups = await self.pokemonSpecies?.eggGroups() ?? []
-            }
-        }
-    }
 }
 
 extension PokemonDetailViewModel {
+    func load(pokemon: Pokemon, settings: Settings) async {
+        setUp(pokemon: pokemon, settings: settings)
+        
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { @MainActor in
+                self.pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.species.name)
+            }
+            group.addTask { @MainActor in
+                self.types = await self.getTypes()
+            }
+            group.addTask { @MainActor in
+                self.eggGroups = await self.pokemonSpecies?.eggGroups() ?? []
+            }
+            viewState = .loaded
+        }
+    }
+    
     func localizedPokemonName(language: Language?) -> String {
         guard let pokemon else { return "Error" }
         return pokemonSpecies?.localizedName(language: language) ?? pokemon.name
     }
     
     var pokemonSeedType: String {
-        guard let pokemonSpecies else { return "No species found." }
+        guard let pokemonSpecies else { return "Error" }
         return pokemonSpecies.seedType(language: settings?.language)
     }
+    
     /// The url for the pokemon's artwork
     var pokemonImageURL: URL? {
-        guard let pokemon else { return nil }
-        return pokemon.officialArtWork
+        pokemon?.officialArtWork
     }
     
     /// The number for the pokemon in the pokedex.
     var pokemonID: Int? {
-        guard let pokemon else { return nil }
-        return pokemon.id
+        pokemon?.id
+    }
+}
+
+private extension PokemonDetailViewModel {
+    private func setUp(pokemon: Pokemon, settings: Settings) {
+        self.settings = settings
+        self.pokemon = pokemon
     }
     
     /// Gets the types for this pokemon.

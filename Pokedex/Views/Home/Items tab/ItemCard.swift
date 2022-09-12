@@ -1,5 +1,5 @@
 //
-//  ItemCardView.swift
+//  ItemCard.swift
 //  Pokedex
 //
 //  Created by Tino on 23/8/2022.
@@ -7,10 +7,10 @@
 
 import SwiftUI
 
-struct ItemCardView: View {
+struct ItemCard: View {
     let item: Item
-    @Environment(\.appSettings) var appSettings
     @StateObject private var viewModel = ItemCardViewViewModel()
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         HStack {
@@ -28,23 +28,21 @@ struct ItemCardView: View {
                     .foregroundColor(.gray)
                     .multilineTextAlignment(.leading)
             }
-            .bodyStyle()
-            .foregroundColor(.textColour)
         }
         .padding()
         .card()
         .bodyStyle()
+        .foregroundColor(.textColour)
         .task {
-            viewModel.setUp(settings: appSettings, item: item)
+            viewModel.setUp(settings: settingsManager.settings, item: item)
             await viewModel.loadData()
         }
     }
 }
 
-private extension ItemCardView {
+private extension ItemCard {
     enum Constants {
         static let imageSize = 80.0
-        static let cornerRadius = 24.0
     }
     
     var itemImage: some View {
@@ -60,19 +58,10 @@ private extension ItemCardView {
     }
 }
 
-extension Item {
-    static var example: Item {
-        do {
-            return try Bundle.main.loadJSON(ofType: Item.self, filename: "item", extension: "json")
-        } catch {
-            fatalError("No item.json file.")
-        }
-    }
-}
-
-struct ItemCardView_Previews: PreviewProvider {
+struct ItemCard_Previews: PreviewProvider {
     static var previews: some View {
-        ItemCardView(item: .example)
+        ItemCard(item: .example)
             .environmentObject(ImageCache())
+            .environmentObject(SettingsManager())
     }
 }

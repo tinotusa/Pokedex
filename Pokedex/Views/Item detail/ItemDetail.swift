@@ -10,7 +10,7 @@ import SwiftUI
 struct ItemDetail: View {
     let item: Item
     @StateObject private var viewModel = ItemDetailViewModel()
-    @Environment(\.appSettings) var appSettings
+    @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -23,7 +23,7 @@ struct ItemDetail: View {
                 case .loading:
                     LoadingView()
                         .task {
-                            await viewModel.loadData(item: item, settings: appSettings)
+                            await viewModel.loadData(item: item, settings: settingsManager.settings)
                         }
                 case .loaded:
                     itemDetail
@@ -100,7 +100,7 @@ private extension ItemDetail {
                                 Text(
                                     itemAttribute
                                         .names
-                                        .localizedName(language: appSettings.language, default: itemAttribute.name)
+                                        .localizedName(language: settingsManager.language, default: itemAttribute.name)
                                         .replacingOccurrences(of: "_", with: " ")
                                 )
                             }
@@ -135,5 +135,6 @@ struct ItemDetail_Previews: PreviewProvider {
     static var previews: some View {
         ItemDetail(item: .example)
             .environmentObject(ImageCache())
+            .environmentObject(SettingsManager())
     }
 }

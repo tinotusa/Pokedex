@@ -17,7 +17,7 @@ final class HomeAbilitiesTabViewModel: ObservableObject {
         }
     }
     @Published private(set) var hasNextPage = false
-    @Published var viewLoadingState = ViewState.loading
+    @Published private(set) var viewLoadingState = ViewState.loading
     @Published private(set) var searchState = SearchState.idle
     @Published var searchText = "" {
         didSet {

@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+@dynamicMemberLookup
 final class SettingsManager: ObservableObject {
     @Published var settings: Settings = Settings() {
         didSet {
@@ -19,23 +20,9 @@ final class SettingsManager: ObservableObject {
         load()
     }
     
-    var shouldCacheResults: Bool {
-        get { settings.shouldCacheResults }
-        set {
-            settings.shouldCacheResults = newValue
-            PokeAPI.shared.shouldCacheResults = newValue
-        }
-    }
-    
-    var isDarkMode: Bool {
-        get { settings.isDarkMode }
-        set { settings.isDarkMode = newValue }
-    }
-    
-    
-    var language: Language? {
-        get { settings.language }
-        set { settings.language = newValue }
+    subscript<T>(dynamicMember keyPath: WritableKeyPath<Settings, T>) -> T {
+        get { settings[keyPath: keyPath] }
+        set { settings[keyPath: keyPath] = newValue }
     }
     
     private func load() {

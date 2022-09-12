@@ -37,7 +37,8 @@ extension Pokemon {
     }
     
     var iconURL: URL? {
-        URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/\(id).png")
+        let idPath = self.species.url.lastPathComponent
+        return URL(string: "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/versions/generation-viii/icons/\(idPath).png")
     }
     
     /// An example pokemon for xcode previews.
