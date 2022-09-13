@@ -7,32 +7,6 @@
 
 import SwiftUI
 
-final class SettingsViewViewModel: ObservableObject {
-    @Published private(set) var settings = Settings.default
-    @Published private(set) var viewState = ViewState.loading
-    @Published private(set) var languages = [Language]()
-    
-    @MainActor
-    func setUp(settings: Settings) async {
-        self.settings = settings
-        await getLanguages()
-    }
-    
-    @MainActor
-    private func getLanguages() async {
-        guard let resourceList = try? await PokeAPI.shared.getResourceList(fromEndpoint: "language", limit: 100) else {
-            return
-        }
-        for result in resourceList.results {
-            guard let language = try? await Language.from(name: result.name) else {
-                continue
-            }
-            self.languages.append(language)
-        }
-        viewState = .loaded
-    }
-}
-
 struct SettingsView: View {
     @EnvironmentObject private var settingsManager: SettingsManager
     @StateObject private var viewModel = SettingsViewViewModel()
@@ -60,9 +34,7 @@ struct SettingsView: View {
         .padding()
         .foregroundColor(.textColour)
         .backgroundColour()
-        .environment(\.colorScheme, settingsManager.isDarkMode ? .dark : .light)
     }
-    
 }
 
 private extension SettingsView {

@@ -62,9 +62,11 @@ struct AbilityDetail: View {
         .toolbar(.hidden)
         .fullScreenCover(isPresented: $viewModel.showingPokemonView) {
             AbilityPokemonListView(abilityDetailViewModel: viewModel)
+                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
         .fullScreenCover(isPresented: $viewModel.showEffectChangesView) {
             AbilityEffectChangesView(viewModel: viewModel)
+                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
     }
 }

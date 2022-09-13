@@ -46,10 +46,8 @@ struct MachinesListView: View {
         .bodyStyle()
         .padding(.horizontal)
         .foregroundColor(.textColour)
-        .background {
-            Color.backgroundColour
-                .ignoresSafeArea()
-        }
+        .backgroundColour()
+        .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
     }
 }
 

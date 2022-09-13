@@ -42,14 +42,12 @@ struct ItemPokemonListView: View {
             
             Spacer()
         }
-        .toolbar(.hidden)
         .bodyStyle()
         .foregroundColor(.textColour)
-        .padding(.horizontal)
-        .background {
-            Color.backgroundColour
-                .ignoresSafeArea()
-        }
+        .padding()
+        .backgroundColour()
+        .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
+        .toolbar(.hidden)
     }
 }
 
@@ -117,6 +115,7 @@ struct ItemPokemonListView_Previews: PreviewProvider {
         NavigationStack {
             ItemPokemonListView(itemDetailViewModel: viewModel)
                 .environmentObject(ImageCache())
+                .environmentObject(SettingsManager())
         }
     }
 }

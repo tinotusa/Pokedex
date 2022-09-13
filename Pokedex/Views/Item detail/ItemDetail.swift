@@ -39,6 +39,7 @@ struct ItemDetail: View {
         .background(Color.backgroundColour)
         .fullScreenCover(isPresented: $viewModel.showAllPokemonView) {
             ItemPokemonListView(itemDetailViewModel: viewModel)
+                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
     }
 }

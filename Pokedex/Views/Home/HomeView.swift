@@ -17,6 +17,8 @@ struct HomeView: View {
     @StateObject var homeMovesTabViewModel = HomeMovesTabViewModel()
     @StateObject var homeAbilitiesTabViewModel = HomeAbilitiesTabViewModel()
     
+    @EnvironmentObject private var settingsManager: SettingsManager
+    
     var body: some View {
         NavigationStack(path: $navigationPath) {
             VStack(spacing: 20) {
@@ -53,6 +55,7 @@ struct HomeView: View {
                 SettingsView()
                     .presentationDetents([.large])
                     .presentationDragIndicator(.visible)
+                    .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
             }
             // TODO: This seems wrong because they are not near the corresponding navigation  link
             // but this is the only way it works.

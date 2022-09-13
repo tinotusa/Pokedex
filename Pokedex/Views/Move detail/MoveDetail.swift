@@ -33,9 +33,11 @@ struct MoveDetail: View {
         .backgroundColour()
         .fullScreenCover(isPresented: $viewModel.showMachinesList) {
             MachinesListView(moveDetailViewModel: viewModel)
+                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
         .fullScreenCover(isPresented: $viewModel.showPokemonList) {
             MovePokemonListView(moveDetailViewModel: viewModel)
+                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
     }
 }
