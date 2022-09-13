@@ -36,7 +36,7 @@ struct HomeView: View {
                         
                         .foregroundColor(.headerTextColour)
                         
-                        SearchBar(placeholder: "Search", searchText: $viewModel.searchText)
+                        SearchBar(placeholder: viewModel.searchPlaceholder, searchText: $viewModel.searchText)
                     }
                     TabBar(tabs: HomeViewViewModel.SearchTab.self, selectedTab: $viewModel.searchTab)
                 }

@@ -11,11 +11,13 @@ final class HomeViewViewModel: ObservableObject {
     private static let defaultSearchTab = SearchTab.pokemon
     @Published var searchTab = defaultSearchTab {
         didSet {
-            headerTitle = LocalizedStringKey(searchTab.rawValue.capitalized)
+            headerTitle = searchTab.localizedString
+            searchPlaceholder = searchTab.placeholderString
         }
     }
     @Published var headerTitle: LocalizedStringKey = defaultSearchTab.localizedString
     @Published var searchText: String = ""
+    @Published var searchPlaceholder: LocalizedStringKey = defaultSearchTab.placeholderString
     @Published var showSettingsView = false
 }
 
@@ -30,6 +32,15 @@ extension HomeViewViewModel {
         
         var localizedString: LocalizedStringKey {
             LocalizedStringKey(self.rawValue.localizedCapitalized)
+        }
+        
+        var placeholderString: LocalizedStringKey {
+            switch self {
+            case .pokemon: return "Search for pokemon"
+            case .items: return "Search for items"
+            case .moves: return "Search for moves"
+            case .abilities: return "Search for abilities"
+            }
         }
     }
 }
