@@ -13,29 +13,33 @@ struct ItemDetail: View {
     @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
-        ScrollView(showsIndicators: false) {
-            VStack {
-                HeaderBar {
-                    
+        VStack {
+            HeaderBar {
+                Button(action: {}) {
+                    Image(systemName: "heart")
                 }
-                
-                switch viewModel.viewState {
-                case .loading:
-                    LoadingView()
-                        .task {
-                            await viewModel.loadData(item: item, settings: settingsManager.settings)
-                        }
-                case .loaded:
-                    itemDetail
-                case .error(let error):
-                    Text(error.localizedDescription)
-                case .empty:
-                    Text("Failed to load data.")
+            }
+            
+            ScrollView(showsIndicators: false) {
+                VStack {
+                    switch viewModel.viewState {
+                    case .loading:
+                        LoadingView()
+                            .task {
+                                await viewModel.loadData(item: item, settings: settingsManager.settings)
+                            }
+                    case .loaded:
+                        itemDetail
+                    case .error(let error):
+                        Text(error.localizedDescription)
+                    case .empty:
+                        Text("Failed to load data.")
+                    }
                 }
             }
         }
         .toolbar(.hidden)
-        .padding(.horizontal)
+        .padding()
         .background(Color.backgroundColour)
         .fullScreenCover(isPresented: $viewModel.showAllPokemonView) {
             ItemPokemonListView(itemDetailViewModel: viewModel)
