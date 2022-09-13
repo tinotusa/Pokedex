@@ -24,6 +24,7 @@ struct ShowMoreButton: View {
                         Image(systemName: "chevron.right")
                     }
                 }
+                .foregroundColor(.blue)
             }
         }
     }
@@ -33,7 +34,7 @@ struct ShowMoreButton: View {
 struct ShowMoreButton_Previews: PreviewProvider {
     static var previews: some View {
         ShowMoreButton(
-            label: "Hello w orld",
+            label: "Hello world",
             action: {},
             showButton: true
         )

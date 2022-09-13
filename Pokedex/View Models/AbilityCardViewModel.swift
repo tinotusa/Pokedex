@@ -21,6 +21,7 @@ private extension AbilityCardViewModel {
         self.settings = settings
     }
     
+    @MainActor
     func getGeneration(ability: Ability) async {
         do {
             let generation = try await Generation.from(name: ability.generation.name)

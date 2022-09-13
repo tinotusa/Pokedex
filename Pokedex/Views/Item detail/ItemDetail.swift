@@ -40,99 +40,65 @@ struct ItemDetail: View {
         }
         .toolbar(.hidden)
         .padding()
+        .bodyStyle()
+        .foregroundColor(.textColour)
         .background(Color.backgroundColour)
-        .fullScreenCover(isPresented: $viewModel.showAllPokemonView) {
+        .fullScreenCover(isPresented: $viewModel.showingHeldByPokemonView) {
             ItemPokemonListView(itemDetailViewModel: viewModel)
                 .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
     }
 }
 
+// MARK: Subviews
 private extension ItemDetail {
-    enum Constants {
-        static let imageSize = 320.0
-        static let smallImageSize = 80.0
-    }
-    
-    var itemImage: some View {
-        ImageLoaderView(url: item.sprites.default) {
-            ProgressView()
-        } content: { image in
-            image
-                .interpolation(.none)
-                .resizable()
-                .scaledToFit()
+    @ViewBuilder
+    var attributesList: some View {
+        if item.attributes.isEmpty {
+            Text("0")
+        } else {
+            VStack(alignment: .leading) {
+                ForEach(viewModel.itemAttributeNames, id: \.self) { attributeName in
+                    Text(attributeName)
+                }
+            }
         }
-        .frame(width: Constants.imageSize, height: Constants.imageSize)
-        .frame(maxWidth: .infinity, alignment: .center)
     }
     
     var itemDetail: some View {
         VStack(alignment: .leading) {
-            itemImage
-                
-            HStack {
-                Text(viewModel.localizedItemName)
-                Spacer()
-                Text("#\(String(format: "%03d", item.id))")
-                    .fontWeight(.ultraLight)
-            }
-            .headerStyle()
+            DetailImage(url: item.sprites.default)
+            HeaderWithID(title: viewModel.localizedItemName, id: item.id)
             
             Text(viewModel.localizedFlavorTextEntry)
-                
             Divider()
+            
             Text(viewModel.localizedEffectEntry)
             Divider()
+            
             Text("About")
                 .subHeaderStyle()
             
             Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: 10) {
-                GridRowItem(title: "ID") { Text("\(item.id)") }
-                GridRowItem(title: "Cost") { Text("\(item.cost)") }
-                if let flingPower = item.flingPower {
-                    GridRowItem(title: "Fling power") { Text("\(flingPower)") }
-                }
-                if item.flingEffect != nil {
-                    GridRowItem(title: "Fling effect") { Text("\(viewModel.localizedFlingEffectEntry)") }
-                }
-                GridRowItem(title: "Attributes") {
-                    if !viewModel.hasItemAttributes {
-                        Text("None")
-                    } else {
-                        VStack(alignment: .leading) {
-                            ForEach(viewModel.itemAttributes) { itemAttribute in
-                                Text(
-                                    itemAttribute
-                                        .names
-                                        .localizedName(language: settingsManager.language, default: itemAttribute.name)
-                                        .replacingOccurrences(of: "_", with: " ")
-                                )
-                            }
+                ForEach(ItemDetailViewModel.ItemInfoKey.allCases) { itemInfoKey in
+                    GridRow {
+                        Text(itemInfoKey.title)
+                            .gridRowTitleStyle()
+                        switch itemInfoKey {
+                        case .attributes: attributesList
+                        case .heldBy:
+                            ShowMoreButton(
+                                label: viewModel.itemInfo[.heldBy, default: "Error"],
+                                action: viewModel.showHeldByPokemonView,
+                                showButton: !item.heldByPokemon.isEmpty
+                            )
+                        default: Text(viewModel.itemInfo[itemInfoKey, default: "Error"])
                         }
-                    }
-                }
-                GridRowItem(title: "Category") { Text("\(viewModel.localizedCategoryName)") }
-                GridRow(alignment: .center) {
-                    Text("Held by")
-                        .gridRowTitleStyle()
-                    HStack {
-                        Text("\(viewModel.heldByPokemonCount) pokemon")
-                        Spacer()
-                        if viewModel.isHeldByPokemon {
-                            Button {
-                                viewModel.showAllPokemonView = true
-                            } label: {
-                                Text("Show pokemon")
-                            }
-                            .foregroundColor(.blue)
-                        }
+                        
                     }
                 }
             }
         }
-        .bodyStyle()
-        .foregroundColor(.textColour)
     }
 }
 

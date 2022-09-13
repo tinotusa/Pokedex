@@ -31,6 +31,6 @@ struct PokemonImage: View {
 struct PokemonImage_Previews: PreviewProvider {
     static var previews: some View {
         PokemonImage(url: URL(string: "omegalul.com/test.png"))
-            .environmentObject(ImageLoader())
+            .environmentObject(ImageCache())
     }
 }
