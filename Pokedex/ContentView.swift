@@ -19,7 +19,7 @@ struct ContentView: View {
                     PokeAPI.shared.saveCache()
                 }
             }
-            .environment(\.colorScheme, settingsManager.isDarkMode ? .dark : .light)
+            .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
     }
 }
 

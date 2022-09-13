@@ -28,12 +28,9 @@ struct MoveDetail: View {
             }
             
         }
-        .padding(.horizontal)
+        .padding()
         .toolbar(.hidden)
-        .background {
-            Color.backgroundColour
-                .ignoresSafeArea()
-        }
+        .backgroundColour()
         .fullScreenCover(isPresented: $viewModel.showMachinesList) {
             MachinesListView(moveDetailViewModel: viewModel)
         }
@@ -43,33 +40,24 @@ struct MoveDetail: View {
     }
 }
 
-// MARK: - General
+// MARK: - Subviews
 private extension MoveDetail {
     var pokemonList: some View {
-        HStack {
-            Text(viewModel.moveInfo[.learnedBy, default: "Error"])
-            Spacer()
-            Button(action: viewModel.showLearnedByPokemonView) {
-                HStack {
-                    Text("List")
-                    Image(systemName: "chevron.right")
-                }
-            }
-        }
+        ShowMoreButton(
+            label: viewModel.moveInfo[.learnedBy, default: "Error"],
+            action: viewModel.showLearnedByPokemonView,
+            showButton: !move.learnedByPokemon.isEmpty
+        )
     }
     
     var machinesList: some View {
-        HStack {
-            Text(viewModel.moveInfo[.machines, default: "Error"])
-            Spacer()
-            Button(action: viewModel.showMachinesListView) {
-                HStack {
-                    Text("List")
-                    Image(systemName: "chevron.right")
-                }
-            }
-        }
+        ShowMoreButton(
+            label: viewModel.moveInfo[.machines, default: "Error"],
+            action: viewModel.showMachinesListView,
+            showButton: !move.machines.isEmpty
+        )
     }
+    
     var moveDetail: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .leading) {
@@ -111,42 +99,12 @@ private extension MoveDetail {
                             }
                         }
                     }
-                    
-//                    Group {
-//                        Text("Metadata")
-//                            .subHeaderStyle()
-//
-//                        Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: Constants.gridVerticalSpacing) {
-//                            Group {
-//                                ailment
-//
-//                                category
-//
-//                                minHits
-//
-//                                maxHits
-//
-//                                maxTurns
-//
-//                                drain
-//
-//                                healing
-//
-//                                critRate
-//
-//                                ailmentChance
-//
-//                                flinchChance
-//                            }
-//
-//                            statChance
-//                        }
-//                    }
                 }
             }
             .bodyStyle()
         }
     }
+    
     var headerBar: some View {
         HeaderBar {
             
@@ -156,98 +114,6 @@ private extension MoveDetail {
     enum Constants {
         static let gridVerticalSpacing = 6.0
         static let maxMachines = 5
-    }
-}
-
-// MARK: Metadata grid rows
-private extension MoveDetail {
-    var ailment: some View {
-        GridRow {
-            Text("Ailment")
-                .gridRowTitleStyle()
-            Text(viewModel.localizedMoveAilmentName)
-                .colouredLabel(colourName: move.meta.ailment.name)
-        }
-    }
-    
-    var category: some View {
-        GridRow {
-            Text("Category")
-                .gridRowTitleStyle()
-            Text(viewModel.moveCategoryName)
-        }
-    }
-    
-    var minHits: some View {
-        GridRow {
-            Text("Min hits")
-                .gridRowTitleStyle()
-            Text(viewModel.minHits)
-        }
-    }
-    
-    var maxHits: some View {
-        GridRow {
-            Text("Max hits")
-                .gridRowTitleStyle()
-            Text(viewModel.maxHits)
-        }
-    }
-    
-    var maxTurns: some View {
-        GridRow {
-            Text("Max turns")
-                .gridRowTitleStyle()
-            Text(viewModel.maxTurns)
-        }
-    }
-    
-    var drain: some View {
-        GridRow {
-            Text("Drain")
-                .gridRowTitleStyle()
-            Text(viewModel.drain)
-        }
-    }
-    
-    var healing: some View {
-        GridRow {
-            Text("Healing")
-                .gridRowTitleStyle()
-            Text(viewModel.healing)
-        }
-    }
-    
-    var critRate: some View {
-        GridRow {
-            Text("Crit rate")
-                .gridRowTitleStyle()
-            Text(viewModel.critRate)
-        }
-    }
-    
-    var ailmentChance: some View {
-        GridRow {
-            Text("Ailment chance")
-                .gridRowTitleStyle()
-            Text(viewModel.ailmentChance)
-        }
-    }
-    
-    var flinchChance: some View {
-        GridRow {
-            Text("Flinch chance")
-                .gridRowTitleStyle()
-            Text(viewModel.flinchChance)
-        }
-    }
-    
-    var statChance: some View {
-        GridRow {
-            Text("Stat chance")
-                .gridRowTitleStyle()
-            Text(viewModel.statChance)
-        }
     }
 }
 

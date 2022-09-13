@@ -1,5 +1,6 @@
 TODO.md
 xcuserdata/
+.DS_Store
 
 *.xcodeproj/*
 !*.xcodeproj/project. pbxproj
