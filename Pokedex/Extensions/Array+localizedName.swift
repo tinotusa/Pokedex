@@ -140,6 +140,43 @@ extension Array where Element == VerboseEffect {
     }
 }
 
+extension Array where Element == FlavorText {
+    func localizedFlavorText(language: Language?, default defaultValue: String) -> String {
+        let availableLanguageCodes = self.map { text in
+            text.language.name
+        }
+        
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
+        var flavorText: FlavorText? = nil
+        // try to find the requested langauge
+        if let language {
+            flavorText = self.first { text in
+                text.language.name == language.name
+            }
+        }
+        
+        // if not found try to get device language
+        if flavorText == nil {
+            flavorText = self.first { text in
+                text.language.name == deviceLanguageCode
+            }
+        }
+        
+        // fallback to english if all else fails
+        if flavorText == nil {
+            flavorText = self.first { text in
+                text.language.name == "en"
+            }
+        }
+        
+        if let flavorText {
+            return flavorText.flavorText.replacingOccurrences(of: "[\\s\n]+", with: " ", options: .regularExpression, range: nil)
+        }
+
+        return defaultValue
+    }
+}
+
 extension Array where Element == MoveFlavorText {
     func localizedMoveFlavorText(language: Language?, default defaultValue: String) -> String {
         let availableLanguageCodes = self.map { effect in

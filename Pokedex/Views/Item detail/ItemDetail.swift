@@ -89,8 +89,8 @@ private extension ItemDetail {
                         case .heldBy:
                             ShowMoreButton(
                                 label: viewModel.itemInfo[.heldBy, default: "Error"],
-                                action: viewModel.showHeldByPokemonView,
-                                showButton: !item.heldByPokemon.isEmpty
+                                showButton: !item.heldByPokemon.isEmpty,
+                                action: viewModel.showHeldByPokemonView
                             )
                         default: Text(viewModel.itemInfo[itemInfoKey, default: "Error"])
                         }

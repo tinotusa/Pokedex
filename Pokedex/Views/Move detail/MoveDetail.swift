@@ -47,16 +47,17 @@ private extension MoveDetail {
     var pokemonList: some View {
         ShowMoreButton(
             label: viewModel.moveInfo[.learnedBy, default: "Error"],
-            action: viewModel.showLearnedByPokemonView,
-            showButton: !move.learnedByPokemon.isEmpty
+            showButton: !move.learnedByPokemon.isEmpty,
+            action: viewModel.showLearnedByPokemonView
         )
     }
     
     var machinesList: some View {
         ShowMoreButton(
             label: viewModel.moveInfo[.machines, default: "Error"],
-            action: viewModel.showMachinesListView,
-            showButton: !move.machines.isEmpty
+            showButton: !move.machines.isEmpty,
+            action: viewModel.showMachinesListView
+            
         )
     }
     

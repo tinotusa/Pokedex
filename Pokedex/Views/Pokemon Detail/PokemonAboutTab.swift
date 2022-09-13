@@ -13,8 +13,8 @@ struct PokemonAboutTab: View {
     @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
-        Group {
-            switch viewModel.viewLoadingState {
+        VStack {
+            switch viewModel.viewState {
             case .loading:
                 LoadingView()
                     .task {
@@ -30,131 +30,116 @@ struct PokemonAboutTab: View {
         }
         .bodyStyle()
         .foregroundColor(.textColour)
-        
+        .backgroundColour()
     }
 }
 
-extension PokemonAboutTab {
-    @ViewBuilder
-    var nameRow: some View {
-        HStack {
-            Text(viewModel.localizedPokemonName(language: settingsManager.settings.language))
-            Spacer()
-            Text("#\(String(format: "%03d", viewModel.pokemonID))")
-                .fontWeight(.ultraLight)
-        }
-        .headerStyle()
-    }
-    
-    @ViewBuilder
-    func gridRow(title: String, value: String) -> some View {
-        GridRow {
-            Text(title)
-                .foregroundColor(.grayTextColour)
-            Text(value)
-        }
-    }
-    
-    @ViewBuilder
-    func gridRow(title: LocalizedStringKey, value: String, comment: StaticString? = nil) -> some View {
-        GridRow {
-            Text(title, comment: comment)
-                .foregroundColor(.grayTextColour)
-            Text(value)
-        }
-    }
-    
-    @ViewBuilder
-    func gridRow<Content: View>(
-        title: LocalizedStringKey,
-        @ViewBuilder content: () -> Content,
-        comment: StaticString? = nil
-    ) -> some View {
-        GridRow {
-            Text(title, comment: comment)
-                .foregroundColor(.grayTextColour)
-            content()
-        }
-    }
-    
+private extension PokemonAboutTab {
     var aboutTabView: some View {
         VStack(alignment: .leading) {
-            nameRow
+            HeaderWithID(title: viewModel.localizedPokemonName, id: pokemon.id)
             
             Text(viewModel.pokemonDescription)
                 .bodyStyle()
             Divider()
             Grid(alignment: .topLeading, verticalSpacing: 10) {
-                gridRow(title: "Generation") {
-                    GenerationTag(name: viewModel.generationName)
-                }
-                gridRow(title: "Type") {
-                    HStack {
-                        ForEach(pokemon.types, id: \.self) { pokemonType in
-                            PokemonTypeTag(pokemonType: pokemonType)
+                ForEach(PokemonAboutTabViewModel.PokemonInfo.allCases) { pokemonInfoKey in
+                    GridRow {
+                        Text(pokemonInfoKey.title)
+                            .gridRowTitleStyle()
+                        switch pokemonInfoKey {
+                        case .generation: GenerationTag(name: viewModel.pokemonInfo[.generation, default: "Error"])
+                        case .type: types
+                        case .abilities: abilitiesList
+                        case .eggGroups: eggGroups
+                        case .gender: pokemonGender
+                        case .pokedexEntryNumbers:
+                            ShowMoreButton(
+                                label: viewModel.pokemonInfo[pokemonInfoKey, default: "Error"],
+                                buttonLabel: viewModel.showingPokedexEntryNumbers ? "Less" : "More",
+                                iconSystemName: viewModel.showingPokedexEntryNumbers ? "chevron.up" : "chevron.down",
+                                action: viewModel.showPokedexEntryNumbers
+                            )
+                            .animation(nil, value: viewModel.showingPokedexEntryNumbers)
+                        default: Text(viewModel.pokemonInfo[pokemonInfoKey, default: "Error"])
                         }
                     }
-                }
-                gridRow(title: "Egg groups") {
-                    HStack {
-                        ForEach(viewModel.eggGroupNames, id: \.self) { name in
-                            Text(name)
-                            if name != viewModel.eggGroupNames.last! {
-                                Divider()
-                                    .frame(maxHeight: 20)
-                            }
-                        }
-                    }
-                }
-                gridRow(title: "Height") { Text(Measurement(value: viewModel.pokemonHeight, unit: UnitLength.meters).formatted()) }
-                gridRow(title: "Weight") { Text(Measurement(value: viewModel.pokemonWeight, unit: UnitMass.kilograms).formatted()) }
-                gridRow(title: "Gender") {
-                    if viewModel.pokemonFemaleGenderPercentage <= 0.0 {
-                        Text("No gender")
-                            .bold()
-                    } else {
-                        HStack(alignment: .lastTextBaseline) {
-                            Text("♂")
-                                .foregroundColor(.blue)
-                            Text("\(viewModel.pokemonMaleGenderPercentage.formatted(.percent))")
-                            Text("♀")
-                                .foregroundColor(.pink)
-                            Text("\(viewModel.pokemonFemaleGenderPercentage.formatted(.percent))")
-                        }
-                    }
-                }
-                Group {
-                    gridRow(title: "Genus", value: viewModel.pokemonSeedType)
-                    gridRow(title: "Capture rate", value: "\(viewModel.pokemonSpecies?.captureRate ?? 0)")
-                    gridRow(title: "Base happiness", value: "\(viewModel.pokemonSpecies?.baseHappiness ?? 0)")
-                    gridRow(title: "Growth rate", value: viewModel.localizedGrowthRateName)
-                    if viewModel.pokemonHasHabitat {
-                        gridRow(title: "Habitat", value: viewModel.localizedHabitatName)
-                    }
-                    gridRow(title: "Legendary", value: "\(viewModel.pokemonSpecies?.isLegendary ?? false ? "Yes" : "No")")
-                    gridRow(title: "Mythical", value: "\(viewModel.pokemonSpecies?.isMythical ?? false ? "Yes" : "No")")
                 }
             }
-            Divider()
-            Text("Pokedex entry numbers")
-                .subHeaderStyle()
-            Grid(alignment: .bottomLeading, verticalSpacing: 5) {
-                ForEach(viewModel.pokedexNumbers, id: \.pokedex.id) { entryNumber, pokedex in
-                    gridRow(
-                        title: pokedex.names.localizedName(language: settingsManager.settings.language, default: pokedex.name),
-                        value: "\(entryNumber)"
-                    )
+            if viewModel.showingPokedexEntryNumbers {
+                Divider()
+                Text("Pokedex entry numbers")
+                    .subHeaderStyle()
+                Grid(alignment: .bottomLeading, verticalSpacing: 5) {
+                    ForEach(viewModel.pokedexNumbers, id: \.pokedex.id) { entryNumber, pokedex in
+                        GridRow {
+                            Text(pokedex.names.localizedName(language: settingsManager.settings.language, default: pokedex.name))
+                                .gridRowTitleStyle()
+                            Text("\(entryNumber)")
+                        }
+                    }
                 }
             }
         }
     }
+    
+    var abilitiesList: some View {
+        VStack(alignment: .leading) {
+            ForEach(viewModel.abilities, id: \.self) { ability in
+                NavigationLink(value: ability) {
+                    Text(viewModel.localizedAbilityName(ability: ability))
+                        .colouredLabel(colourName: pokemon.types.first!.type.name)
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    var pokemonGender: some View {
+        if viewModel.pokemonFemaleGenderPercentage <= 0.0 {
+            Text("No gender")
+                .bold()
+        } else {
+            HStack(alignment: .lastTextBaseline) {
+                Text("♂")
+                    .foregroundColor(.blue)
+                Text("\(viewModel.pokemonMaleGenderPercentage.formatted(.percent))")
+                Text("♀")
+                    .foregroundColor(.pink)
+                Text("\(viewModel.pokemonFemaleGenderPercentage.formatted(.percent))")
+            }
+        }
+    }
+    
+    var eggGroups: some View {
+        HStack {
+            ForEach(viewModel.eggGroupNames, id: \.self) { name in
+                Text(name)
+                if name != viewModel.eggGroupNames.last! {
+                    Divider()
+                        .frame(maxHeight: 20)
+                }
+            }
+        }
+    }
+    
+    var types: some View {
+        HStack {
+            ForEach(pokemon.types, id: \.self) { type in
+                PokemonTypeTag(pokemonType: type)
+            }
+        }
+    }
+    
 }
 
 struct PokemonAboutTab_Previews: PreviewProvider {
     static var previews: some View {
-        ScrollView(showsIndicators: false) {
-            PokemonAboutTab(pokemon: .example, viewModel: PokemonAboutTabViewModel())
-                .environmentObject(SettingsManager())
+        NavigationStack {
+            ScrollView(showsIndicators: false) {
+                PokemonAboutTab(pokemon: .example, viewModel: PokemonAboutTabViewModel())
+                    .environmentObject(SettingsManager())
+            }
         }
     }
 }

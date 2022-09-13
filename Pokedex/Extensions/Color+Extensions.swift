@@ -19,6 +19,7 @@ extension Color {
     static let grayTextColour = Color("grayTextColour")
     static let selectedTabColour = Color("selectedTabColour")
     static let unselectedTabColour = Color("unselectedTabColour")
+    static let highlightColour = Color("highlightColour")
     
     // Type colours
     static let bug = Color("bug")

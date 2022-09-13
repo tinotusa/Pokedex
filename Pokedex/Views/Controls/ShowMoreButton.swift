@@ -10,8 +10,9 @@ import SwiftUI
 struct ShowMoreButton: View {
     let label: String
     var buttonLabel: LocalizedStringKey = "List"
+    var iconSystemName = "chevron.right"
+    var showButton: Bool = true
     let action: () -> Void
-    let showButton: Bool
     
     var body: some View {
         HStack {
@@ -21,7 +22,7 @@ struct ShowMoreButton: View {
                 Button(action: action) {
                     HStack {
                         Text(buttonLabel)
-                        Image(systemName: "chevron.right")
+                        Image(systemName: iconSystemName)
                     }
                 }
                 .foregroundColor(.blue)
@@ -35,8 +36,7 @@ struct ShowMoreButton_Previews: PreviewProvider {
     static var previews: some View {
         ShowMoreButton(
             label: "Hello world",
-            action: {},
-            showButton: true
+            action: {}
         )
     }
 }

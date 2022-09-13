@@ -7,9 +7,8 @@
 
 import SwiftUI
 
-@MainActor
 final class PokemonAboutTabViewModel: ObservableObject {
-    @Published private var pokemon: Pokemon?
+    @Published private(set) var pokemon: Pokemon?
     @Published private(set) var pokemonSpecies: PokemonSpecies?
     @Published private(set) var generation: Generation?
     @Published private(set) var growthRate: GrowthRate?
@@ -17,27 +16,23 @@ final class PokemonAboutTabViewModel: ObservableObject {
     @Published private(set) var pokedexNumbers = [(entryNumber: Int, pokedex: Pokedex)]()
     @Published private(set) var eggGroups = [EggGroup]()
     @Published private(set) var abilities = [Ability]()
-    @Published private(set) var viewLoadingState = ViewState.loading
+    @Published private(set) var viewState = ViewState.loading
+    @Published private(set) var pokemonInfo = [PokemonInfo: String]()
+    @Published private(set) var showingPokedexEntryNumbers = false
     private var settings: Settings?
-    
-    init() { }
-    
-    private func setUp(settings: Settings, pokemon: Pokemon) {
-        self.settings = settings
-        self.pokemon = pokemon
-    }
-    
+}
+
+extension PokemonAboutTabViewModel {
+    @MainActor
     func loadData(settings: Settings, pokemon: Pokemon) async {
         setUp(settings: settings, pokemon: pokemon)
         
         defer {
-            viewLoadingState = .loaded
-            print("TASK: FIRST DEFER")
+            getPokemonInfo()
+            viewState = .loaded
         }
         
         await withTaskGroup(of: Void.self) { group in
-            print("TASK: 1")
-            
             self.pokemonSpecies = try? await PokemonSpecies.from(name: pokemon.species.name)
             guard let pokemonSpecies = self.pokemonSpecies else {
                 print("Errow in \(#function). Pokemon species is nil.")
@@ -46,29 +41,24 @@ final class PokemonAboutTabViewModel: ObservableObject {
             
             group.addTask { @MainActor [self] in
                 generation = try? await Generation.from(name: pokemonSpecies.generation.name)
-                print("TASK: 2")
             }
             
             group.addTask { @MainActor [self] in
                 growthRate = try? await GrowthRate.from(name: pokemonSpecies.growthRate.name)
-                print("TASK: 3")
             }
             
             group.addTask { @MainActor [self] in
                 if let habitatResource = pokemonSpecies.habitat {
                     habitat = try? await PokemonHabitat.from(name: habitatResource.name)
-                    print("TASK: 33")
                 }
             }
             
             group.addTask { @MainActor [self] in
                 eggGroups = await pokemonSpecies.eggGroups()
-                print("TASK: 4")
             }
             
             group.addTask { @MainActor [self] in
                 abilities = await getPokemonAbilities()
-                print("TASK: 5")
             }
             
             for dexNumber in pokemonSpecies.pokedexNumbers {
@@ -79,10 +69,72 @@ final class PokemonAboutTabViewModel: ObservableObject {
                     }
                 }
             }
-            print("TASK: END OF GROUP TASKS")
         }
-        print("TASK: END OF function")
     }
+    
+    enum PokemonInfo: String, CaseIterable, Identifiable {
+        case generation
+        case type
+        case abilities
+        case eggGroups = "egg groups"
+        case height
+        case weight
+        case gender
+        case genus
+        case captureRate = "capture rate"
+        case baseHappiness = "base happiness"
+        case growthRate = "growth rate"
+        case habitat
+        case legendary
+        case mythical
+        case pokedexEntryNumbers = "Entry numbers"
+        
+        var id: Self { self }
+        
+        var title: LocalizedStringKey {
+            LocalizedStringKey(self.rawValue.localizedCapitalized)
+        }
+    }
+    
+    func showPokedexEntryNumbers() {
+        withAnimation {
+            showingPokedexEntryNumbers.toggle()
+        }
+    }
+    
+    func getPokemonInfo() {
+        guard let pokemon else { return }
+        guard let pokemonSpecies else { return }
+        pokemonInfo[.generation] = pokemonSpecies.generation.name
+        pokemonInfo[.type] = "\(pokemon.types.count) types"
+        pokemonInfo[.abilities] = "\(pokemon.abilities)"
+        pokemonInfo[.eggGroups] = "\(pokemonSpecies.eggGroups.count) groups"
+        pokemonInfo[.height] = Measurement(value: Double(pokemon.height), unit: UnitLength.meters).formatted()
+        pokemonInfo[.weight] = Measurement(value: Double(pokemon.height), unit: UnitMass.kilograms).formatted()
+        pokemonInfo[.gender] = "\(pokemonSpecies.genderRate)"
+        pokemonInfo[.genus] = pokemonSeedType
+        if let captureRate = pokemonSpecies.captureRate {
+            pokemonInfo[.captureRate] = "\(captureRate)"
+        } else {
+            pokemonInfo[.captureRate] = "N/A"
+        }
+        if let baseHappiness = pokemonSpecies.baseHappiness {
+            pokemonInfo[.baseHappiness] = "\(baseHappiness)"
+        } else {
+            pokemonInfo[.baseHappiness] = "N/A"
+        }
+        
+        pokemonInfo[.growthRate] = localizedGrowthRateName
+        pokemonInfo[.habitat] = localizedHabitatName
+        pokemonInfo[.legendary] = pokemonSpecies.isLegendary ? "Yes" : "No"
+        pokemonInfo[.mythical] = pokemonSpecies.isMythical ? "Yes" : "No"
+        pokemonInfo[.pokedexEntryNumbers] = "\(pokemonSpecies.pokedexNumbers.count) entries"
+    }
+    
+    func localizedAbilityName(ability: Ability) -> String {
+        ability.names.localizedName(language: settings?.language, default: ability.name)
+    }
+    
 }
 
 // MARK: Computed properties
@@ -106,11 +158,6 @@ extension PokemonAboutTabViewModel {
             return "Error"
         }
         return generation.name
-    }
-    
-    var pokemonHasHabitat: Bool {
-        guard let pokemonSpecies else { return false }
-        return pokemonSpecies.habitat != nil
     }
     
     var localizedHabitatName: String {
@@ -164,39 +211,26 @@ extension PokemonAboutTabViewModel {
         }
     }
 
-    /// The number for the pokemon in the pokedex.
-    var pokemonID: Int {
-        pokemon?.id ?? 0
-    }
-    
-    /// The pokemon's height in meters.
-    var pokemonHeight: Double {
-        Double(pokemon?.height ?? 0) / 10.0
-    }
-    
-    /// The pokemon's weight in kilograms.
-    var pokemonWeight: Double {
-        Double(pokemon?.weight ?? 0) / 10.0
-    }
-    
-    func localizedPokemonName(language: Language?) -> String {
+    var localizedPokemonName: String {
         guard let pokemonSpecies else { return "Error" }
         guard let pokemon else { return "Error" }
-        return pokemonSpecies.names.localizedName(language: language, default: pokemon.name)
+        return pokemonSpecies.names.localizedName(language: settings?.language, default: pokemon.name)
     }
     
-    /// The localized names for the pokemon's abilities.
-    var pokemonAbilities: String {
+    /// The localized array of names for the pokemon's abilities.
+    var pokemonAbilities: [String] {
         var abilityNames = [String]()
         guard let settings else {
+            #if DEBUG
             print("Error in \(#function) at line: \(#line). Settings is nil.")
-            return "Error"
+            #endif
+            return []
         }
         for ability in abilities {
             let name = ability.names.localizedName(language: settings.language, default: ability.name)
             abilityNames.append(name)
         }
-        return ListFormatter.localizedString(byJoining: abilityNames)
+        return abilityNames
     }
     
     /// The percentage chance for the male pokemon.
@@ -212,30 +246,20 @@ extension PokemonAboutTabViewModel {
     }
     
     var pokemonDescription: String {
-        guard let species = pokemonSpecies else {
+        guard let pokemonSpecies = pokemonSpecies else {
             return "Error"
         }
-        let availableLangaugeCodes = species.flavorTextEntries.map { entry in
-            entry.language.name
-        }
-        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLangaugeCodes, forPreferences: nil).first!
-        var flavorText = species.flavorTextEntries.first { entry in
-            if let settings = settings, let language = settings.language {
-                return entry.language.name == language.name
-            }
-            return false
-        }
-        if flavorText == nil {
-            flavorText = species.flavorTextEntries.first { entry in
-                entry.language.name == deviceLanguageCode
-            }
-        }
-        return flavorText?.flavorText ?? "No description found."
+        return pokemonSpecies.flavorTextEntries.localizedFlavorText(language: settings?.language, default: "No flavor text.")
     }
 }
 
 // MARK: Private functions
 private extension PokemonAboutTabViewModel {
+    private func setUp(settings: Settings, pokemon: Pokemon) {
+        self.settings = settings
+        self.pokemon = pokemon
+    }
+    
     /// Gets the abilities of this pokemon.
     func getPokemonAbilities() async -> [Ability] {
         guard let pokemon else { return [] }

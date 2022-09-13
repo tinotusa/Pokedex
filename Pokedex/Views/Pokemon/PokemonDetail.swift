@@ -35,7 +35,7 @@ struct PokemonDetail: View {
                             }
                     case .loaded:
                         VStack {
-                            PokemonImage(url: pokemon.officialArtWork, imageSize: Constants.imageSize)
+                            DetailImage(url: pokemon.officialArtWork)
                             
                             TabBar(tabs: PokemonInfoTab.self, selectedTab: $selectedTab)
                             

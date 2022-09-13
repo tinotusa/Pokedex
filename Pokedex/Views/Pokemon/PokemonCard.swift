@@ -15,9 +15,9 @@ struct PokemonCard: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            PokemonImage(
+            DetailImage(
                 url: pokemon.officialArtWork,
-                imageSize: Constants.imageSize
+                size: Constants.imageSize
             )
             VStack(alignment: .leading) {
                 Text(viewModel.localizedPokemonName)
