@@ -38,7 +38,7 @@ struct MoveDetail: View {
                 .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
         .fullScreenCover(isPresented: $viewModel.showPokemonList) {
-            MovePokemonListView(moveDetailViewModel: viewModel)
+            MovePokemonListView(move: move, description: "Pokemon that can learn this move.")
                 .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
         .fullScreenCover(isPresented: $viewModel.showMoveFlavorTextEntries) {

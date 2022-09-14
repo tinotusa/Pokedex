@@ -72,7 +72,7 @@ struct HomeView: View {
                 AbilityDetail(ability: ability)
             }
             .navigationDestination(for: `Type`.self) { type in
-                Text("Looking at: \(type.name)")
+                TypeDetail(type: type)
             }
             .navigationDestination(for: Generation.self) { generation in
                 Text("Looking at: \(generation.name)")

@@ -7,6 +7,17 @@
 
 import Foundation
 
+extension `Type` {
+    static var example: `Type` {
+        do {
+            return try Bundle.main.loadJSON(ofType: `Type`.self, filename: "type", extension: "json")
+        } catch {
+            print("Error in \(#function).\n\(error)")
+            fatalError(error.localizedDescription)
+        }
+    }
+}
+
 // MARK: Comparable conformance
 extension `Type`: Comparable {
     static func < (lhs: Type, rhs: Type) -> Bool {
