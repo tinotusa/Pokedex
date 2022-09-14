@@ -38,24 +38,6 @@ struct Item: Codable, Hashable, Identifiable {
     let babyTriggerFor: APIResource?
     /// A list of the machines related to this item.
     let machines: [MachineVersionDetail]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case cost
-        case flingPower = "fling_power"
-        case flingEffect = "fling_effect"
-        case attributes
-        case category
-        case effectEntries = "effect_entries"
-        case flavorTextEntries = "flavor_text_entries"
-        case gameIndices = "game_indices"
-        case names
-        case sprites
-        case heldByPokemon = "held_by_pokemon"
-        case babyTriggerFor = "baby_trigger_for"
-        case machines
-    }
 }
 
 // MARK: - SearchByNameOrID conformance

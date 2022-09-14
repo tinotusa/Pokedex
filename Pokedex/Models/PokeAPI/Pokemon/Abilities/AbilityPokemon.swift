@@ -15,10 +15,4 @@ struct AbilityPokemon: Codable, Hashable {
     let slot: Int
     /// The Pokémon this ability could belong to.
     let pokemon: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case isHidden = "is_hidden"
-        case slot
-        case pokemon
-    }
 }

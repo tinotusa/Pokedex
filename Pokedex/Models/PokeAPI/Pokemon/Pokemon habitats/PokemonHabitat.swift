@@ -16,13 +16,6 @@ struct PokemonHabitat: Codable, Hashable, Identifiable {
     let names: [Name]
     /// A list of the Pokémon species that can be found in this habitat.
     let pokemonSpecies: [NamedAPIResource]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case names
-        case pokemonSpecies = "pokemon_species"
-    }
 }
 
 extension PokemonHabitat: SearchByNameOrID {

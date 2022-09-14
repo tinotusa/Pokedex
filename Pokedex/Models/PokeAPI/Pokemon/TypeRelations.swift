@@ -20,13 +20,4 @@ struct TypeRelations: Codable, Hashable {
     let halfDamageFrom: [NamedAPIResource]
     /// A list of types that are very effective against this type.
     let doubleDamageFrom: [NamedAPIResource]
-    
-    enum CodingKeys: String, CodingKey {
-        case noDamageTo = "no_damage_to"
-        case halfDamageTo = "half_damage_to"
-        case doubleDamageTo = "double_damage_to"
-        case noDamageFrom = "no_damage_from"
-        case halfDamageFrom = "half_damage_from"
-        case doubleDamageFrom = "double_damage_from"
-    }
 }

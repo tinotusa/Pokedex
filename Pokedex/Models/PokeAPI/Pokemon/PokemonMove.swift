@@ -12,11 +12,6 @@ struct PokemonMove: Codable, Hashable {
     let move: NamedAPIResource
     /// The details of the version in which the Pokemon can learn the move.
     let versionGroupDetails: [PokemonMoveVersion]
-    
-    enum CodingKeys: String, CodingKey {
-        case move
-        case versionGroupDetails = "version_group_details"
-    }
 }
 
 struct PokemonMoveVersion: Codable, Hashable {
@@ -26,10 +21,4 @@ struct PokemonMoveVersion: Codable, Hashable {
     let versionGroup: NamedAPIResource
     /// The minimum level to learn the move.
     let levelLearnedAt: Int
-    
-    enum CodingKeys: String, CodingKey {
-        case moveLearnMethod = "move_learn_method"
-        case versionGroup = "version_group"
-        case levelLearnedAt = "level_learned_at"
-    }
 }

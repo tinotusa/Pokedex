@@ -14,10 +14,4 @@ struct VersionGroupFlavorText: Codable, Hashable {
     let language: NamedAPIResource
     /// The version group which uses this flavor text.
     let versionGroup: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case text
-        case language
-        case versionGroup = "version_group"
-    }
 }

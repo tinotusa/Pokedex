@@ -7,25 +7,15 @@
 
 import Foundation
 
-struct PokemonSpeciesDetails: Codable {
-    let name: String
-    let url: URL
-}
-
-struct EggGroup: Identifiable {
+struct EggGroup: Codable, Identifiable {
+    /// The identifier for this resource.
     let id: Int
+    /// The name for this resource.
     let name: String
+    /// The name of this resource listed in different languages.
     let names: [Name]
-    let pokemonSpecies: [PokemonSpeciesDetails]
-}
-
-extension EggGroup: Codable {
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case names
-        case pokemonSpecies = "pokemon_species"
-    }
+    /// A list of all Pokémon species that are members of this egg group.
+    let pokemonSpecies: [NamedAPIResource]
 }
 
 extension EggGroup: SearchByNameOrID {

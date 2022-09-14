@@ -14,6 +14,7 @@ final class MoveDetailViewModel: ObservableObject {
     @Published private(set) var generation: Generation?
     @Published private(set) var machineItems = [Item]()
     @Published private(set) var moveTarget: MoveTarget?
+    @Published private(set) var filteredMoveFlavorTextEntries = [MoveFlavorText]()
     
     // Meta data
     @Published private(set) var moveAilment: MoveAilment?
@@ -21,6 +22,8 @@ final class MoveDetailViewModel: ObservableObject {
     // other
     @Published var showMachinesList = false
     @Published var showPokemonList = false
+    @Published var showLongEffectEntry = false
+    @Published var showMoveFlavorTextEntries = false
     @Published var viewState = ViewState.loading
     
     let unavailableField = "N/A"
@@ -28,20 +31,38 @@ final class MoveDetailViewModel: ObservableObject {
     @Published private(set) var moveMetaInfo = [MoveMetaInfoKey: String]()
 }
 
-private extension MoveDetailViewModel {
-    private func setUp(move: Move, settings: Settings) {
-        self.move = move
-        self.settings = settings
+extension MoveDetailViewModel {
+    enum MoveInfoKey: String, CaseIterable, Identifiable{
+        case type = "type"
+        case target = "target"
+        case accuracy = "accuracy"
+        case effectChance = "effect chance"
+        case powerPoints = "power points"
+        case priority = "priority"
+        case power = "power"
+        case damageClass = "damage class"
+        case moveFlavourTextEntries = "flavour text entries"
+        case learnedBy = "learned by"
+        case generation = "generation"
+        case machines = "machines"
+        
+        var id: Self { self }
     }
     
-    private func getInt(_ value: Int?, formatStyle: FloatingPointFormatStyle<Double>.Percent? = nil) -> String {
-        guard let value else {
-            return "N/A"
-        }
-        if let formatStyle {
-            return formatStyle.format(Double(value) / 100.0)
-        }
-        return "\(value)"
+    enum MoveMetaInfoKey: String, CaseIterable, Identifiable {
+        case ailment = "ailment"
+        case category = "category"
+        case minHits = "min hits"
+        case maxHits = "max hits"
+        case maxTurns = "max turns"
+        case drain = "drain"
+        case healing = "healing"
+        case critRate = "crit rate"
+        case ailmentChance = "ailment chance"
+        case flinchChance = "flinch chance"
+        case statChance = "stat chance"
+        
+        var id: Self { self }
     }
 }
 
@@ -78,25 +99,26 @@ extension MoveDetailViewModel {
             viewState = .loaded
         }
     }
-    
-    enum MoveInfoKey: String, CaseIterable, Identifiable{
-        case type = "type"
-        case target = "target"
-        case accuracy = "accuracy"
-        case effectChance = "effect chance"
-        case powerPoints = "power points"
-        case priority = "priority"
-        case power = "power"
-        case damageClass = "damage class"
-        case effect = "effect"
-        case learnedBy = "learned by"
-        case generation = "generation"
-        case machines = "machines"
-        
-        var id: Self { self }
+ 
+    func localizedVerboseEffect(short: Bool = false) -> String {
+        guard let move else { return "Error" }
+        guard let settings else { return "Error" }
+        return move.effectEntries.localizedEffectEntry(
+            shortEffect: short,
+            language: settings.language,
+            default: "Error",
+            effectChance: move.effectChance
+        )
+    }
+}
+
+private extension MoveDetailViewModel {
+    func setUp(move: Move, settings: Settings) {
+        self.move = move
+        self.settings = settings
     }
     
-    private func getMoveInfo() {
+    func getMoveInfo() {
         guard let move else { return }
 
         moveInfo[.type] = move.type.name
@@ -123,7 +145,7 @@ extension MoveDetailViewModel {
         }
         
         moveInfo[.damageClass] = "\(move.damageClass.name)"
-        moveInfo[.effect] = localizedShortVerboseEffect
+        moveInfo[.moveFlavourTextEntries] = "\(flavorTextEntriesCount) entries"
         moveInfo[.learnedBy] = "\(move.learnedByPokemon.count) pokemon"
         moveInfo[.generation] = "\(move.generation.name)"
         
@@ -133,25 +155,9 @@ extension MoveDetailViewModel {
         }
     }
     
-    enum MoveMetaInfoKey: String, CaseIterable, Identifiable {
-        case ailment = "ailment"
-        case category = "category"
-        case minHits = "min hits"
-        case maxHits = "max hits"
-        case maxTurns = "max turns"
-        case drain = "drain"
-        case healing = "healing"
-        case critRate = "crit rate"
-        case ailmentChance = "ailment chance"
-        case flinchChance = "flinch chance"
-        case statChance = "stat chance"
-        
-        var id: Self { self }
-    }
-    
-    private func getMoveMetaInfo() {
+    func getMoveMetaInfo() {
         guard let move else { return }
-        moveMetaInfo[.ailment] = move.meta.ailment.name
+        moveMetaInfo[.ailment] = localizedMoveAilmentName
         moveMetaInfo[.category] = move.meta.category.name.localizedCapitalized
         if let minHits = move.meta.minHits {
             moveMetaInfo[.minHits] = "\(minHits)"
@@ -177,14 +183,6 @@ extension MoveDetailViewModel {
         moveMetaInfo[.ailmentChance] = move.meta.ailmentChance.formatted(.percent)
         moveMetaInfo[.flinchChance] = move.meta.flinchChance.formatted(.percent)
         moveMetaInfo[.statChance] = move.meta.statChance.formatted(.percent)
-    }
-    
-    func showLearnedByPokemonView() {
-        showPokemonList = true
-    }
-    
-    func showMachinesListView() {
-        showMachinesList = true
     }
 }
 
@@ -214,39 +212,6 @@ extension MoveDetailViewModel {
         return move.id
     }
     
-    var machinesCount: String {
-        guard let move else { return "Error" }
-        let count = move.machines.count
-        if count == 0 {
-            return "N/A"
-        }
-        return "\(count)"
-    }
-    
-    var accuracy: String {
-        guard let move else { return "Error" }
-        if let accuracy = move.accuracy {
-            return "\(accuracy.formatted(.percent))"
-        }
-        return "N/A"
-    }
-    
-    var effectChance: String {
-        guard let move else { return "Error" }
-        if let effect = move.effectChance {
-            return "\(effect.formatted(.percent))"
-        }
-        return "N/A"
-    }
-    
-    var power: String {
-        guard let move else { return "Error" }
-        if let power = move.power {
-            return "\(power)"
-        }
-        return "N/A"
-    }
-    
     var localizedMoveDamageClassName: String {
         guard let moveDamageClass else {
             print("Error in \(#function). moveDamageClass is nil.")
@@ -263,40 +228,12 @@ extension MoveDetailViewModel {
             .localizedCapitalized
     }
     
-    var localizedShortVerboseEffect: String {
-        guard let move else { return "Error" }
-        guard let settings else { return "Error" }
-        return move.effectEntries.localizedEffectEntry(
-            shortEffect: true,
-            language: settings.language,
-            default: "Error",
-            effectChance: move.effectChance
-        )
-    }
-    
     var localizedFlavorText: String {
         guard let move else { return "Error" }
         guard let settings else { return "Error" }
         return move.flavorTextEntries.localizedMoveFlavorText(language: settings.language, default: "Error")
     }
     
-    var localizedGenerationName: String {
-        guard let generation else {
-            print("Error in \(#function). generation is nil.")
-            return "Error"
-        }
-        guard let settings else { return "Error" }
-        return generation.names.localizedName(language: settings.language, default: "Error")
-    }
-    
-    var moveCanBeTaughtByMachines: Bool {
-        guard let move else { return false }
-        return !move.machines.isEmpty
-    }
-}
-
-// MARK: Move metadata computed properties
-extension MoveDetailViewModel {
     var localizedMoveAilmentName: String {
         guard let moveAilment else {
             print("Error in \(#function). move ailment is nil.")
@@ -306,56 +243,34 @@ extension MoveDetailViewModel {
         return moveAilment.names.localizedName(language: settings.language, default: moveAilment.name)
     }
     
-    var moveCategoryName: String {
-        guard let moveCategory else {
-            print("Error in \(#function). move category is nil.")
-            return "Error"
+    var flavorTextEntriesCount: Int {
+        guard let move else { return 0 }
+        let availableLanguageCodes = move.flavorTextEntries.map { entry in
+            entry.language.name
         }
-        return moveCategory.name.localizedCapitalized
-    }
-    
-    var minHits: String {
-        guard let move else { return "Error" }
-        return getInt(move.meta.minHits)
-    }
-    
-    var maxHits: String {
-        guard let move else { return "Error" }
-        return getInt(move.meta.maxHits)
-    }
-    
-    var maxTurns: String {
-        guard let move else { return "Error" }
-        return getInt(move.meta.maxTurns)
-    }
-    
-    var drain: String {
-        guard let move else { return "Error" }
-        return getInt(move.meta.drain)
-    }
-    
-    var healing: String {
-        guard let move else { return "Error" }
-        return getInt(move.meta.healing)
-    }
-    
-    var critRate: String {
-        guard let move else { return "Error" }
-        return getInt(move.meta.critRate)
-    }
-    
-    var ailmentChance: String {
-        guard let move else { return "Error" }
-        return getInt(move.meta.ailmentChance, formatStyle: .percent)
-    }
-    
-    var flinchChance: String {
-        guard let move else { return "Error" }
-        return getInt(move.meta.flinchChance, formatStyle: .percent)
-    }
-    
-    var statChance: String {
-        guard let move else { return "Error" }
-        return getInt(move.meta.statChance, formatStyle: .percent)
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
+        var entries: [MoveFlavorText]? = nil
+        if let language = settings?.language {
+            entries = move.flavorTextEntries.filter { entry in
+                return entry.language.name == language.name
+            }
+        }
+        
+        if entries == nil {
+            entries = move.flavorTextEntries.filter { entry in
+                return entry.language.name == deviceLanguageCode
+            }
+        }
+        
+        if entries == nil {
+            entries = move.flavorTextEntries.filter { entry in
+                return entry.language.name == "en"
+            }
+        }
+        if let entries {
+            self.filteredMoveFlavorTextEntries = entries
+            return entries.count
+        }
+        return 0
     }
 }

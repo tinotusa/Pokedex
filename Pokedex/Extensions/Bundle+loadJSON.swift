@@ -10,7 +10,7 @@ import Foundation
 extension Bundle {
     enum LoadJSONError: Error, LocalizedError {
         case noFileFound
-        case dataDecodingError
+        case dataDecodingError(Error)
     }
     
     func loadJSON<T>(ofType type: T.Type, filename: String, extension: String? = nil) throws -> T
@@ -22,9 +22,11 @@ extension Bundle {
         
         do {
             let fileData = try Data(contentsOf: fileURL)
-            return try JSONDecoder().decode(type, from: fileData)
+            let decoder = JSONDecoder()
+            decoder.keyDecodingStrategy = .convertFromSnakeCase
+            return try decoder.decode(type, from: fileData)
         } catch {
-            throw LoadJSONError.dataDecodingError
+            throw LoadJSONError.dataDecodingError(error)
         }
     }
 }

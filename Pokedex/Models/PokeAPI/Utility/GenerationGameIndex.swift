@@ -12,9 +12,4 @@ struct GenerationGameIndex: Codable, Hashable {
     let gameIndex: Int
     /// The generation relevent to this game index.
     let generation: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case gameIndex = "game_index"
-        case generation
-    }
 }

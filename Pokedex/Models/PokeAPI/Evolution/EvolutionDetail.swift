@@ -55,26 +55,5 @@ struct EvolutionDetail: Codable, Hashable {
     let tradeSpecies: NamedAPIResource?
     /// Whether or not the 3DS needs to be turned upside-down as this Pokémon levels up.
     let turnUpsideDown: Bool
-    
-    enum CodingKeys: String, CodingKey {
-        case item
-        case trigger
-        case gender
-        case heldItem = "held_item"
-        case knownMove = "known_move"
-        case knownMoveType = "known_move_type"
-        case location
-        case minLevel = "min_level"
-        case minHappiness = "min_happiness"
-        case minBeauty = "min_beauty"
-        case minAffection = "min_affection"
-        case needsOverworldRain = "needs_overworld_rain"
-        case partySpecies = "party_species"
-        case partyType = "party_type"
-        case relativePhysicalStats = "relative_physical_stats"
-        case timeOfDay = "time_of_day"
-        case tradeSpecies = "trade_species"
-        case turnUpsideDown = "turn_upside_down"
-    }
 }
 

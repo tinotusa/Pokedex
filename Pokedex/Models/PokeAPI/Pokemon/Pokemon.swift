@@ -8,7 +8,7 @@
 import SwiftUI
 
 /// A pokemon result from PokeAPI.co
-struct Pokemon: Identifiable, Hashable {
+struct Pokemon: Codable, Identifiable, Hashable {
     /// The identifier for this resource.
     let id: Int
     /// The name for this resource.
@@ -63,28 +63,3 @@ extension Pokemon: SearchableByURL {
         try await PokeAPI.shared.getData(for: Pokemon.self, url: url)
     }
 }
-
-// MARK: - Codable conformance
-extension Pokemon: Codable {
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case baseExperience = "base_experience"
-        case height
-        case isDefault = "is_default"
-        case order
-        case weight
-        case abilities
-        case forms
-        case gameIndices = "game_indices"
-        case heldItems = "held_items"
-        case locationAreaEncounters = "location_area_encounters"
-        case moves
-        case pastTypes = "past_types"
-        case sprites
-        case species
-        case stats
-        case types
-    }
-}
-

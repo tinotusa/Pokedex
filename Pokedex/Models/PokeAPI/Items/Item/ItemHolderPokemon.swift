@@ -12,9 +12,4 @@ struct ItemHolderPokemon: Codable, Hashable {
     let pokemon: NamedAPIResource
     /// The details for the version that this item is held in by the Pokémon.
     let versionDetails: [ItemHolderPokemonVersionDetail]
-    
-    enum CodingKeys: String, CodingKey {
-        case pokemon
-        case versionDetails = "version_details"
-    }
 }

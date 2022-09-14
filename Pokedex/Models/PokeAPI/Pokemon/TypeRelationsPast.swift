@@ -12,9 +12,4 @@ struct TypeRelationsPast: Codable, Hashable {
     let generation: NamedAPIResource
     /// The damage relations the referenced type had up to and including the listed generation.
     let damageRelations: TypeRelations
-    
-    enum CodingKeys: String, CodingKey {
-        case generation
-        case damageRelations = "damage_relations"
-    }
 }

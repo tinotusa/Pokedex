@@ -19,15 +19,6 @@ struct Machine: Codable, Hashable, Identifiable {
 }
 
 extension Machine {
-    enum CodingKeys: String, CodingKey {
-        case id
-        case item
-        case move
-        case versionGroup = "version_group"
-    }
-}
-
-extension Machine {
     static func from(url: URL) async throws -> Machine {
         try await PokeAPI.shared.getData(for: Machine.self, url: url)
     }

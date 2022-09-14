@@ -17,12 +17,6 @@ struct EvolutionChain: Codable, Hashable {
     /// Pokémon in the chain. Each link references the next Pokémon in the
     /// natural evolution order.
     let chain: ChainLink
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case babyTriggerItem = "baby_trigger_item"
-        case chain
-    }
 }
 
 // MARK: - Property wrappers

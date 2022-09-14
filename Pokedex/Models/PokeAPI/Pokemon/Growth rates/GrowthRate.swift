@@ -20,15 +20,6 @@ struct GrowthRate: Codable, Hashable, Identifiable {
     let levels: [GrowthRateExperienceLevel]
     /// A list of Pokémon species that gain levels at this growth rate.
     let pokemonSpecies: [NamedAPIResource]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case formula
-        case descriptions
-        case levels
-        case pokemonSpecies = "pokemon_species"
-    }
 }
 
 

@@ -16,13 +16,6 @@ struct Gender: Codable, Hashable, Identifiable {
     let pokemonSpeciesDetails: [PokemonSpeciesGender]
     /// A list of Pokémon species that required this gender in order for a Pokémon to evolve into them.
     let requiredForEvolution: [NamedAPIResource]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case pokemonSpeciesDetails = "pokemon_species_details"
-        case requiredForEvolution = "required_for_evolution"
-    }
 }
 
 extension Gender: SearchByNameOrID {

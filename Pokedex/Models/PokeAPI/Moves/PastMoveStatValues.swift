@@ -22,14 +22,4 @@ struct PastMoveStatValues: Codable, Hashable {
     let type: NamedAPIResource?
     /// The version group in which these move stat values were in effect.
     let versionGroup: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case accuracy
-        case effectChance = "effect_chance"
-        case power
-        case pp
-        case effectEntries = "effect_entries"
-        case type
-        case versionGroup = "version_group"
-    }
 }

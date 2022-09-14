@@ -12,9 +12,4 @@ struct AbilityEffectChange: Codable, Hashable {
     let effectEntries: [Effect]
     /// The version group in which the previous effect of this ability originated.
     let versionGroup: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case effectEntries = "effect_entries"
-        case versionGroup = "version_group"
-    }
 }

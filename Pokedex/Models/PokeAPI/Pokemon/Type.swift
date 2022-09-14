@@ -28,19 +28,6 @@ struct `Type`: Codable, Hashable, Identifiable {
     let pokemon: [TypePokemon]
     /// A list of moves that have this type.
     let moves: [NamedAPIResource]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case damageRelations = "damage_relations"
-        case pastDamageRelations = "past_damage_relations"
-        case gameIndices = "game_indices"
-        case generation
-        case moveDamageClass = "move_damage_class"
-        case names
-        case pokemon
-        case moves
-    }
 }
 
 extension `Type`: SearchByNameOrID {
@@ -50,13 +37,5 @@ extension `Type`: SearchByNameOrID {
     
     static func from(id: Int) async throws -> `Type` {
         try await Self.from(name: "\(id)")
-    }
-}
-
-
-// MARK: Comparable conformance
-extension `Type`: Comparable {
-    static func < (lhs: Type, rhs: Type) -> Bool {
-        lhs.id < rhs.id
     }
 }

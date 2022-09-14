@@ -12,9 +12,4 @@ struct MachineVersionDetail: Codable, Hashable {
     let machine: APIResource
     /// The version group of this specific machine.
     let versionGroup: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case machine
-        case versionGroup = "version_group"
-    }
 }

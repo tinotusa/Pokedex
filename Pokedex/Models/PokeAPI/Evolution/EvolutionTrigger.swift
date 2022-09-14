@@ -16,13 +16,6 @@ struct EvolutionTrigger: Codable, Hashable, Identifiable {
     let names: [Name]
     /// A list of pokemon species that result from this evolution trigger.
     let pokemonSpecies: [NamedAPIResource]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case names
-        case pokemonSpecies = "pokemon_species"
-    }
 }
 
 // MARK: SearchByNameOrID conformance

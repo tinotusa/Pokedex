@@ -12,9 +12,4 @@ struct PokemonEntry: Codable, Hashable {
     let entryNumber: Int
     /// The Pokémon species being encountered.
     let pokemonSpecies: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case entryNumber = "entry_number"
-        case pokemonSpecies = "pokemon_species"
-    }
 }

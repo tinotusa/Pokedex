@@ -12,9 +12,4 @@ struct PokemonSpeciesVariety: Codable, Hashable {
     let isDefault: Bool
     /// The Pokémon variety.
     let pokemon: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case isDefault = "is_default"
-        case pokemon
-    }
 }

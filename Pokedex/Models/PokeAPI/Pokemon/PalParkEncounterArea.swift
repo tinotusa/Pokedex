@@ -14,10 +14,4 @@ struct PalParkEncounterArea: Codable, Hashable {
     let rate: Int
     /// The pal park area where this encounter happens.
     let area: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case baseScore = "base_score"
-        case rate
-        case area
-    }
 }

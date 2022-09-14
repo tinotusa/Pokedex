@@ -30,6 +30,8 @@ struct MoveDetail: View {
         }
         .padding()
         .toolbar(.hidden)
+        .bodyStyle()
+        .foregroundColor(.textColour)
         .backgroundColour()
         .fullScreenCover(isPresented: $viewModel.showMachinesList) {
             MachinesListView(moveDetailViewModel: viewModel)
@@ -37,6 +39,10 @@ struct MoveDetail: View {
         }
         .fullScreenCover(isPresented: $viewModel.showPokemonList) {
             MovePokemonListView(moveDetailViewModel: viewModel)
+                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
+        }
+        .fullScreenCover(isPresented: $viewModel.showMoveFlavorTextEntries) {
+            MoveFlavourTextEntriesListView(moveDetailViewModel: viewModel)
                 .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
     }
@@ -47,18 +53,43 @@ private extension MoveDetail {
     var pokemonList: some View {
         ShowMoreButton(
             label: viewModel.moveInfo[.learnedBy, default: "Error"],
-            showButton: !move.learnedByPokemon.isEmpty,
-            action: viewModel.showLearnedByPokemonView
-        )
+            showButton: !move.learnedByPokemon.isEmpty
+        ) {
+            viewModel.showPokemonList = true
+        }
     }
     
     var machinesList: some View {
         ShowMoreButton(
             label: viewModel.moveInfo[.machines, default: "Error"],
-            showButton: !move.machines.isEmpty,
-            action: viewModel.showMachinesListView
-            
-        )
+            showButton: !move.machines.isEmpty
+        ) {
+            viewModel.showMachinesList = true
+        }
+    }
+    
+    var moveFlavorTextEntires: some View {
+        ShowMoreButton(
+            label: viewModel.moveInfo[.moveFlavourTextEntries, default: "Error"],
+            showButton: !viewModel.filteredMoveFlavorTextEntries.isEmpty
+        ) {
+            viewModel.showMoveFlavorTextEntries = true
+        }
+    }
+    
+    var showDetailButton: some View {
+        Button {
+            withAnimation {
+                viewModel.showLongEffectEntry.toggle()
+            }
+        } label: {
+            Label(
+                viewModel.showLongEffectEntry ? "Hide detail" : "Show detail",
+                systemImage: viewModel.showLongEffectEntry ? "chevron.up" : "chevron.down"
+            )
+            .animation(nil, value: viewModel.showLongEffectEntry)
+        }
+        .foregroundColor(.highlightColour)
     }
     
     var moveDetail: some View {
@@ -66,8 +97,14 @@ private extension MoveDetail {
             VStack(alignment: .leading) {
                 HeaderWithID(title: viewModel.localizedMoveName, id: viewModel.moveID)
                     
-                Text(viewModel.localizedFlavorText)
-                    
+                Text(viewModel.localizedVerboseEffect(short: true))
+                
+                showDetailButton
+                
+                if viewModel.showLongEffectEntry {
+                    Text(viewModel.localizedVerboseEffect())
+                }
+                
                 Divider()
                 
                 Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: Constants.gridVerticalSpacing) {
@@ -75,15 +112,16 @@ private extension MoveDetail {
                         GridRow {
                             Text(moveInfoKey.rawValue.localizedCapitalized)
                                 .gridRowTitleStyle()
+                            
                             switch moveInfoKey {
                             case .type: PokemonTypeTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
+                            case .moveFlavourTextEntries: moveFlavorTextEntires
                             case .damageClass: DamageClassTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
                             case .learnedBy: pokemonList
                             case .generation: GenerationTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
                             case .machines: machinesList
                             default: Text(viewModel.moveInfo[moveInfoKey, default: "Error"])
                             }
-                            
                         }
                     }
                     
@@ -104,7 +142,6 @@ private extension MoveDetail {
                     }
                 }
             }
-            .bodyStyle()
         }
     }
     
@@ -116,7 +153,6 @@ private extension MoveDetail {
     
     enum Constants {
         static let gridVerticalSpacing = 6.0
-        static let maxMachines = 5
     }
 }
 

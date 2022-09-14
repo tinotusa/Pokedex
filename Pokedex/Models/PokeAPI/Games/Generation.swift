@@ -28,21 +28,6 @@ struct Generation: Codable, Hashable, Identifiable {
     let versionGroups: [NamedAPIResource]
 }
 
-// MARK: - CodingKeys
-extension Generation {
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case abilities
-        case names
-        case mainRegion = "main_region"
-        case moves
-        case pokemonSpecies = "pokemon_species"
-        case types
-        case versionGroups = "version_groups"
-    }
-}
-
 // MARK: - Example Generation
 extension Generation {
     static var example: Generation {

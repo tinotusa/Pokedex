@@ -14,10 +14,4 @@ struct VerboseEffect: Codable, Hashable {
     let shortEffect: String
     /// The language this effect is in.
     let language: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case effect
-        case shortEffect = "short_effect"
-        case language
-    }
 }

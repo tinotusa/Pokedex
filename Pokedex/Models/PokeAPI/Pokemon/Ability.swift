@@ -28,32 +28,6 @@ struct Ability: Codable, Hashable, Identifiable {
     let pokemon: [AbilityPokemon]
 }
 
-// MARK: - Example Ability
-extension Ability {
-    static var example: Ability {
-        do {
-            return try Bundle.main.loadJSON(ofType: Ability.self, filename: "ability", extension: "json")
-        } catch {
-            fatalError("Error in \(#function).\n\(error)")
-        }
-    }
-}
-
-// MARK: - CodingKeys
-extension Ability {
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case isMainSeries = "is_main_series"
-        case generation
-        case names
-        case effectEntries = "effect_entries"
-        case effectChanges = "effect_changes"
-        case flavorTextEntries = "flavor_text_entries"
-        case pokemon
-    }
-}
-
 // MARK: - SearchByNameOrID conformance
 extension Ability: SearchByNameOrID {
     static func from(name: String) async throws -> Ability {
@@ -61,12 +35,5 @@ extension Ability: SearchByNameOrID {
     }
     static func from(id: Int) async throws -> Ability {
         try await Self.from(name: "\(id)")
-    }
-}
-
-// MARK: - Comparable conformance
-extension Ability: Comparable {
-    static func < (lhs: Ability, rhs: Ability) -> Bool {
-        lhs.id < rhs.id
     }
 }

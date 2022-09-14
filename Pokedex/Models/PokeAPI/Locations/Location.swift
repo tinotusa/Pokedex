@@ -20,15 +20,6 @@ struct Location: Codable, Hashable, Identifiable {
     let gameIndices: [GenerationGameIndex]
     /// Areas that can be found within this location.
     let areas: [NamedAPIResource]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case region
-        case names
-        case gameIndices = "game_indices"
-        case areas
-    }
 }
 
 // MARK: SearchByNameOrID conformance

@@ -68,38 +68,6 @@ struct PokemonSpecies: Codable, Hashable, Identifiable {
     let varieties: [PokemonSpeciesVariety]
 }
 
-extension PokemonSpecies {
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case order
-        case genderRate = "gender_rate"
-        case captureRate = "capture_rate"
-        case baseHappiness = "base_happiness"
-        case isBaby = "is_baby"
-        case isLegendary = "is_legendary"
-        case isMythical = "is_mythical"
-        case hatchCounter = "hatch_counter"
-        case hasGenderDifferences = "has_gender_differences"
-        case formsSwitchable = "forms_switchable"
-        case growthRate = "growth_rate"
-        case pokedexNumbers = "pokedex_numbers"
-        case eggGroups = "egg_groups"
-        case color
-        case shape
-        case evolvesFromSpecies = "evolves_from_species"
-        case evolutionChain = "evolution_chain"
-        case habitat
-        case generation
-        case names
-        case palParkEncounters = "pal_park_encounters"
-        case flavorTextEntries = "flavor_text_entries"
-        case formDescriptions = "form_descriptions"
-        case genera
-        case varieties
-    }
-}
-
 // MARK: - SearchByNameOrID conformance
 extension PokemonSpecies: SearchByNameOrID {
     static func from(name: String) async throws -> PokemonSpecies {

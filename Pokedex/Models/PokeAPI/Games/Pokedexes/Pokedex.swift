@@ -24,17 +24,6 @@ struct Pokedex: Codable, Hashable, Identifiable {
     let region: NamedAPIResource?
     /// A list of version groups this Pokédex is relevant to.
     let versionGroups: [NamedAPIResource]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case isMainSeries = "is_main_series"
-        case descriptions
-        case names
-        case pokemonEntries = "pokemon_entries"
-        case region
-        case versionGroups = "version_groups"
-    }
 }
 
 extension Pokedex: SearchByNameOrID {

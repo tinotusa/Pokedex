@@ -16,13 +16,6 @@ struct ChainLink: Codable, Hashable {
     let evolutionDetails: [EvolutionDetail]?
     /// A List of chain objects.
     let evolvesTo: [ChainLink]
-    
-    enum CodingKeys: String, CodingKey {
-        case isBaby = "is_baby"
-        case species
-        case evolutionDetails = "evolution_details"
-        case evolvesTo = "evolves_to"
-    }
 }
 
 extension ChainLink {

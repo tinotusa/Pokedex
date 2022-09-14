@@ -16,11 +16,4 @@ struct ItemFlingEffect: Codable, Hashable {
     let effectEntries: [Effect]
     /// A list of items that have this fling effect.
     let items: [NamedAPIResource]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case effectEntries = "effect_entries"
-        case items
-    }
 }

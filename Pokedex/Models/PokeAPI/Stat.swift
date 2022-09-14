@@ -13,14 +13,6 @@ struct Stat: Codable, Identifiable {
     let gameIndex: Int
     let isBattleOnly: Bool
     let names: [Name]
-    
-    enum CodingKeys: String, CodingKey {
-        case id
-        case name
-        case gameIndex = "game_index"
-        case isBattleOnly = "is_battle_only"
-        case names
-    }
 }
 
 extension Stat: SearchByNameOrID {

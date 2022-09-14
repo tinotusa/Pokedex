@@ -12,9 +12,4 @@ struct PokemonSpeciesDexEntry: Codable, Hashable {
     let entryNumber: Int
     /// The Pokédex the referenced Pokémon species can be found in.
     let pokedex: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case entryNumber = "entry_number"
-        case pokedex
-    }
 }

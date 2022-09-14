@@ -12,9 +12,4 @@ struct PokemonSpeciesGender: Codable, Hashable {
     let rate: Int
     /// A Pokémon species that can be the referenced gender
     let pokemonSpecies: NamedAPIResource
-    
-    enum CodingKeys: String, CodingKey {
-        case rate
-        case pokemonSpecies = "pokemon_species"
-    }
 }

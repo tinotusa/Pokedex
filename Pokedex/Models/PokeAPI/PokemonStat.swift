@@ -14,10 +14,4 @@ struct PokemonStat: Codable, Hashable {
     let effort: Int
     /// The base value of the stat.
     let baseStat: Int
-    
-    enum CodingKeys: String, CodingKey {
-        case stat
-        case effort
-        case baseStat = "base_stat"
-    }
 }

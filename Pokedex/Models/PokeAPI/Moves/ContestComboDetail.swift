@@ -12,9 +12,4 @@ struct ContestComboDetail: Codable, Hashable {
     let useBefore: [NamedAPIResource]?
     /// A list of moves to use after this move.
     let userAfter: [NamedAPIResource]?
-    
-    enum CodingKeys: String, CodingKey {
-        case useBefore = "use_before"
-        case userAfter = "user_after"
-    }
 }

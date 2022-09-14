@@ -32,19 +32,4 @@ struct MoveMetaData: Codable, Hashable {
     let flinchChance: Int
     /// The likelihood this attack will cause a stat change in the target Pokémon.
     let statChance: Int
-    
-    enum CodingKeys: String, CodingKey {
-        case ailment
-        case category
-        case minHits = "min_hits"
-        case maxHits = "max_hits"
-        case minTurns = "min_turns"
-        case maxTurns = "max_turns"
-        case drain
-        case healing
-        case critRate = "crit_rate"
-        case ailmentChance = "ailment_chance"
-        case flinchChance = "flinch_chance"
-        case statChance = "stat_chance"
-    }
 }

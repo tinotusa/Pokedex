@@ -15,10 +15,12 @@ final class PokeAPI: ObservableObject {
     static let cacheFilename = "PokeAPIResults"
     static let shared = PokeAPI()
     private let cache = Cache<String, Data>()
-    
+    private let decoder: JSONDecoder
     private init() {
         print("PokeAPI Init called")
 //        cache.loadFromDisk(fromName: Self.cacheFilename)
+        decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
     }
     
     var shouldCacheResults = true {
@@ -97,7 +99,7 @@ extension PokeAPI {
         print("About to get from \(endpoint)")
         if let cachedData = cache[endpoint] {
             print("getting from the cache 1")
-            return try JSONDecoder().decode(type, from: cachedData)
+            return try decoder.decode(type, from: cachedData)
         }
         
         do {
@@ -111,7 +113,7 @@ extension PokeAPI {
                 print("Error server status code: \(httpResponse.statusCode). From endpoint: \(endpoint)")
                 throw PokeAPIError.invalidResponseStatusCode(code: httpResponse.statusCode)
             }
-            let decodedData = try JSONDecoder().decode(type, from: data)
+            let decodedData = try decoder.decode(type, from: data)
             if shouldCacheResults {
                 print("adding \(endpoint) to the cache 1")
                 cache[endpoint] = data
@@ -134,7 +136,7 @@ extension PokeAPI {
         
         if let cachedResult = cache[filename] {
             print("getting from the cache 2")
-            return try JSONDecoder().decode(type, from: cachedResult)
+            return try decoder.decode(type, from: cachedResult)
         }
         
         do {
@@ -148,7 +150,7 @@ extension PokeAPI {
                 print("Error server status code: \(httpResponse.statusCode)")
                 throw PokeAPIError.invalidResponseStatusCode(code: httpResponse.statusCode)
             }
-            let decodedData = try JSONDecoder().decode(type, from: data)
+            let decodedData = try decoder.decode(type, from: data)
             if shouldCacheResults {
                 print("adding to the cache 2")
                 cache[filename] = data
