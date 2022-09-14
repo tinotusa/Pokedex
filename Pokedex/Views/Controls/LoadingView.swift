@@ -25,6 +25,7 @@ struct LoadingView: View {
         }
         .bodyStyle()
         .foregroundColor(.textColour)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .task {
             withAnimation(Animation.linear(duration: 0.8).repeatForever(autoreverses: false)) {
                 isSpinning = true
