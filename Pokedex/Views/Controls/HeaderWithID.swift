@@ -9,7 +9,7 @@ import SwiftUI
 
 struct HeaderWithID: View {
     let title: String
-    let id: Int
+    var id: Int?
     
     var body: some View {
         VStack(spacing: 0) {
@@ -17,8 +17,10 @@ struct HeaderWithID: View {
                 Text(title)
                     .lineLimit(2)
                 Spacer()
-                Text(formattedID)
-                    .fontWeight(.ultraLight)
+                if id != nil {
+                    Text(formattedID)
+                        .fontWeight(.ultraLight)
+                }
             }
             Divider()
         }
@@ -27,7 +29,10 @@ struct HeaderWithID: View {
     }
     
     var formattedID: String {
-        String(format: "#%03d", id)
+        if let id {
+            return String(format: "#%03d", id)
+        }
+        return ""
     }
 }
 

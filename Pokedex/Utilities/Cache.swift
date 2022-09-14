@@ -36,7 +36,7 @@ final class Cache<Key: Hashable, Value> {
         cache.removeAllObjects()
         let fileManager = FileManager.default
         let folderURLs = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-        let fileURL = folderURLs.first!.appendingPathComponent("\(name).cache")
+        let fileURL = folderURLs.first!.appendingPathComponent(name)
         do {
             try fileManager.removeItem(atPath: fileURL.path())
         } catch {
@@ -124,26 +124,25 @@ extension Cache: Codable where Key: Codable, Value: Codable {
     
     func saveToDisk(withName name: String, using fileManager: FileManager = .default) throws {
         let folderURLs = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-        let fileURL = folderURLs.first!.appendingPathComponent("\(name).cache")
+        let fileURL = folderURLs.first!.appendingPathComponent(name)
         let data = try JSONEncoder().encode(self)
         try data.write(to: fileURL, options: [.atomic, .completeFileProtection])
     }
     
     func loadFromDisk(fromName name: String, using fileManager: FileManager = .default) {
         let folderURLs = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)
-        let fileURL = folderURLs.first!.appendingPathComponent("\(name).cache")
-        let data = try? Data(contentsOf: fileURL)
-        guard let data else { return }
-        let decodedCache = try? JSONDecoder().decode(Self.self, from: data)
-        if let decodedCache {
+        let fileURL = folderURLs.first!.appendingPathComponent(name)
+        do {
+            let data = try Data(contentsOf: fileURL)
+            let decodedCache = try JSONDecoder().decode(Cache.self, from: data)
             print("Successfully loaded from disk")
             self.cache = decodedCache.cache
             self.keyTracker = decodedCache.keyTracker
-            print("THe cache")
-            print(self.cache)
-            print("THE END OF THE CACHE")
-            print(self.keyTracker)
-            print("THE END OF THE KEYTRACKER")
+            print(fileURL)
+        } catch {
+            #if DEBUG
+            print("Error in \(#function).\n\(error)")
+            #endif
         }
     }
 }

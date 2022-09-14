@@ -12,13 +12,14 @@ final class PokeAPI: ObservableObject {
     static let apiURLScheme = "https"
     static let hostName = "pokeapi.co"
     static let pathName = "/api/v2"
-    static let cacheFilename = "PokeAPIResults"
+    static let cacheFilename = "PokeAPIResults.cache"
     static let shared = PokeAPI()
     private let cache = Cache<String, Data>()
     private let decoder: JSONDecoder
+    
     private init() {
         print("PokeAPI Init called")
-//        cache.loadFromDisk(fromName: Self.cacheFilename)
+        cache.loadFromDisk(fromName: Self.cacheFilename)
         decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
     }
@@ -69,8 +70,12 @@ extension PokeAPI {
     }
     
     func saveCache() {
-        if !shouldCacheResults { return }
-        print("About to save to the cache")
+        if !shouldCacheResults {
+            #if DEBUG
+            print("Did not save cache. Caching is disabled.")
+            #endif
+            return
+        }
         do {
             try cache.saveToDisk(withName: Self.cacheFilename)
         } catch {

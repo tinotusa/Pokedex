@@ -15,7 +15,6 @@ struct ContentView: View {
         HomeView()
             .onChange(of: scenePhase) { scenePhase in
                 if scenePhase == .inactive {
-                    print("about to save")
                     PokeAPI.shared.saveCache()
                 }
             }

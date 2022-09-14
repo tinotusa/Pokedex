@@ -12,26 +12,40 @@ struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewViewModel()
     
     var body: some View {
-        VStack {
+        VStack(spacing: 0) {
             PopoverNavigationBar()
+                .padding([.top, .horizontal])
             ScrollView {
-                header
+                HeaderWithID(title: "Settings")
+                    .padding(.horizontal)
                 
                 switch viewModel.viewState {
                 case .loading:
                     LoadingView(text: "Loading languages.")
                         .task {
-                            await viewModel.setUp(settings: settingsManager.settings)
+                            await viewModel.loadData(settings: settingsManager.settings)
                         }
                 case .loaded:
                     settingsList
+                        .padding(.horizontal)
                 default:
                     Text("Empty view")
                 }
             }
         }
+        .confirmationDialog(
+            "Delete cache",
+            isPresented: $viewModel.showDeleteCacheConfirmation
+        ) {
+            Button(role: .destructive) {
+                viewModel.deleteCache()
+            } label: {
+                Text("Delete")
+            }
+        } message: {
+            Text("Are you sure you want to delete the cache?")
+        }
         .bodyStyle()
-        .padding()
         .foregroundColor(.textColour)
         .backgroundColour()
     }
@@ -55,19 +69,22 @@ private extension SettingsView {
                 }
                 .pickerStyle(.menu)
             }
+            HStack {
+                Text("Cache: \(viewModel.cacheSize.formatted(.byteCount(style: .file)))")
+                Spacer()
+                Button(action: { viewModel.showDeleteCacheConfirmation = true }) {
+                    Label {
+                        Text("Delete cache")
+                    } icon: {
+                        Image(systemName: "trash")
+                            .foregroundColor(.red)
+                    }
+                    .foregroundColor(.blue)
+                }
+            }
             Spacer()
         }
     }
-    
-    var header: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("Settings")
-                .headerStyle()
-            Divider()
-        }
-    }
-    
-    
 }
 
 struct SettingsView_Previews: PreviewProvider {
