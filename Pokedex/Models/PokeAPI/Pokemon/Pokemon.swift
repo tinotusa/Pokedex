@@ -64,13 +64,6 @@ extension Pokemon: SearchableByURL {
     }
 }
 
-// MARK: - Comparable conformance
-extension Pokemon: Comparable {
-    static func <(lhs: Pokemon, rhs: Pokemon) -> Bool {
-        lhs.id < rhs.id
-    }
-}
-
 // MARK: - Codable conformance
 extension Pokemon: Codable {
     enum CodingKeys: String, CodingKey {

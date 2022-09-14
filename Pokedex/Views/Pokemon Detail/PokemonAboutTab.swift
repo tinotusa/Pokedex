@@ -40,7 +40,7 @@ private extension PokemonAboutTab {
             HeaderWithID(title: viewModel.localizedPokemonName, id: pokemon.id)
             
             Text(viewModel.pokemonDescription)
-                .bodyStyle()
+
             Divider()
             Grid(alignment: .topLeading, verticalSpacing: 10) {
                 ForEach(PokemonAboutTabViewModel.PokemonInfo.allCases) { pokemonInfoKey in
@@ -52,7 +52,7 @@ private extension PokemonAboutTab {
                         case .type: types
                         case .abilities: abilitiesList
                         case .eggGroups: eggGroups
-                        case .gender: pokemonGender
+                        case .gender: Text(viewModel.genderRatePercentages)
                         case .pokedexEntryNumbers:
                             ShowMoreButton(
                                 label: viewModel.pokemonInfo[pokemonInfoKey, default: "Error"],
@@ -94,23 +94,6 @@ private extension PokemonAboutTab {
         }
     }
     
-    @ViewBuilder
-    var pokemonGender: some View {
-        if viewModel.pokemonFemaleGenderPercentage <= 0.0 {
-            Text("No gender")
-                .bold()
-        } else {
-            HStack(alignment: .lastTextBaseline) {
-                Text("♂")
-                    .foregroundColor(.blue)
-                Text("\(viewModel.pokemonMaleGenderPercentage.formatted(.percent))")
-                Text("♀")
-                    .foregroundColor(.pink)
-                Text("\(viewModel.pokemonFemaleGenderPercentage.formatted(.percent))")
-            }
-        }
-    }
-    
     var eggGroups: some View {
         HStack {
             ForEach(viewModel.eggGroupNames, id: \.self) { name in
@@ -130,7 +113,6 @@ private extension PokemonAboutTab {
             }
         }
     }
-    
 }
 
 struct PokemonAboutTab_Previews: PreviewProvider {

@@ -102,6 +102,19 @@ extension PokemonAboutTabViewModel {
         }
     }
     
+    var genderRatePercentages: AttributedString {
+        guard let pokemonSpecies else { return "" }
+        if pokemonSpecies.genderRate == -1 {
+            return "No gender"
+        }
+        var str = AttributedString("♂ \(pokemonMaleGenderPercentage.formatted(.percent)) ♀ \(pokemonFemaleGenderPercentage.formatted(.percent))")
+        let maleRange = str.range(of: "♂")!
+        let femaleRange = str.range(of: "♀")!
+        str[maleRange].foregroundColor = .blue
+        str[femaleRange].foregroundColor = .pink
+        return str
+    }
+    
     func getPokemonInfo() {
         guard let pokemon else { return }
         guard let pokemonSpecies else { return }
@@ -109,8 +122,8 @@ extension PokemonAboutTabViewModel {
         pokemonInfo[.type] = "\(pokemon.types.count) types"
         pokemonInfo[.abilities] = "\(pokemon.abilities)"
         pokemonInfo[.eggGroups] = "\(pokemonSpecies.eggGroups.count) groups"
-        pokemonInfo[.height] = Measurement(value: Double(pokemon.height), unit: UnitLength.meters).formatted()
-        pokemonInfo[.weight] = Measurement(value: Double(pokemon.height), unit: UnitMass.kilograms).formatted()
+        pokemonInfo[.height] = Measurement(value: pokemon.heightInMeters, unit: UnitLength.meters).formatted()
+        pokemonInfo[.weight] = Measurement(value: pokemon.weightInKilograms, unit: UnitMass.kilograms).formatted()
         pokemonInfo[.gender] = "\(pokemonSpecies.genderRate)"
         pokemonInfo[.genus] = pokemonSeedType
         if let captureRate = pokemonSpecies.captureRate {
@@ -134,7 +147,6 @@ extension PokemonAboutTabViewModel {
     func localizedAbilityName(ability: Ability) -> String {
         ability.names.localizedName(language: settings?.language, default: ability.name)
     }
-    
 }
 
 // MARK: Computed properties
