@@ -24,13 +24,6 @@ final class MovePokemonListViewViewModel: ObservableObject {
     private var learnedByPokemon = [NamedAPIResource]()
 }
 
-private extension MovePokemonListViewViewModel {
-    func setUp(settings: Settings, learnedByPokemon: [NamedAPIResource]) {
-        self.settings = settings
-        self.learnedByPokemon = learnedByPokemon
-    }
-}
-
 extension MovePokemonListViewViewModel {
     var sortedPokemon: [Pokemon] {
         pokemon.sorted()
@@ -158,5 +151,12 @@ extension MovePokemonListViewViewModel {
             }
             self.pokemonSpecies.append(contentsOf: tempPokemonSpecies)
         }
+    }
+}
+
+private extension MovePokemonListViewViewModel {
+    func setUp(settings: Settings, learnedByPokemon: [NamedAPIResource]) {
+        self.settings = settings
+        self.learnedByPokemon = learnedByPokemon
     }
 }

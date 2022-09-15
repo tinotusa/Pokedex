@@ -31,22 +31,10 @@ struct PokemonListView: View {
                     case .loading:
                         LoadingView()
                             .task {
-                                await viewModel.loadData(typePokmeonArray: typePokemon, settings: settingsManager.settings)
+                                await viewModel.loadData(typePokemonArray: typePokemon, settings: settingsManager.settings)
                             }
                     case .loaded:
-                        ForEach(viewModel.sortedPokemon) { pokemon in
-                            HStack {
-                                IconImage(url: pokemon.officialArtWork)
-                                if let pokemonSpecies = viewModel.getPokemonSpecies(withID: pokemon.id) {
-                                    Text(viewModel.localizedSpeciesName(for: pokemonSpecies))
-                                } else {
-                                    Text(pokemon.name)
-                                }
-                                Spacer()
-                                Text("\(pokemon.formattedID)")
-                                    .foregroundColor(.gray)
-                            }
-                        }
+                        pokemonList
                     default:
                         Text("Error loading.")
                     }
@@ -57,6 +45,31 @@ struct PokemonListView: View {
         .bodyStyle()
         .foregroundColor(.textColour)
         .backgroundColour()
+    }
+}
+
+private extension PokemonListView {
+    @ViewBuilder
+    var pokemonList: some View {
+        ForEach(viewModel.sortedPokemon) { pokemon in
+            HStack {
+                IconImage(url: pokemon.officialArtWork)
+                if let pokemonSpecies = viewModel.getPokemonSpecies(withID: pokemon.id) {
+                    Text(viewModel.localizedSpeciesName(for: pokemonSpecies))
+                } else {
+                    Text(pokemon.name)
+                }
+                Spacer()
+                Text("\(pokemon.formattedID)")
+                    .foregroundColor(.gray)
+            }
+        }
+        if viewModel.hasNextPage {
+            ProgressView()
+                .task {
+                    await viewModel.getNextPage()
+                }
+        }
     }
 }
 

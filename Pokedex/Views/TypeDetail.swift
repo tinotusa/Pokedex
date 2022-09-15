@@ -17,7 +17,7 @@ struct TypeDetail: View {
             HeaderBar() {
                 
             }
-            ScrollView {
+            ScrollView(showsIndicators: false) {
             HeaderWithID(title: viewModel.localizedTypeName, id: type.id)
                 VStack {
                     switch viewModel.viewState {
