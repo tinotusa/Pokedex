@@ -25,7 +25,7 @@ struct AbilityDetail: View {
                         }
                 case .loaded:
                     VStack(alignment: .leading) {
-                        titleAndID
+                        HeaderWithID(title: viewModel.localizedAbilityName, id: ability.id)
                         
                         Text(viewModel.shortFlavorText)
                         
@@ -61,8 +61,13 @@ struct AbilityDetail: View {
         .backgroundColour()
         .toolbar(.hidden)
         .fullScreenCover(isPresented: $viewModel.showingPokemonView) {
-            AbilityPokemonListView(abilityDetailViewModel: viewModel)
-                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
+            PokemonListView(
+                title: viewModel.localizedAbilityName,
+                id: ability.id,
+                description: "Pokemon with this ability.",
+                pokemonURLS: ability.pokemon.map { $0.pokemon.url }
+            )
+            .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
         .fullScreenCover(isPresented: $viewModel.showEffectChangesView) {
             AbilityEffectChangesView(viewModel: viewModel)
@@ -73,19 +78,6 @@ struct AbilityDetail: View {
 
 // MARK: Subviews
 private extension AbilityDetail {
-    var titleAndID: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text(viewModel.localizedAbilityName)
-                Spacer()
-                Text(viewModel.abilityID)
-                    .fontWeight(.ultraLight)
-            }
-            Divider()
-        }
-        .headerStyle()
-    }
-    
     var headerBar: some View {
         HeaderBar {
             

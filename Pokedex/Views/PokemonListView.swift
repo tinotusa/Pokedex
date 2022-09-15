@@ -11,7 +11,7 @@ struct PokemonListView: View {
     let title: String
     let id: Int
     let description: String
-    let typePokemon: [TypePokemon]
+    let pokemonURLS: [URL]
     
     @StateObject private var viewModel = PokemonListViewViewModel()
     @EnvironmentObject private var settingsManager: SettingsManager
@@ -31,7 +31,7 @@ struct PokemonListView: View {
                     case .loading:
                         LoadingView()
                             .task {
-                                await viewModel.loadData(typePokemonArray: typePokemon, settings: settingsManager.settings)
+                                await viewModel.loadData(pokemonURLS: pokemonURLS, settings: settingsManager.settings)
                             }
                     case .loaded:
                         pokemonList
@@ -79,7 +79,7 @@ struct PokemonListView_Previews: PreviewProvider {
             title: "Hello world",
             id: 123,
             description: "some description",
-            typePokemon: []
+            pokemonURLS: []
         )
         .environmentObject(SettingsManager())
     }

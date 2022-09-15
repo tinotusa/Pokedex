@@ -44,8 +44,13 @@ struct ItemDetail: View {
         .foregroundColor(.textColour)
         .background(Color.backgroundColour)
         .fullScreenCover(isPresented: $viewModel.showingHeldByPokemonView) {
-            ItemPokemonListView(itemDetailViewModel: viewModel)
-                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
+            PokemonListView(
+                title: viewModel.localizedItemName,
+                id: item.id,
+                description: "Pokemon that hold this item.",
+                pokemonURLS: item.heldByPokemon.map { $0.pokemon.url }
+            )
+            .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
     }
 }

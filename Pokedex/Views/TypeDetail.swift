@@ -81,7 +81,7 @@ struct TypeDetail: View {
                 title: viewModel.localizedTypeName,
                 id: type.id,
                 description: "Pokemon with this type.",
-                typePokemon: type.pokemon
+                pokemonURLS: type.pokemon.map { $0.pokemon.url }
             )
         }
         .padding()

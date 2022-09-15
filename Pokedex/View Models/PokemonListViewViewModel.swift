@@ -22,15 +22,15 @@ final class PokemonListViewViewModel: ObservableObject {
     }
     
     private var settings: Settings?
-    private var typePokemonArray = [TypePokemon]()
+    private var pokemonURLS = [URL]()
 }
 
 extension PokemonListViewViewModel {
     @MainActor
-    func loadData(typePokemonArray: [TypePokemon], settings: Settings) async {
-        setUp(settings: settings, typePokemonArray: typePokemonArray)
+    func loadData(pokemonURLS: [URL], settings: Settings) async {
+        setUp(settings: settings, pokemonURLS: pokemonURLS)
         
-        let pokemon = await getPokemon(typePokmeonArray: typePokemonArray)
+        let pokemon = await getPokemon(urls: pokemonURLS)
         let pokemonSpecies = await getPokemonSpecies(pokemonArray: pokemon)
         self.pokemon = pokemon
         self.pokemonSpecies = pokemonSpecies
@@ -71,17 +71,17 @@ extension PokemonListViewViewModel {
 }
 
 private extension PokemonListViewViewModel {
-    func setUp(settings: Settings, typePokemonArray: [TypePokemon]) {
+    func setUp(settings: Settings, pokemonURLS: [URL]) {
         self.settings = settings
-        self.typePokemonArray = typePokemonArray
+        self.pokemonURLS = pokemonURLS
     }
     
-    func getPokemon(typePokmeonArray: [TypePokemon]) async -> [Pokemon] {
+    func getPokemon(urls: [URL]) async -> [Pokemon] {
         await withTaskGroup(of: Pokemon?.self) { group in
-            for (i, typePokemon) in typePokmeonArray.enumerated() where i < limit {
+            for (i, url) in urls.enumerated() where i < limit {
                 group.addTask {
                     do {
-                        return try await Pokemon.from(url: typePokemon.pokemon.url)
+                        return try await Pokemon.from(url: url)
                     } catch {
                         #if DEBUG
                         print("Error in \(#function).\n\(error)")
@@ -124,12 +124,12 @@ private extension PokemonListViewViewModel {
     
     func getNextPokemonPage() async -> [Pokemon] {
         return await withTaskGroup(of: Pokemon?.self) { group in
-            for (i, typePokemon) in typePokemonArray.enumerated()
+            for (i, url) in pokemonURLS.enumerated()
                 where i >= offset && i < offset + limit
             {
                 group.addTask {
                     do {
-                        return try await Pokemon.from(url: typePokemon.pokemon.url)
+                        return try await Pokemon.from(url: url)
                     } catch {
                         #if DEBUG
                         print("Error in \(#function).\n\(error)")

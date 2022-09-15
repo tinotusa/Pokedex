@@ -38,7 +38,12 @@ struct MoveDetail: View {
                 .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
         .fullScreenCover(isPresented: $viewModel.showPokemonList) {
-            MovePokemonListView(move: move, description: "Pokemon that can learn this move.")
+            PokemonListView(
+                title: viewModel.localizedMoveName,
+                id: move.id,
+                description: "Pokemon that can learn this move.",
+                pokemonURLS: move.learnedByPokemon.map { $0.url }
+            )
                 .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
         }
         .fullScreenCover(isPresented: $viewModel.showMoveFlavorTextEntries) {
