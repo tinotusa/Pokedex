@@ -14,7 +14,9 @@ struct MoveFlavourTextEntriesListView: View {
     
     var body: some View {
         VStack {
-            PopoverNavigationBar()
+            HeaderBar() {
+                
+            }
             HeaderWithID(title: moveDetailViewModel.localizedMoveName, id: moveDetailViewModel.moveID)
             
             ScrollView(showsIndicators: false) {
@@ -40,6 +42,7 @@ struct MoveFlavourTextEntriesListView: View {
         .foregroundColor(.textColour)
         .padding()
         .backgroundColour()
+        .toolbar(.hidden)
     }
 }
 

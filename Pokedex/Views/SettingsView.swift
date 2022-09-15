@@ -13,7 +13,9 @@ struct SettingsView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            PopoverNavigationBar()
+            HeaderBar() {
+                
+            }
                 .padding([.top, .horizontal])
             ScrollView {
                 HeaderWithID(title: "Settings")
@@ -48,6 +50,7 @@ struct SettingsView: View {
         .bodyStyle()
         .foregroundColor(.textColour)
         .backgroundColour()
+        .toolbar(.hidden)
     }
 }
 

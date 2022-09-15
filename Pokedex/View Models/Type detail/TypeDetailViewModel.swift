@@ -12,6 +12,7 @@ final class TypeDetailViewModel: ObservableObject {
     @Published private(set) var damageRelations = [TypeRelationKey: [NamedAPIResource]]()
     @Published private(set) var typeInfo = [TypeInfoKey: String]()
     @Published var showPokemonList = false
+    @Published var showMovesList = false
     private var type: `Type`?
     private var settings: Settings?
 }

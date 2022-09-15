@@ -12,7 +12,9 @@ struct AbilityEffectChangesView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            PopoverNavigationBar()
+            HeaderBar() {
+                
+            }
             
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading) {
@@ -37,6 +39,7 @@ struct AbilityEffectChangesView: View {
         .bodyStyle()
         .foregroundColor(.textColour)
         .backgroundColour()
+        .toolbar(.hidden)
     }
 }
 

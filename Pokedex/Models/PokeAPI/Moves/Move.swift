@@ -70,9 +70,8 @@ extension Move: SearchByNameOrID {
     }
 }
 
-// MARK: - Comparable conformance
-extension Move: Comparable {
-    static func < (lhs: Move, rhs: Move) -> Bool {
-        lhs.id < rhs.id
+extension Move: SearchableByURL {
+    static func from(url: URL) async throws -> Move {
+        try await PokeAPI.shared.getData(for: Move.self, url: url)
     }
 }

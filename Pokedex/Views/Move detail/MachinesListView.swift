@@ -17,7 +17,9 @@ struct MachinesListView: View {
     
     var body: some View {
         VStack(alignment: .leading) {
-            PopoverNavigationBar()
+            HeaderBar() {
+                
+            }
             
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading) {
@@ -47,7 +49,7 @@ struct MachinesListView: View {
         .padding(.horizontal)
         .foregroundColor(.textColour)
         .backgroundColour()
-        .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
+        .toolbar(.hidden)
     }
 }
 

@@ -20,3 +20,10 @@ extension Move {
         String(format: format, self.id)
     }
 }
+
+// MARK: - Comparable conformance
+extension Move: Comparable {
+    static func < (lhs: Move, rhs: Move) -> Bool {
+        lhs.id < rhs.id
+    }
+}

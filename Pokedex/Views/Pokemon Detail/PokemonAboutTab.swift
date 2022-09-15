@@ -54,13 +54,18 @@ private extension PokemonAboutTab {
                         case .eggGroups: eggGroups
                         case .gender: Text(viewModel.genderRatePercentages)
                         case .pokedexEntryNumbers:
-                            ShowMoreButton(
-                                label: viewModel.pokemonInfo[pokemonInfoKey, default: "Error"],
-                                buttonLabel: viewModel.showingPokedexEntryNumbers ? "Less" : "More",
-                                iconSystemName: viewModel.showingPokedexEntryNumbers ? "chevron.up" : "chevron.down",
-                                action: viewModel.showPokedexEntryNumbers
-                            )
-                            .animation(nil, value: viewModel.showingPokedexEntryNumbers)
+                            HStack {
+                                Text(viewModel.pokemonInfo[pokemonInfoKey, default: "Error"])
+                                Spacer()
+                                Button(action: viewModel.showPokedexEntryNumbers) {
+                                    HStack {
+                                        Text(viewModel.showingPokedexEntryNumbers ? "Less" : "More")
+                                        Image(systemName: viewModel.showingPokedexEntryNumbers ? "chevron.up" : "chevron.down")
+                                    }
+                                    .animation(nil, value: viewModel.showingPokedexEntryNumbers)
+                                }
+                            }
+                            
                         default: Text(viewModel.pokemonInfo[pokemonInfoKey, default: "Error"])
                         }
                     }

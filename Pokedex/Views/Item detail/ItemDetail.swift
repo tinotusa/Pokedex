@@ -43,15 +43,6 @@ struct ItemDetail: View {
         .bodyStyle()
         .foregroundColor(.textColour)
         .background(Color.backgroundColour)
-        .fullScreenCover(isPresented: $viewModel.showingHeldByPokemonView) {
-            PokemonListView(
-                title: viewModel.localizedItemName,
-                id: item.id,
-                description: "Pokemon that hold this item.",
-                pokemonURLS: item.heldByPokemon.map { $0.pokemon.url }
-            )
-            .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
-        }
     }
 }
 
@@ -66,6 +57,24 @@ private extension ItemDetail {
                 ForEach(viewModel.itemAttributeNames, id: \.self) { attributeName in
                     Text(attributeName)
                 }
+            }
+        }
+    }
+    
+    var heldBy: some View {
+        HStack {
+            Text(viewModel.itemInfo[.heldBy, default: "Error"])
+            Spacer()
+            
+            NavigationLink {
+                PokemonListView(
+                    title: viewModel.localizedItemName,
+                    id: item.id,
+                    description: "Pokemon that hold this item.",
+                    pokemonURLS: item.heldByPokemon.map { $0.pokemon.url }
+                )
+            } label: {
+                ShowMoreButton()
             }
         }
     }
@@ -91,12 +100,7 @@ private extension ItemDetail {
                             .gridRowTitleStyle()
                         switch itemInfoKey {
                         case .attributes: attributesList
-                        case .heldBy:
-                            ShowMoreButton(
-                                label: viewModel.itemInfo[.heldBy, default: "Error"],
-                                showButton: !item.heldByPokemon.isEmpty,
-                                action: viewModel.showHeldByPokemonView
-                            )
+                        case .heldBy: heldBy
                         default: Text(viewModel.itemInfo[itemInfoKey, default: "Error"])
                         }
                         

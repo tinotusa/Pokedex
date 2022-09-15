@@ -33,52 +33,52 @@ struct MoveDetail: View {
         .bodyStyle()
         .foregroundColor(.textColour)
         .backgroundColour()
-        .fullScreenCover(isPresented: $viewModel.showMachinesList) {
-            MachinesListView(moveDetailViewModel: viewModel)
-                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
-        }
-        .fullScreenCover(isPresented: $viewModel.showPokemonList) {
-            PokemonListView(
-                title: viewModel.localizedMoveName,
-                id: move.id,
-                description: "Pokemon that can learn this move.",
-                pokemonURLS: move.learnedByPokemon.map { $0.url }
-            )
-                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
-        }
-        .fullScreenCover(isPresented: $viewModel.showMoveFlavorTextEntries) {
-            MoveFlavourTextEntriesListView(moveDetailViewModel: viewModel)
-                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
-        }
     }
 }
 
 // MARK: - Subviews
 private extension MoveDetail {
     var pokemonList: some View {
-        ShowMoreButton(
-            label: viewModel.moveInfo[.learnedBy, default: "Error"],
-            showButton: !move.learnedByPokemon.isEmpty
-        ) {
-            viewModel.showPokemonList = true
+        HStack {
+            Text(viewModel.moveInfo[.learnedBy, default: "Error"])
+            Spacer()
+            
+            NavigationLink {
+                PokemonListView(
+                    title: viewModel.localizedMoveName,
+                    id: move.id,
+                    description: "Pokemon that can learn this move.",
+                    pokemonURLS: move.learnedByPokemon.map { $0.url }
+                )
+            } label: {
+                ShowMoreButton()
+            }
         }
     }
     
     var machinesList: some View {
-        ShowMoreButton(
-            label: viewModel.moveInfo[.machines, default: "Error"],
-            showButton: !move.machines.isEmpty
-        ) {
-            viewModel.showMachinesList = true
+        HStack {
+            Text(viewModel.moveInfo[.machines, default: "Error"])
+            Spacer()
+            
+            NavigationLink {
+                MachinesListView(moveDetailViewModel: viewModel)
+            } label: {
+                ShowMoreButton()
+            }
         }
     }
     
     var moveFlavorTextEntires: some View {
-        ShowMoreButton(
-            label: viewModel.moveInfo[.moveFlavourTextEntries, default: "Error"],
-            showButton: !viewModel.filteredMoveFlavorTextEntries.isEmpty
-        ) {
-            viewModel.showMoveFlavorTextEntries = true
+        HStack {
+            Text(viewModel.moveInfo[.moveFlavourTextEntries, default: "Error"])
+            Spacer()
+            
+            NavigationLink {
+                MoveFlavourTextEntriesListView(moveDetailViewModel: viewModel)
+            } label: {
+                ShowMoreButton()
+            }
         }
     }
     
@@ -164,8 +164,10 @@ private extension MoveDetail {
 // MARK: - Previews
 struct MoveDetail_Previews: PreviewProvider {
     static var previews: some View {
-        MoveDetail(move: .example)
-            .environmentObject(ImageCache())
-            .environmentObject(SettingsManager())
+        NavigationStack {
+            MoveDetail(move: .example)
+                .environmentObject(ImageCache())
+                .environmentObject(SettingsManager())
+        }
     }
 }
