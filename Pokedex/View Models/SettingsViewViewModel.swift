@@ -57,15 +57,26 @@ private extension SettingsViewViewModel {
             return
         }
         
-        for result in resourceList.results {
-            do {
-                let language = try await Language.from(name: result.name)
-                self.languages.append(language)
-            } catch {
-                #if DEBUG
-                print("Error in \(#function).\n\(error)")
-                #endif
+        await withTaskGroup(of: Language?.self) { group in
+            for result in resourceList.results {
+                group.addTask {
+                    do {
+                        return try await Language.from(name: result.name)
+                    } catch {
+                        #if DEBUG
+                        print("Error in \(#function).\n\(error)")
+                        #endif
+                    }
+                    return nil
+                }
             }
+            
+            var languages = [Language]()
+            for await language in group {
+                guard let language else { continue }
+                languages.append(language)
+            }
+            self.languages = languages
         }
         viewState = .loaded
     }

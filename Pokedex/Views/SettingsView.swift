@@ -10,13 +10,12 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject private var settingsManager: SettingsManager
     @StateObject private var viewModel = SettingsViewViewModel()
+    @Environment(\.dismiss) private var dismiss
     
     var body: some View {
         VStack(spacing: 0) {
-            HeaderBar() {
-                
-            }
-                .padding([.top, .horizontal])
+            navigationBar
+            
             ScrollView {
                 HeaderWithID(title: "Settings")
                     .padding(.horizontal)
@@ -55,6 +54,18 @@ struct SettingsView: View {
 }
 
 private extension SettingsView {
+    var navigationBar: some View {
+        HStack {
+            Button {
+                dismiss()
+            } label: {
+                Label("Close", systemImage: "xmark")
+            }
+            Spacer()
+        }
+        .padding([.top, .horizontal])
+    }
+    
     var settingsList: some View {
         VStack {
             Toggle("Dark mode", isOn: $settingsManager.isDarkMode)
@@ -84,6 +95,8 @@ private extension SettingsView {
                     }
                     .foregroundColor(.blue)
                 }
+                .opacity(viewModel.cacheSize == 0 ? 0.5 : 1)
+                .disabled(viewModel.cacheSize == 0)
             }
             Spacer()
         }
