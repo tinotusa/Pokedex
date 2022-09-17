@@ -5,18 +5,19 @@
 //  Created by Tino on 26/8/2022.
 //
 
-import Foundation
+import SwiftUI
+import os
 
 @MainActor
 final class AbilityDetailViewModel: ObservableObject {
     @Published var ability: Ability?
     @Published var settings: Settings?
     @Published private(set) var generation: Generation?
-    
-    @Published var showingPokemonView = false
-    @Published var showEffectChangesView = false
-    
+
     @Published private(set) var viewState = ViewState.loading
+    @Published private(set) var abilityInfo = [AbilityInfo: String]()
+    @Published private(set) var localizedFlavorTextEntries = [AbilityFlavorText]()
+    private let logger = Logger(subsystem: "com.tinotusa.Pokedex", category: "AbilityDetailViewModel")
 }
 
 extension AbilityDetailViewModel {
@@ -29,31 +30,75 @@ extension AbilityDetailViewModel {
         setUp(ability: ability, settings: settings)
         do {
             generation = try await Generation.from(name: ability.generation.name)
+            getLocalizedFlavorTextEntries()
+            getAbilityInfo()
             viewState = .loaded
+            logger.debug("Successfully loaded data for ability \(ability.id)")
         } catch {
-            #if DEBUG
-            print("Error in \(#function).\n\(error)")
-            #endif
+            logger.error("Error for Ability: \(ability.id). \(error.localizedDescription)")
             viewState = .error(error)
         }
     }
     
-    /// This is for previews only
-    func setGeneration(generation: Generation) {
-        self.generation = generation
+    enum AbilityInfo: String, CaseIterable, Identifiable {
+        case isMainSeries = "main series"
+        case generation
+        case effectChanges = "effect changes"
+        case flavorTextEntries = "flavour text entries"
+        case pokemon
+        
+        var id: Self { self }
+        
+        var title: LocalizedStringKey {
+            LocalizedStringKey(self.rawValue.localizedCapitalized)
+        }
+    }
+    
+    func getAbilityInfo() {
+        guard let ability else { return }
+        abilityInfo[.isMainSeries] = ability.isMainSeries ? "Yes" : "No"
+        abilityInfo[.generation] = ability.generation.name
+        abilityInfo[.effectChanges] = "\(ability.effectChanges.count) changes"
+        abilityInfo[.flavorTextEntries] = "\(localizedFlavorTextEntries.count) entries"
+        abilityInfo[.pokemon] = "\(ability.pokemon.count) pokemon"
+    }
+    
+    func getLocalizedFlavorTextEntries() {
+        guard let ability else { return }
+        
+        var entries: [AbilityFlavorText]?
+        if let language = settings?.language {
+            entries = ability.flavorTextEntries.filter { $0.language.name == language.name }
+        }
+        
+        let availableLanguageCodes = ability.flavorTextEntries.map { $0.language.name }
+        let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
+        
+        // device language fallback
+        if entries == nil {
+            entries = ability.flavorTextEntries.filter { $0.language.name == deviceLanguageCode }
+        }
+        
+        // english fallback
+        if entries == nil {
+            entries = ability.flavorTextEntries.filter{ $0.language.name == "en" }
+        }
+        
+        if let entries {
+            localizedFlavorTextEntries = entries
+            logger.debug("Added \(entries.count) localized entries for Ability: \(ability.id)")
+            return
+        }
+        logger.debug("No localized entries for Ability: \(ability.id)")
     }
 }
 
+// MARK: - Computed properties
 extension AbilityDetailViewModel {
     var localizedAbilityName: String {
         guard let ability else { return "Error" }
         guard let settings else { return "Error" }
         return ability.names.localizedName(language: settings.language, default: ability.name)
-    }
-    
-    var abilityID: String {
-        guard let ability else { return "Error" }
-        return String(format: "#%03d", ability.id)
     }
 
     var shortFlavorText: String {
@@ -66,20 +111,6 @@ extension AbilityDetailViewModel {
         guard let ability else { return "Error" }
         guard let settings else { return "Error" }
         return ability.effectEntries.localizedEffectEntry(language: settings.language, default: "Error")
-    }
-    
-    var isMainSeriesAbility: String {
-        guard let ability else { return "Error" }
-        return ability.isMainSeries ? "Yes" : "No"
-    }
-    
-    var localizedGeneration: String {
-        guard let generation else {
-            print("Error in \(#function). generation is nil.")
-            return "Error"
-        }
-        guard let settings else { return "Error" }
-        return generation.names.localizedName(language: settings.language, default: "Error")
     }
     
     var effectChanges: [(versionGroupName: String, effectChange: String)] {

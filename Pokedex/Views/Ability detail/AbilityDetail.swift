@@ -36,14 +36,18 @@ struct AbilityDetail: View {
                         Divider()
                         
                         Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: 6) {
-                            isMainSeries
-                            
-                            generation
-                            
-                            pokemon
-                            
-                            if !viewModel.effectChanges.isEmpty {
-                                effectChanges
+                            ForEach(AbilityDetailViewModel.AbilityInfo.allCases) { abilityInfoKey in
+                                GridRow {
+                                    Text(abilityInfoKey.title)
+                                        .gridRowTitleStyle()
+                                    switch abilityInfoKey {
+                                    case .generation: GenerationTag(name: viewModel.abilityInfo[.generation, default: "Error"])
+                                    case .effectChanges: effectChanges
+                                    case .flavorTextEntries: flavorTextEntriesRow
+                                    case .pokemon: pokemon
+                                    default: Text(viewModel.abilityInfo[abilityInfoKey, default: "Error"])
+                                    }
+                                }
                             }
                         }
                     }
@@ -60,23 +64,10 @@ struct AbilityDetail: View {
         .foregroundColor(.textColour)
         .backgroundColour()
         .toolbar(.hidden)
-        .fullScreenCover(isPresented: $viewModel.showingPokemonView) {
-            PokemonListView(
-                title: viewModel.localizedAbilityName,
-                id: ability.id,
-                description: "Pokemon with this ability.",
-                pokemonURLS: ability.pokemon.map { $0.pokemon.url }
-            )
-            .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
-        }
-        .fullScreenCover(isPresented: $viewModel.showEffectChangesView) {
-            AbilityEffectChangesView(viewModel: viewModel)
-                .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
-        }
     }
 }
 
-// MARK: Subviews
+// MARK: - Subviews
 private extension AbilityDetail {
     var headerBar: some View {
         HeaderBar {
@@ -84,57 +75,53 @@ private extension AbilityDetail {
         }
     }
     
-    var isMainSeries: some View {
-        GridRow {
-            Text("Main series")
-                .gridRowTitleStyle()
-            Text(viewModel.isMainSeriesAbility)
-        }
-    }
-    
-    var generation: some View {
-        GridRow {
-            Text("Generation")
-                .gridRowTitleStyle()
-            GenerationTag(name: ability.generation.name)
-        }
-    }
-    
     var pokemon: some View {
-        GridRow {
-            Text("Pokemon")
-                .gridRowTitleStyle()
-            HStack {
-                Text("\(ability.pokemon.count)")
-                Spacer()
-                Button {
-                    viewModel.showingPokemonView = true
+        HStack {
+            Text(viewModel.abilityInfo[.pokemon, default: "Error"])
+            Spacer()
+            if !ability.pokemon.isEmpty {
+                NavigationLink {
+                    PokemonListView(
+                        title: viewModel.localizedAbilityName,
+                        id: ability.id,
+                        description: "Pokemon with this ability.",
+                        pokemonURLS: ability.pokemon.map { $0.pokemon.url }
+                    )
                 } label: {
-                    Text("Show pokemon")
+                    ShowMoreButton()
                 }
-                .foregroundColor(.blue)
+            }
+        }
+    }
+    
+    var flavorTextEntriesRow: some View {
+        HStack {
+            Text(viewModel.abilityInfo[.flavorTextEntries, default: "Error"])
+            Spacer()
+            if !viewModel.localizedFlavorTextEntries.isEmpty {
+                NavigationLink {
+                    AbilityFlavorTextEntriesList(
+                        title: viewModel.localizedAbilityName,
+                        id: ability.id,
+                        description: "Flavour text entries for this ability.",
+                        entries: viewModel.localizedFlavorTextEntries
+                    )
+                } label: {
+                    ShowMoreButton()
+                }
             }
         }
     }
     
     var effectChanges: some View {
-        GridRow {
-            Text("Effect changes")
-                .gridRowTitleStyle()
-            HStack {
-                Text("\(viewModel.effectChanges.count)")
-                Spacer()
-                if !viewModel.effectChanges.isEmpty {
-                    Button {
-                        viewModel.showEffectChangesView = true
-                    } label: {
-                        if viewModel.effectChanges.count == 1 {
-                            Text("Show change")
-                        } else {
-                            Text("Show changes")
-                        }
-                    }
-                    .foregroundColor(.blue)
+        HStack {
+            Text("\(viewModel.effectChanges.count)")
+            Spacer()
+            if !viewModel.effectChanges.isEmpty {
+                NavigationLink {
+                    AbilityEffectChangesView(viewModel: viewModel)
+                } label: {
+                    ShowMoreButton()
                 }
             }
         }
