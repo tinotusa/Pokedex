@@ -64,7 +64,9 @@ private extension HomePokemonTab {
     var pokemonGrid: some View {
         LazyVGrid(columns: columns, spacing: 20) {
             ForEach(viewModel.filteredPokemon) { pokemon in
-                NavigationLink(value: pokemon) {
+                NavigationLink {
+                    PokemonDetail(pokemon: pokemon)
+                } label: {
                     PokemonCard(pokemon: pokemon)
                 }
             }

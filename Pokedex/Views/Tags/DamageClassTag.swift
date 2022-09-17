@@ -21,7 +21,9 @@ struct DamageClassTag: View {
                 }
         case .loaded:
             if let damageClass = viewModel.damageClass {
-                NavigationLink(value: damageClass) {
+                NavigationLink {
+                    Text("Damage class detail here: \(damageClass.name)")
+                } label: {
                     Text(viewModel.localizedDamageClassName)
                         .colouredLabel(colourName: name)
                 }

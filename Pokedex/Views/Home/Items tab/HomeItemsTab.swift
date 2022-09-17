@@ -45,7 +45,9 @@ private extension HomeItemsTab {
     var itemsList: some View {
         LazyVGrid(columns: columns) {
             ForEach(viewModel.filteredItems) { item in
-                NavigationLink(value: item) {
+                NavigationLink {
+                    ItemDetail(item: item)
+                } label: {
                     ItemCard(item: item)
                 }
             }

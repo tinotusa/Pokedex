@@ -43,7 +43,9 @@ private extension HomeAbilitiesTab {
     var abilitiesList: some View {
         LazyVGrid(columns: columns) {
             ForEach(viewModel.filteredAbilities) { ability in
-                NavigationLink(value: ability) {
+                NavigationLink {
+                    AbilityDetail(ability: ability)
+                } label: {
                     AbilityCard(ability: ability)
                 }
             }

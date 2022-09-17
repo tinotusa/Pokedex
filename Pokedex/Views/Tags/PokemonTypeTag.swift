@@ -42,7 +42,9 @@ struct PokemonTypeTag: View {
     var body: some View {
         Group {
             if let type {
-                NavigationLink(value: type) {
+                NavigationLink {
+                    TypeDetail(type: type)
+                } label: {
                     typePill
                 }
             } else {

@@ -44,7 +44,9 @@ private extension HomeMovesTab {
     var movesList: some View {
         LazyVGrid(columns: columns) {
             ForEach(viewModel.filteredMoves) { move in
-                NavigationLink(value: move) {
+                NavigationLink{
+                    MoveDetail(move: move)
+                } label: {
                     MoveCard(move: move)
                 }
                 .buttonStyle(.plain)

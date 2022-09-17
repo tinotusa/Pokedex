@@ -57,9 +57,11 @@ private extension MovesListView {
     @ViewBuilder
     var movesList: some View {
         ForEach(viewModel.sortedMoves) { move in
-//            NavigationLink(value: move) {
+            NavigationLink {
+                MoveDetail(move: move)
+            } label: {
                 MoveCard(move: move)
-            
+            }
         }
         
         if viewModel.hasNextPage {

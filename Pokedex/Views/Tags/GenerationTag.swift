@@ -21,7 +21,9 @@ struct GenerationTag: View {
                 }
         case .loaded:
             if let generation = viewModel.generation {
-                NavigationLink(value: generation) {
+                NavigationLink {
+                    Text("Generation detail: \(generation.name)")
+                } label: {
                     Text(viewModel.localizedGenerationName)
                         .colouredLabel(colourName: name)
                 }

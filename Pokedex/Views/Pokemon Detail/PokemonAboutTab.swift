@@ -91,7 +91,9 @@ private extension PokemonAboutTab {
     var abilitiesList: some View {
         VStack(alignment: .leading) {
             ForEach(viewModel.abilities, id: \.self) { ability in
-                NavigationLink(value: ability) {
+                NavigationLink {
+                    AbilityDetail(ability: ability)
+                } label: {
                     Text(viewModel.localizedAbilityName(ability: ability))
                         .colouredLabel(colourName: pokemon.types.first!.type.name)
                 }

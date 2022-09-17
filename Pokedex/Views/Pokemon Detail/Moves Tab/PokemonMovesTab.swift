@@ -36,7 +36,9 @@ private extension PokemonMovesTab {
     var movesList: some View {
         LazyVGrid(columns: columns) {
             ForEach(viewModel.sortedMoves) { move in
-                NavigationLink(value: move) {
+                NavigationLink {
+                    MoveDetail(move: move)
+                } label: {
                     MoveCard(move: move)
                 }
             }
