@@ -29,7 +29,7 @@ struct PokemonEvolutionsTab: View {
             case .error(let error):
                 ErrorView(text: error.localizedDescription)
             case .empty:
-                Text("No data loaded.")
+                NoDataView(text: "No evolutions to load.")
             }
         }
     }

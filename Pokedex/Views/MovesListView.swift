@@ -38,7 +38,7 @@ struct MovesListView: View {
                     case .loaded:
                         movesList
                     case .empty:
-                        Text("No moves to show.")
+                        NoDataView(text: "No moves to load.")
                     case .error(let error):
                         ErrorView(text: error.localizedDescription)
                     }

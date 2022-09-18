@@ -17,28 +17,30 @@ struct HomePokemonTab: View {
 
     var body: some View {
         ScrollView {
-            switch viewModel.viewState {
-            case .loading:
-                LoadingView()
-                    .task {
-                        await viewModel.getPokemonList()
+            Group {
+                switch viewModel.viewState {
+                case .loading:
+                    LoadingView()
+                        .task {
+                            await viewModel.getPokemonList()
+                        }
+                case .loaded:
+                    if viewModel.searchState == .searching && viewModel.filteredPokemon.isEmpty {
+                        LoadingView(text: "Searching")
+                    } else if viewModel.searchState == .error {
+                        SearchErrorView(text: "\"\(viewModel.searchText)\" was not found.")
+                    } else {
+                        pokemonGrid
                     }
-            case .loaded:
-                if viewModel.searchState == .searching && viewModel.filteredPokemon.isEmpty {
-                    LoadingView(text: "Searching")
-                } else if viewModel.searchState == .error {
-                    SearchErrorView(text: "\"\(viewModel.searchText)\" was not found.")
-                } else {
-                    pokemonGrid
+                case .error(let error):
+                    ErrorView(text: error.localizedDescription)
+                case .empty:
+                    NoDataView(text: "No pokemon to load.")
                 }
-            case .error(let error):
-                ErrorView(text: error.localizedDescription)
-            case .empty:
-                Text("Empty")
             }
-        }
-        .onChange(of: horizontalSizeClass) { horizontalSizeClass in
-            setGridSize()
+            .onChange(of: horizontalSizeClass) { horizontalSizeClass in
+                setGridSize()
+            }
         }
     }
 }

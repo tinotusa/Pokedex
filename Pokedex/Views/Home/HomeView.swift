@@ -57,29 +57,6 @@ struct HomeView: View {
                     .presentationDragIndicator(.visible)
                     .preferredColorScheme(settingsManager.isDarkMode ? .dark : .light)
             }
-            // TODO: This seems wrong because they are not near the corresponding navigation  link
-            // but this is the only way it works.
-//            .navigationDestination(for: Pokemon.self) { pokemon in
-//                PokemonDetail(pokemon: pokemon)
-//            }
-//            .navigationDestination(for: Item.self) { item in
-//                ItemDetail(item: item)
-//            }
-//            .navigationDestination(for: Move.self) { move in
-//                MoveDetail(move: move)
-//            }
-//            .navigationDestination(for: Ability.self) { ability in
-//                AbilityDetail(ability: ability)
-//            }
-//            .navigationDestination(for: `Type`.self) { type in
-//                TypeDetail(type: type)
-//            }
-//            .navigationDestination(for: Generation.self) { generation in
-//                Text("Looking at: \(generation.name)")
-//            }
-//            .navigationDestination(for: MoveDamageClass.self) { damageClass in
-//                Text("Looking at: \(damageClass.name)")
-//            }
             .ignoresSafeArea(edges: .bottom)
             .scrollDismissesKeyboard(.immediately)
             .background {

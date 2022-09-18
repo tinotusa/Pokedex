@@ -25,7 +25,7 @@ struct PokemonAboutTab: View {
             case .error(let error):
                 ErrorView(text: error.localizedDescription)
             case .empty:
-                Text("Empty")
+                NoDataView(text: "No about information to load.")
             }
         }
         .bodyStyle()

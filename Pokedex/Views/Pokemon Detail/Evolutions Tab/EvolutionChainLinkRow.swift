@@ -24,7 +24,7 @@ struct EvolutionChainLinkRow: View {
         case .error(let error):
             ErrorView(text: error.localizedDescription)
         case .empty:
-            Text("Failed to load data.")
+            NoDataView(text: "No evolution chain to load.")
         }
     }
 }

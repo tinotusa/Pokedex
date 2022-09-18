@@ -23,6 +23,7 @@ struct LoadingView: View {
             Text(text)
                 .multilineTextAlignment(.center)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .bodyStyle()
         .foregroundColor(.textColour)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

@@ -40,7 +40,7 @@ struct MachinesListView: View {
                     case .error(let error):
                         ErrorView(text: error.localizedDescription)
                     case .empty:
-                        Text("Empty")
+                        NoDataView(text: "No machines list to load.")
                     }
                 }
             }
