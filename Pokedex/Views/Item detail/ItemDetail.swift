@@ -65,16 +65,17 @@ private extension ItemDetail {
         HStack {
             Text(viewModel.itemInfo[.heldBy, default: "Error"])
             Spacer()
-            
-            NavigationLink {
-                PokemonListView(
-                    title: viewModel.localizedItemName,
-                    id: item.id,
-                    description: "Pokemon that hold this item.",
-                    pokemonURLS: item.heldByPokemon.map { $0.pokemon.url }
-                )
-            } label: {
-                ShowMoreButton()
+            if !item.heldByPokemon.isEmpty {
+                NavigationLink {
+                    PokemonListView(
+                        title: viewModel.localizedItemName,
+                        id: item.id,
+                        description: "Pokemon that hold this item.",
+                        pokemonURLS: item.heldByPokemon.map { $0.pokemon.url }
+                    )
+                } label: {
+                    ShowMoreButton()
+                }
             }
         }
     }

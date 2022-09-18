@@ -11,6 +11,7 @@ import os
 final class MoveDetailViewModel: ObservableObject {
     @Published private(set) var move: Move?
     @Published private(set) var settings: Settings?
+    
     @Published private(set) var moveDamageClass: MoveDamageClass?
     @Published private(set) var generation: Generation?
     @Published private(set) var machineItems = [Item]()
@@ -20,11 +21,7 @@ final class MoveDetailViewModel: ObservableObject {
     // Meta data
     @Published private(set) var moveAilment: MoveAilment?
     @Published private(set) var moveCategory: MoveCategory?
-    // other
-    @Published var showMachinesList = false
-    @Published var showPokemonList = false
-    @Published var showLongEffectEntry = false
-    @Published var showMoveFlavorTextEntries = false
+    
     @Published var viewState = ViewState.loading
     
     let unavailableField = "N/A"
@@ -71,18 +68,6 @@ extension MoveDetailViewModel {
 
 // MARK: - Functions
 extension MoveDetailViewModel {
-    private func getData<T: Codable & SearchByNameOrID>(_ type: T.Type, named name: String) async -> T? {
-        logger.debug("Getting data named: \(name).")
-        do {
-            let item = try await T.from(name: name)
-            logger.debug("Successfully got data named: \(name).")
-            return item as? T
-        } catch {
-            logger.error("Failed to get data named: \(name). \(error.localizedDescription)")
-        }
-        return nil
-    }
-    
     @MainActor
     func loadData(move: Move, settings: Settings) async {
         logger.debug("Starting to load data for move: \(move.id).")
@@ -107,15 +92,12 @@ extension MoveDetailViewModel {
         logger.debug("Successfully loaded data for move: \(move.id).")
     }
  
-    func localizedVerboseEffect(short: Bool = false) -> String {
-        guard let move else { return "Error" }
-        guard let settings else { return "Error" }
-        return move.effectEntries.localizedEffectEntry(
-            shortEffect: short,
-            language: settings.language,
-            default: "Error",
-            effectChance: move.effectChance
-        )
+    var localizedShortVerboseEffect: String {
+        localizedVerboseEffect(short: true)
+    }
+    
+    var localizedVerboseEffect: String {
+        localizedVerboseEffect()
     }
 }
 
@@ -191,13 +173,43 @@ private extension MoveDetailViewModel {
         moveMetaInfo[.flinchChance] = move.meta.flinchChance.formatted(.percent)
         moveMetaInfo[.statChance] = move.meta.statChance.formatted(.percent)
     }
+    
+    func localizedVerboseEffect(short: Bool = false) -> String {
+        guard let move else {
+            logger.debug("Error getting localized verbose effect. move is nil.")
+            return "Error"
+        }
+        guard let settings else {
+            logger.debug("Error getting localized verbose effect. settings is nil.")
+            return "Error"
+        }
+        logger.debug("Successfully got localized verbose effect for move: \(move.id)")
+        return move.effectEntries.localizedEffectEntry(
+            shortEffect: short,
+            language: settings.language,
+            default: "Error",
+            effectChance: move.effectChance
+        )
+    }
+    
+    func getData<T: Codable & SearchByNameOrID>(_ type: T.Type, named name: String) async -> T? {
+        logger.debug("Getting data named: \(name).")
+        do {
+            let item = try await T.from(name: name)
+            logger.debug("Successfully got data named: \(name).")
+            return item as? T
+        } catch {
+            logger.error("Failed to get data named: \(name). \(error.localizedDescription)")
+        }
+        return nil
+    }
 }
 
 // MARK: - Computed properties
 extension MoveDetailViewModel {
     var localizedMoveName: String {
-        guard let move else { return "Error"}
-        guard let settings else { return "Error"}
+        guard let move else { return "Error" }
+        guard let settings else { return "Error" }
         return move.names
             .localizedName(
                 language: settings.language,
@@ -288,4 +300,5 @@ extension MoveDetailViewModel {
         
         logger.error("Failed to get localied move flavor text entries for move: \(move.id).")
     }
+    
 }

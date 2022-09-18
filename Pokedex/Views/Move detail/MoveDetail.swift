@@ -42,16 +42,17 @@ private extension MoveDetail {
         HStack {
             Text(viewModel.moveInfo[.learnedBy, default: "Error"])
             Spacer()
-            
-            NavigationLink {
-                PokemonListView(
-                    title: viewModel.localizedMoveName,
-                    id: move.id,
-                    description: "Pokemon that can learn this move.",
-                    pokemonURLS: move.learnedByPokemon.map { $0.url }
-                )
-            } label: {
-                ShowMoreButton()
+            if !move.learnedByPokemon.isEmpty {
+                NavigationLink {
+                    PokemonListView(
+                        title: viewModel.localizedMoveName,
+                        id: move.id,
+                        description: "Pokemon that can learn this move.",
+                        pokemonURLS: move.learnedByPokemon.map { $0.url }
+                    )
+                } label: {
+                    ShowMoreButton()
+                }
             }
         }
     }
@@ -60,11 +61,12 @@ private extension MoveDetail {
         HStack {
             Text(viewModel.moveInfo[.machines, default: "Error"])
             Spacer()
-            
-            NavigationLink {
-                MachinesListView(moveDetailViewModel: viewModel)
-            } label: {
-                ShowMoreButton()
+            if !move.machines.isEmpty {
+                NavigationLink {
+                    MachinesListView(moveDetailViewModel: viewModel)
+                } label: {
+                    ShowMoreButton()
+                }
             }
         }
     }
@@ -73,28 +75,14 @@ private extension MoveDetail {
         HStack {
             Text(viewModel.moveInfo[.moveFlavourTextEntries, default: "Error"])
             Spacer()
-            
-            NavigationLink {
-                MoveFlavourTextEntriesListView(moveDetailViewModel: viewModel)
-            } label: {
-                ShowMoreButton()
+            if !viewModel.filteredMoveFlavorTextEntries .isEmpty {
+                NavigationLink {
+                    MoveFlavourTextEntriesListView(moveDetailViewModel: viewModel)
+                } label: {
+                    ShowMoreButton()
+                }
             }
         }
-    }
-    
-    var showDetailButton: some View {
-        Button {
-            withAnimation {
-                viewModel.showLongEffectEntry.toggle()
-            }
-        } label: {
-            Label(
-                viewModel.showLongEffectEntry ? "Hide detail" : "Show detail",
-                systemImage: viewModel.showLongEffectEntry ? "chevron.up" : "chevron.down"
-            )
-            .animation(nil, value: viewModel.showLongEffectEntry)
-        }
-        .foregroundColor(.highlightColour)
     }
     
     var moveDetail: some View {
@@ -102,13 +90,11 @@ private extension MoveDetail {
             VStack(alignment: .leading) {
                 HeaderWithID(title: viewModel.localizedMoveName, id: viewModel.moveID)
                     
-                Text(viewModel.localizedVerboseEffect(short: true))
+                Text(viewModel.localizedVerboseEffect)
                 
-                showDetailButton
+                Divider()
                 
-                if viewModel.showLongEffectEntry {
-                    Text(viewModel.localizedVerboseEffect())
-                }
+                Text(viewModel.localizedShortVerboseEffect)
                 
                 Divider()
                 
