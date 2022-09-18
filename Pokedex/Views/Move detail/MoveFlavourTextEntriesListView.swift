@@ -52,8 +52,17 @@ private extension MoveFlavourTextEntriesListView {
             Text("Move flavour text entries.")
             Divider()
             ForEach(moveDetailViewModel.filteredMoveFlavorTextEntries, id: \.self) { entry in
-                Text(viewModel.localizedVersionName(for: entry.versionGroup.name))
-                    .foregroundColor(.gray)
+                let names = viewModel.localizedVersionNames(for: entry.versionGroup.name)
+                HStack {
+                    ForEach(names, id: \.self) { name in
+                        Text(name)
+                            .foregroundColor(.gray)
+                        if name != names[names.count - 1] {
+                            Divider()
+                                .frame(maxHeight: 30)
+                        }
+                    }
+                }
                 Text(entry.flavorText.replacingOccurrences(of: "[\\s\n]+", with: " ", options: .regularExpression))
                 Divider()
             }

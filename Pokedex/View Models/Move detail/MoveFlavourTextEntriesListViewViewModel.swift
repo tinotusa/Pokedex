@@ -6,33 +6,42 @@
 //
 
 import Foundation
+import os
 
 final class MoveFlavourTextEntriesListViewViewModel: ObservableObject {
     @Published private(set) var versionGroups = [VersionGroup]()
     @Published private(set) var versions = [Version]()
     @Published private(set) var viewState = ViewState.loading
     private var settings: Settings?
+    private var logger = Logger(subsystem: "com.tinotusa.Pokedex", category: "MoveFlavorTextEntriesListViewViewModel")
 }
 
 extension MoveFlavourTextEntriesListViewViewModel {
     @MainActor
     func loadData(settings: Settings, entries: [MoveFlavorText]) async {
+        logger.debug("Started loading data.")
         if entries.isEmpty {
             viewState = .empty
+            logger.debug("Stopped loading data. No Entries given.")
             return
         }
+        
         self.settings = settings
         await loadVersionGroups(entries: entries)
         await loadVersions(versionGroups: self.versionGroups)
         viewState = .loaded
+        logger.debug("Successfully loaded data.")
     }
     
-    func localizedVersionName(for name: String) -> String {
-        guard let versionGroup = versionGroups.first(where: { $0.name == name }) else { return "Error" }
-        guard let version = versions.first(where: { $0.id == versionGroup.id }) else {
-            return "Error"
+    func localizedVersionNames(for name: String) -> [String] {
+        guard let versionGroup = versionGroups.first(where: { $0.name == name }) else {
+            logger.debug("Failed to find version group with name: \(name).")
+            return []
         }
-        return version.names.localizedName(language: settings?.language, default: version.name)
+        let versions = versions.filter { $0.versionGroup.name == versionGroup.name }
+        
+        logger.debug("Successfully got localized version names for: \(name).")
+        return versions.map { $0.names.localizedName(language: settings?.language, default: $0.name) }
     }
 }
 
@@ -66,8 +75,15 @@ private extension MoveFlavourTextEntriesListViewViewModel {
         
         await withTaskGroup(of: Version?.self) { group in
             for versionGroup in versionGroups {
-                group.addTask {
-                    return try? await Version.from(id: versionGroup.id)
+                for version in versionGroup.versions {
+                    group.addTask { [weak self] in
+                        do {
+                            return try await Version.from(name: version.name)
+                        } catch {
+                            self?.logger.error("Failed to get version with name: \(version.name)")
+                        }
+                        return nil
+                    }
                 }
             }
             var tempVersions = [Version]()

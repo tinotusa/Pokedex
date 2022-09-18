@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import os
 
 final class MoveDetailViewModel: ObservableObject {
     @Published private(set) var move: Move?
@@ -29,6 +30,8 @@ final class MoveDetailViewModel: ObservableObject {
     let unavailableField = "N/A"
     @Published private(set) var moveInfo = [MoveInfoKey: String]()
     @Published private(set) var moveMetaInfo = [MoveMetaInfoKey: String]()
+    
+    private var logger = Logger(subsystem: "com.tinotusa.Pokedex", category: "MoveDetailViewModel")
 }
 
 extension MoveDetailViewModel {
@@ -68,36 +71,40 @@ extension MoveDetailViewModel {
 
 // MARK: - Functions
 extension MoveDetailViewModel {
+    private func getData<T: Codable & SearchByNameOrID>(_ type: T.Type, named name: String) async -> T? {
+        logger.debug("Getting data named: \(name).")
+        do {
+            let item = try await T.from(name: name)
+            logger.debug("Successfully got data named: \(name).")
+            return item as? T
+        } catch {
+            logger.error("Failed to get data named: \(name). \(error.localizedDescription)")
+        }
+        return nil
+    }
+    
     @MainActor
     func loadData(move: Move, settings: Settings) async {
+        logger.debug("Starting to load data for move: \(move.id).")
         setUp(move: move, settings: settings)
 
-        await withTaskGroup(of: Void.self) { [self] group in
-            group.addTask { @MainActor [self] in
-                moveDamageClass = try? await MoveDamageClass.from(name: move.damageClass.name)
-            }
-            
-            group.addTask { @MainActor [self] in
-                generation = try? await Generation.from(name: move.generation.name)
-            }
-            
-            group.addTask { @MainActor [self] in
-                moveAilment = try? await MoveAilment.from(name: move.meta.ailment.name)
-            }
-            
-            group.addTask { @MainActor [self] in
-                moveCategory = try? await MoveCategory.from(name: move.meta.category.name)
-            }
-            
-            group.addTask { @MainActor [self] in
-                moveTarget = try? await MoveTarget.from(name: move.target.name)
-            }
-            
-            await group.waitForAll()
-            getMoveInfo()
-            getMoveMetaInfo()
-            viewState = .loaded
-        }
+        async let moveDamageClass = getData(MoveDamageClass.self, named: move.damageClass.name)
+        async let generation = getData(Generation.self, named: move.generation.name)
+        async let moveAilment = getData(MoveAilment.self, named: move.meta.ailment.name)
+        async let moveCategory = getData(MoveCategory.self, named: move.meta.category.name)
+        async let moveTarget = getData(MoveTarget.self, named: move.target.name)
+        
+        self.moveDamageClass = await moveDamageClass
+        self.generation = await generation
+        self.moveAilment = await moveAilment
+        self.moveCategory = await moveCategory
+        self.moveTarget = await moveTarget
+
+        getLocalizedMoveFlavourText()
+        getMoveInfo()
+        getMoveMetaInfo()
+        viewState = .loaded
+        logger.debug("Successfully loaded data for move: \(move.id).")
     }
  
     func localizedVerboseEffect(short: Bool = false) -> String {
@@ -145,7 +152,7 @@ private extension MoveDetailViewModel {
         }
         
         moveInfo[.damageClass] = "\(move.damageClass.name)"
-        moveInfo[.moveFlavourTextEntries] = "\(flavorTextEntriesCount) entries"
+        moveInfo[.moveFlavourTextEntries] = "\(filteredMoveFlavorTextEntries.count) entries"
         moveInfo[.learnedBy] = "\(move.learnedByPokemon.count) pokemon"
         moveInfo[.generation] = "\(move.generation.name)"
         
@@ -243,34 +250,42 @@ extension MoveDetailViewModel {
         return moveAilment.names.localizedName(language: settings.language, default: moveAilment.name)
     }
     
-    var flavorTextEntriesCount: Int {
-        guard let move else { return 0 }
+    func getLocalizedMoveFlavourText() {
+        logger.debug("Getting localized move flavour texts.")
+        guard let move else {
+            logger.debug("Error move is nil.")
+            return
+        }
+        
+        var entries: [MoveFlavorText]? = nil
+        if let language = settings?.language {
+            entries = move.flavorTextEntries.filter { entry in
+                entry.language.name == language.name
+            }
+        }
+        
         let availableLanguageCodes = move.flavorTextEntries.map { entry in
             entry.language.name
         }
         let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
-        var entries: [MoveFlavorText]? = nil
-        if let language = settings?.language {
+        
+        if entries == nil {
             entries = move.flavorTextEntries.filter { entry in
-                return entry.language.name == language.name
+                entry.language.name == deviceLanguageCode
             }
         }
         
         if entries == nil {
             entries = move.flavorTextEntries.filter { entry in
-                return entry.language.name == deviceLanguageCode
-            }
-        }
-        
-        if entries == nil {
-            entries = move.flavorTextEntries.filter { entry in
-                return entry.language.name == "en"
+                entry.language.name == "en"
             }
         }
         if let entries {
             self.filteredMoveFlavorTextEntries = entries
-            return entries.count
+            logger.debug("Successfully got localized move flavor text entries.")
+            return
         }
-        return 0
+        
+        logger.error("Failed to get localied move flavor text entries for move: \(move.id).")
     }
 }
