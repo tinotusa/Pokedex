@@ -40,7 +40,7 @@ struct MovesListView: View {
                     case .empty:
                         Text("No moves to show.")
                     case .error(let error):
-                        Text(error.localizedDescription)
+                        ErrorView(text: error.localizedDescription)
                     }
                 }
             }

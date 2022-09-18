@@ -38,7 +38,7 @@ struct MachinesListView: View {
                     case .loaded:
                         machinesList
                     case .error(let error):
-                        Text(error.localizedDescription)
+                        ErrorView(text: error.localizedDescription)
                     case .empty:
                         Text("Empty")
                     }

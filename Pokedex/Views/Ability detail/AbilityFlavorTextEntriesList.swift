@@ -40,7 +40,7 @@ struct AbilityFlavorTextEntriesList: View {
                     case .empty:
                         Text("No flavour text entries.")
                     case .error(let error):
-                        Text(error.localizedDescription)
+                        ErrorView(text: error.localizedDescription)
                     }
                 }
             }

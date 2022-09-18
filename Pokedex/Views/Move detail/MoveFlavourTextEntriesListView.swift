@@ -34,7 +34,7 @@ struct MoveFlavourTextEntriesListView: View {
                 case .empty:
                     Text("No entries")
                 case .error(let error):
-                    Text(error.localizedDescription)
+                    ErrorView(text: error.localizedDescription)
                 }
             }
         }

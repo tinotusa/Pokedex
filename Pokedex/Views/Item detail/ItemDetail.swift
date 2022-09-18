@@ -31,7 +31,7 @@ struct ItemDetail: View {
                     case .loaded:
                         itemDetail
                     case .error(let error):
-                        Text(error.localizedDescription)
+                        ErrorView(text: error.localizedDescription)
                     case .empty:
                         Text("Failed to load data.")
                     }

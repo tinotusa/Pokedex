@@ -29,13 +29,14 @@ extension AbilityDetailViewModel {
     func loadData(ability: Ability, settings: Settings) async {
         setUp(ability: ability, settings: settings)
         do {
+            logger.debug("Starting to load ability: \(ability.id)")
             generation = try await Generation.from(name: ability.generation.name)
             getLocalizedFlavorTextEntries()
             getAbilityInfo()
             viewState = .loaded
             logger.debug("Successfully loaded data for ability \(ability.id)")
         } catch {
-            logger.error("Error for Ability: \(ability.id). \(error.localizedDescription)")
+            logger.error("Failed to load ability: \(ability.id). \(error.localizedDescription)")
             viewState = .error(error)
         }
     }

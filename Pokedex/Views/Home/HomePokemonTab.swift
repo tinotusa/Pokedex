@@ -32,7 +32,7 @@ struct HomePokemonTab: View {
                     pokemonGrid
                 }
             case .error(let error):
-                Text(error.localizedDescription)
+                ErrorView(text: error.localizedDescription)
             case .empty:
                 Text("Empty")
             }
