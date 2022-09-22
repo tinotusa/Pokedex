@@ -54,3 +54,9 @@ extension PokemonSpecies {
         return self.names.localizedName(language: language, default: self.name)
     }
 }
+
+extension PokemonSpecies: Comparable {
+    static func < (lhs: PokemonSpecies, rhs: PokemonSpecies) -> Bool {
+        lhs.id < rhs.id
+    }
+}

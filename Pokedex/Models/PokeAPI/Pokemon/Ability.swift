@@ -37,3 +37,9 @@ extension Ability: SearchByNameOrID {
         try await Self.from(name: "\(id)")
     }
 }
+
+extension Ability: SearchableByURL {
+    static func from(url: URL) async throws -> Ability {
+        try await PokeAPI.shared.getData(for: Ability.self, url: url)
+    }
+}

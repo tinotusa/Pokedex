@@ -17,7 +17,7 @@ struct Move: Codable, Hashable, Identifiable {
     /// The percent value of how likely it is this moves effect will happen.
     let effectChance: Int?
     /// Power points. The number of times this move can be used.
-    let pp: Int
+    let pp: Int?
     /// A value between -8 and 8. Sets the order in which moves are executed during battle.
     let priority: Int
     /// The base power of this move with a value of 0 if it does not have a base power.
@@ -44,7 +44,7 @@ struct Move: Codable, Hashable, Identifiable {
     /// A list of the machines that teach this move.
     let machines: [MachineVersionDetail]
     /// Metadata about this move
-    let meta: MoveMetaData
+    let meta: MoveMetaData?
     /// The name of this resource listed in different languages.
     let names: [Name]
     /// A list of move resource value changes across version groups of the game.

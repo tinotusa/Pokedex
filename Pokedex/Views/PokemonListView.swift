@@ -37,8 +37,10 @@ struct PokemonListView: View {
                             }
                     case .loaded:
                         pokemonList
-                    default:
-                        Text("Error loading.")
+                    case .empty:
+                        NoDataView(text: "No pokemon to list.")
+                    case .error(let error):
+                        ErrorView(text: error.localizedDescription)
                     }
                 }
             }
@@ -82,8 +84,9 @@ struct PokemonListView_Previews: PreviewProvider {
             title: "Hello world",
             id: 123,
             description: "some description",
-            pokemonURLS: []
+            pokemonURLS: Move.example.learnedByPokemon.map { $0.url }
         )
         .environmentObject(SettingsManager())
+        .environmentObject(ImageCache())
     }
 }

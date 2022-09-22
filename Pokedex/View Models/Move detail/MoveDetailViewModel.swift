@@ -72,19 +72,25 @@ extension MoveDetailViewModel {
     func loadData(move: Move, settings: Settings) async {
         logger.debug("Starting to load data for move: \(move.id).")
         setUp(move: move, settings: settings)
-
+        
         async let moveDamageClass = getData(MoveDamageClass.self, named: move.damageClass.name)
         async let generation = getData(Generation.self, named: move.generation.name)
-        async let moveAilment = getData(MoveAilment.self, named: move.meta.ailment.name)
-        async let moveCategory = getData(MoveCategory.self, named: move.meta.category.name)
         async let moveTarget = getData(MoveTarget.self, named: move.target.name)
         
         self.moveDamageClass = await moveDamageClass
         self.generation = await generation
-        self.moveAilment = await moveAilment
-        self.moveCategory = await moveCategory
         self.moveTarget = await moveTarget
-
+        
+        if let meta = move.meta {
+            async let moveAilment = getData(MoveAilment.self, named: meta.ailment.name)
+            async let moveCategory = getData(MoveCategory.self, named: meta.category.name)
+            
+            self.moveAilment = await moveAilment
+            self.moveCategory = await moveCategory
+        } else {
+            logger.debug("No move meta on move id: \(move.id)")
+        }
+        
         getLocalizedMoveFlavourText()
         getMoveInfo()
         getMoveMetaInfo()
@@ -124,8 +130,11 @@ private extension MoveDetailViewModel {
         } else {
             moveInfo[.effectChance] = unavailableField
         }
-        
-        moveInfo[.powerPoints] = String(move.pp)
+        if let pp = move.pp {
+            moveInfo[.powerPoints] = String(pp)
+        } else {
+            moveInfo[.powerPoints] = unavailableField
+        }
         moveInfo[.priority] = String(move.priority)
         if let power = move.power {
             moveInfo[.power] = String(power)
@@ -146,32 +155,33 @@ private extension MoveDetailViewModel {
     
     func getMoveMetaInfo() {
         guard let move else { return }
+        guard let meta = move.meta else { return }
         moveMetaInfo[.ailment] = localizedMoveAilmentName
-        moveMetaInfo[.category] = move.meta.category.name.localizedCapitalized
-        if let minHits = move.meta.minHits {
+        moveMetaInfo[.category] = meta.category.name.localizedCapitalized
+        if let minHits = meta.minHits {
             moveMetaInfo[.minHits] = "\(minHits)"
         } else {
             moveMetaInfo[.minHits] = unavailableField
         }
         
-        if let maxHits = move.meta.maxHits {
+        if let maxHits = meta.maxHits {
             moveMetaInfo[.maxHits] = "\(maxHits)"
         } else {
             moveMetaInfo[.maxHits] = unavailableField
         }
         
-        if let maxTurns = move.meta.maxTurns {
+        if let maxTurns = meta.maxTurns {
             moveMetaInfo[.maxTurns] = "\(maxTurns)"
         } else {
             moveMetaInfo[.maxTurns] = unavailableField
         }
         
-        moveMetaInfo[.drain] = "\(move.meta.drain)"
-        moveMetaInfo[.healing] = "\(move.meta.healing)"
-        moveMetaInfo[.critRate] = "\(move.meta.critRate)"
-        moveMetaInfo[.ailmentChance] = move.meta.ailmentChance.formatted(.percent)
-        moveMetaInfo[.flinchChance] = move.meta.flinchChance.formatted(.percent)
-        moveMetaInfo[.statChance] = move.meta.statChance.formatted(.percent)
+        moveMetaInfo[.drain] = "\(meta.drain)"
+        moveMetaInfo[.healing] = "\(meta.healing)"
+        moveMetaInfo[.critRate] = "\(meta.critRate)"
+        moveMetaInfo[.ailmentChance] = meta.ailmentChance.formatted(.percent)
+        moveMetaInfo[.flinchChance] = meta.flinchChance.formatted(.percent)
+        moveMetaInfo[.statChance] = meta.statChance.formatted(.percent)
     }
     
     func localizedVerboseEffect(short: Bool = false) -> String {

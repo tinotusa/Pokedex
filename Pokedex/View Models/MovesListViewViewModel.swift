@@ -29,6 +29,7 @@ extension MovesListViewViewModel {
         moves.sorted()
     }
     
+    @MainActor
     func loadData(moveURLS: [URL], settings: Settings) async {
         setUp(moveURLS: moveURLS, settings: settings)
         if moveURLS.isEmpty {
@@ -48,6 +49,7 @@ extension MovesListViewViewModel {
         viewState = .loaded
     }
     
+    @MainActor
     func getNextPage() async {
         let moves = await getNextMovePage()
         self.moves.append(contentsOf: moves)
@@ -98,7 +100,7 @@ private extension MovesListViewViewModel {
                         return try await Move.from(url: url)
                     } catch {
                         #if DEBUG
-                        print("Error in \(#function).\n\(error)")
+                        print("Error in \(#function).\n\(error) url: \(url)")
                         #endif
                     }
                     return nil
