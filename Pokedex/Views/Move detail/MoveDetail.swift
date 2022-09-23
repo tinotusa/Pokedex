@@ -118,18 +118,22 @@ private extension MoveDetail {
                     
                     Divider()
                     
-                    ForEach(MoveDetailViewModel.MoveMetaInfoKey.allCases) { metaInfoKey in
-                        GridRow {
-                            Text(metaInfoKey.rawValue.localizedCapitalized)
-                                .gridRowTitleStyle()
-                            
-                            switch metaInfoKey {
-                            case .ailment:
-                                Text(viewModel.moveMetaInfo[.ailment, default: "Error"])
-                                    .colouredLabel(colourName: viewModel.moveMetaInfo[.ailment, default: "Error"])
-                            default: Text(viewModel.moveMetaInfo[metaInfoKey, default: "Error"])
+                    if move.meta != nil {
+                        ForEach(MoveDetailViewModel.MoveMetaInfoKey.allCases) { metaInfoKey in
+                            GridRow {
+                                Text(metaInfoKey.rawValue.localizedCapitalized)
+                                    .gridRowTitleStyle()
+                                
+                                switch metaInfoKey {
+                                case .ailment:
+                                    Text(viewModel.moveMetaInfo[.ailment, default: "Error"])
+                                        .colouredLabel(colourName: viewModel.moveMetaInfo[.ailment, default: "Error"])
+                                default: Text(viewModel.moveMetaInfo[metaInfoKey, default: "Error"])
+                                }
                             }
                         }
+                    } else {
+                        Text("No move metadata.")
                     }
                 }
             }
