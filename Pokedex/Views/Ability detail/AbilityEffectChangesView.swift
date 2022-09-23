@@ -8,8 +8,13 @@
 import SwiftUI
 
 struct AbilityEffectChangesView: View {
-    @ObservedObject var viewModel: AbilityDetailViewModel
-    
+    let title: String
+    let id: Int
+    let description: LocalizedStringKey
+    let effectChanges: [AbilityEffectChange]
+
+    @StateObject private var viewModel = AbilityEffectChangesViewViewModel()
+    @EnvironmentObject private var settingsManager: SettingsManager
     var body: some View {
         VStack(alignment: .leading) {
             HeaderBar() {
@@ -18,20 +23,25 @@ struct AbilityEffectChangesView: View {
             
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading) {
-                    if let ability = viewModel.ability {
-                        HeaderWithID(
-                            title: viewModel.localizedAbilityName,
-                            id: ability.id
-                        )
-                    }
                     
-                    Text("Ability changes.")
-                    
+                    HeaderWithID(title: title, id: id)
+
+                    Text(description)
                     Divider()
                     
-                    effectChangesGrid
-                    
-                    Spacer()
+                    switch viewModel.viewState {
+                    case .loading:
+                        LoadingView()
+                            .task {
+                                await viewModel.loadData(abilityEffectChanges: effectChanges, settings: settingsManager.settings)
+                            }
+                    case .loaded:
+                        effectChangesGrid
+                    case .empty:
+                        NoDataView(text: "No ability effect chagnes to load.")
+                    case .error(let error):
+                        ErrorView(text: error.localizedDescription)
+                    }
                 }
             }
         }
@@ -47,19 +57,32 @@ private extension AbilityEffectChangesView {
     var effectChangesGrid: some View {
         Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: 6) {
             GridRow(alignment: .center) {
-                Text("Game")
+                if effectChanges.count > 1 {
+                    Text("Games")
+                } else {
+                    Text("Game")
+                }
                 Text("Change")
             }
             .fontWeight(.regular)
             
-            ForEach(
-                viewModel.effectChanges,
-                id: \.effectChange
-            ) { versionGroup, effectChange in
+            ForEach(effectChanges, id: \.self) { effectChange in
                 GridRow {
-                    Text(versionGroup)
-                        .gridRowTitleStyle()
-                    Text(effectChange)
+                    let names = viewModel.localizedVersionGroupName(for: effectChange.versionGroup.name)
+                    ViewThatFits {
+                        HStack {
+                            ForEach(names, id: \.self) { name in
+                                Text(name)
+                            }
+                            .foregroundColor(.gray)
+                        }
+                        VStack {
+                            ForEach(names, id: \.self) { name in
+                                Text(name)
+                            }
+                        }
+                    }
+                    Text(viewModel.localizedEffectEntry(for: effectChange.effectEntries))
                 }
             }
         }
@@ -76,6 +99,12 @@ struct AbilityEffectChangesView_Previews: PreviewProvider {
     }()
     
     static var previews: some View {
-        AbilityEffectChangesView(viewModel: viewModel)
+        AbilityEffectChangesView(
+            title: "Some title",
+            id: 123,
+            description: "Test description",
+            effectChanges: Ability.example.effectChanges
+        )
+        .environmentObject(SettingsManager())
     }
 }

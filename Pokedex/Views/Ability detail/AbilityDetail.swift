@@ -119,7 +119,12 @@ private extension AbilityDetail {
             Spacer()
             if !viewModel.effectChanges.isEmpty {
                 NavigationLink {
-                    AbilityEffectChangesView(viewModel: viewModel)
+                    AbilityEffectChangesView(
+                        title: viewModel.localizedAbilityName,
+                        id: ability.id,
+                        description: "Ability effect changes",
+                        effectChanges: ability.effectChanges
+                    )
                 } label: {
                     ShowMoreButton()
                 }

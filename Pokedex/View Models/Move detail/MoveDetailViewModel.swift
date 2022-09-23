@@ -5,7 +5,7 @@
 //  Created by Tino on 24/8/2022.
 //
 
-import Foundation
+import SwiftUI
 import os
 
 final class MoveDetailViewModel: ObservableObject {
@@ -17,7 +17,7 @@ final class MoveDetailViewModel: ObservableObject {
     @Published private(set) var machineItems = [Item]()
     @Published private(set) var moveTarget: MoveTarget?
     @Published private(set) var filteredMoveFlavorTextEntries = [MoveFlavorText]()
-    
+    @Published private(set) var localizedEffectChanges = [AbilityEffectChange]()
     // Meta data
     @Published private(set) var moveAilment: MoveAilment?
     @Published private(set) var moveCategory: MoveCategory?
@@ -45,8 +45,13 @@ extension MoveDetailViewModel {
         case learnedBy = "learned by"
         case generation = "generation"
         case machines = "machines"
+        case effectChanges = "effect changes"
         
         var id: Self { self }
+        
+        var title: LocalizedStringKey {
+            "\(self.rawValue.localizedCapitalized)"
+        }
     }
     
     enum MoveMetaInfoKey: String, CaseIterable, Identifiable {
@@ -113,8 +118,48 @@ private extension MoveDetailViewModel {
         self.settings = settings
     }
     
+    func getLocalizedEffectChanges() -> [AbilityEffectChange] {
+        logger.debug("Starting to get localized effect changes.")
+        guard let move else {
+            logger.debug("Failed to get localized effect changes. move is nil")
+            return []
+        }
+        var changes = [AbilityEffectChange]()
+        for abilityEffectChange in move.effectChanges {
+            for effect in abilityEffectChange.effectEntries {
+                if let language = settings?.language {
+                    if effect.language.name == language.name {
+                        logger.debug("Adding ability effect change with settings language \(language.name).")
+                        changes.append(abilityEffectChange)
+                        break
+                    }
+                }
+                let availableLanguageCodes = abilityEffectChange.effectEntries.map { $0.language.name }
+                let deviceLanguageCode = Bundle.preferredLocalizations(from: availableLanguageCodes, forPreferences: nil).first!
+                
+                if effect.language.name == deviceLanguageCode {
+                    logger.debug("Adding ability effect change with deviceLanguageCode \(deviceLanguageCode).")
+                    changes.append(abilityEffectChange)
+                    break
+                }
+                
+                if effect.language.name == "en" {
+                    logger.debug("Adding ability effect change with english.")
+                    changes.append(abilityEffectChange)
+                    break
+                }
+            }
+        }
+        logger.debug("Succesfully added \(changes.count) effect changes.")
+        return changes
+    }
+    
     func getMoveInfo() {
-        guard let move else { return }
+        logger.debug("Starting to get move info.")
+        guard let move else {
+            logger.debug("Failed to get move info. move is nil.")
+            return
+        }
 
         moveInfo[.type] = move.type.name
         moveInfo[.target] = localizedTargetName
@@ -151,6 +196,8 @@ private extension MoveDetailViewModel {
         case 1: moveInfo[.machines] = "\(move.machines.count) machine"
         default: moveInfo[.machines] = "\(move.machines.count) machines"
         }
+        
+        moveInfo[.effectChanges] = "\(move.effectChanges.count)"
     }
     
     func getMoveMetaInfo() {

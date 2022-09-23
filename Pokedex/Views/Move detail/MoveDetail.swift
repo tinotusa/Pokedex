@@ -111,6 +111,7 @@ private extension MoveDetail {
                             case .learnedBy: pokemonList
                             case .generation: GenerationTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
                             case .machines: machinesList
+                            case .effectChanges: effectChangesRow
                             default: Text(viewModel.moveInfo[moveInfoKey, default: "Error"])
                             }
                         }
@@ -143,6 +144,26 @@ private extension MoveDetail {
     var headerBar: some View {
         HeaderBar {
             
+        }
+    }
+    
+    @ViewBuilder
+    var effectChangesRow: some View {
+        HStack {
+            Text("\(move.effectChanges.count)")
+            Spacer()
+            if !move.effectChanges.isEmpty {
+                NavigationLink {
+                    AbilityEffectChangesView(
+                        title: viewModel.localizedMoveName,
+                        id: move.id,
+                        description: "Effect changes for this move.",
+                        effectChanges: move.effectChanges
+                    )
+                } label: {
+                    ShowMoreButton()
+                }
+            }
         }
     }
     
