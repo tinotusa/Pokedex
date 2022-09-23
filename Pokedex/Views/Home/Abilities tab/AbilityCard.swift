@@ -20,7 +20,11 @@ struct AbilityCard: View {
                     await viewModel.loadData(ability: ability, settings: settingsManager.settings)
                 }
         case .loaded:
-            abilityCard
+            NavigationLink {
+                AbilityDetail(ability: ability)
+            } label: {
+                abilityCard
+            }
         default:
             Text("Error loading view.")
         }   

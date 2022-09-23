@@ -59,7 +59,7 @@ struct AbilityDetail: View {
                 
             }
         }
-        .padding(.horizontal)
+        .padding()
         .bodyStyle()
         .foregroundColor(.textColour)
         .backgroundColour()
