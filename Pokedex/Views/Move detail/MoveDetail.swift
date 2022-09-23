@@ -107,7 +107,7 @@ private extension MoveDetail {
                             switch moveInfoKey {
                             case .type: PokemonTypeTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
                             case .moveFlavourTextEntries: moveFlavorTextEntires
-                            case .damageClass: DamageClassTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
+                            case .damageClass: MoveDamageClassTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
                             case .learnedBy: pokemonList
                             case .generation: GenerationTag(name: viewModel.moveInfo[moveInfoKey, default: "Error"])
                             case .machines: machinesList

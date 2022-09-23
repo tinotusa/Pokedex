@@ -78,7 +78,7 @@ private extension TypeDetail {
     @ViewBuilder
     var moveDamageClassRow: some View {
         if type.moveDamageClass != nil {
-            DamageClassTag(name: viewModel.typeInfo[.moveDamageClass, default: "Error"])
+            MoveDamageClassTag(name: viewModel.typeInfo[.moveDamageClass, default: "Error"])
         } else {
             Text("N/A")
                 .foregroundColor(.gray)

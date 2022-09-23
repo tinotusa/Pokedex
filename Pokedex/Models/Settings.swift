@@ -16,3 +16,13 @@ struct Settings: Codable, Hashable {
         Settings()
     }
 }
+
+
+extension Settings: CustomStringConvertible {
+    var description: String {
+        if let language {
+            return "shouldCacheResults: \(shouldCacheResults), language: \(language.name), isDarkMode: \(isDarkMode)"
+        }
+        return "shouldCacheResults: \(shouldCacheResults), language: nil, isDarkMode: \(isDarkMode)"
+    }
+}

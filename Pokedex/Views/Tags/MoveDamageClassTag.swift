@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MoveDamageClassTag: View {
     let name: String
-    @StateObject private var viewModel = DamageClassTagViewModel()
+    @StateObject private var viewModel = MoveDamageClassTagViewModel()
     @EnvironmentObject private var settingsManager: SettingsManager
     
     var body: some View {
@@ -20,7 +20,7 @@ struct MoveDamageClassTag: View {
                     await viewModel.load(name: name, settings: settingsManager.settings)
                 }
         case .loaded:
-            if let damageClass = viewModel.damageClass {
+            if let damageClass = viewModel.moveDamageClass {
                 NavigationLink {
                     MoveDamageClassDetail(moveDamageClass: damageClass)
                 } label: {

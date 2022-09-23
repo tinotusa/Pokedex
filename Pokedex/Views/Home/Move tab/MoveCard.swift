@@ -13,6 +13,19 @@ struct MoveCard: View {
     @StateObject private var viewModel = MoveCardViewModel()
     
     var body: some View {
+        NavigationLink {
+            MoveDetail(move: move)
+        } label: {
+            cardButton
+        }
+        .task {
+            await viewModel.loadData(move: move, settings: settingsManager.settings)
+        }
+    }
+}
+
+private extension MoveCard {
+    var cardButton: some View {
         HStack {
             VStack(alignment: .leading) {
                 HStack {
@@ -27,8 +40,7 @@ struct MoveCard: View {
                     .lineLimit(1)
                     .foregroundColor(.gray)
                 HStack {
-                    Text(viewModel.localizedDamageClassName)
-                        .colouredLabel(colourName: move.damageClass.name)
+                    MoveDamageClassTag(name: move.damageClass.name)
                     
                     PokemonTypeTag(move: move)
                 }
@@ -39,9 +51,6 @@ struct MoveCard: View {
         .padding(.horizontal)
         .padding(.vertical, 4)
         .card()
-        .task {
-            await viewModel.loadData(move: move, settings: settingsManager.settings)
-        }
     }
 }
 

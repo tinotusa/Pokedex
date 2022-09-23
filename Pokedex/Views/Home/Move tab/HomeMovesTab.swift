@@ -44,12 +44,7 @@ private extension HomeMovesTab {
     var movesList: some View {
         LazyVGrid(columns: columns) {
             ForEach(viewModel.filteredMoves) { move in
-                NavigationLink{
-                    MoveDetail(move: move)
-                } label: {
-                    MoveCard(move: move)
-                }
-                .buttonStyle(.plain)
+                MoveCard(move: move)
             }
             if viewModel.hasNextPage && viewModel.searchState == .idle {
                 ProgressView()
