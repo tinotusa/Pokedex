@@ -34,11 +34,11 @@ extension TypeDetailViewModel {
     }
     
     enum TypeInfoKey: String, CaseIterable, Identifiable {
-        case gameIndices = "game indices"
         case generation
         case moveDamageClass = "move damage class"
         case pokemon
         case moves
+        case gameIndices = "game indices"
         
         var id: Self { self }
         
@@ -49,7 +49,6 @@ extension TypeDetailViewModel {
     
     func getTypeInfo() {
         guard let type else { return }
-        typeInfo[.gameIndices] = "\(type.gameIndices.count)"
         typeInfo[.generation] = type.generation.name
         if let moveDamageClass = type.moveDamageClass {
             typeInfo[.moveDamageClass] = moveDamageClass.name
@@ -58,6 +57,7 @@ extension TypeDetailViewModel {
         }
         typeInfo[.pokemon] = "\(type.pokemon.count) pokemon"
         typeInfo[.moves] = "\(type.moves.count) moves"
+        typeInfo[.gameIndices] = "\(type.gameIndices.count)"
     }
     
     func getDamageRelations() {

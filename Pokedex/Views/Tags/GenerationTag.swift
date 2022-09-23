@@ -15,7 +15,7 @@ struct GenerationTag: View {
     var body: some View {
         switch viewModel.viewState {
         case .loading:
-            LoadingView()
+            ProgressView()
                 .task {
                     await viewModel.load(name: name, settings: settingsManager.settings)
                 }

@@ -57,18 +57,18 @@ private extension TypeDetail {
     }
     
     var typeInfoGrid: some View {
-        Grid(alignment: .leading, verticalSpacing: Constants.gridVerticalSpacing) {
+        Grid(alignment: .topLeading, verticalSpacing: Constants.gridVerticalSpacing) {
             ForEach(TypeDetailViewModel.TypeInfoKey.allCases) { typeInfoKey in
                 GridRow {
                     Text(typeInfoKey.title)
                         .gridRowTitleStyle()
 
                     switch typeInfoKey {
-                    case .gameIndices: gameIndicesRow
                     case .generation: GenerationTag(name: type.generation.name)
                     case .moveDamageClass: moveDamageClassRow
                     case .pokemon: pokemonRow
                     case .moves: movesRow
+                    case .gameIndices: gameIndicesRow
                     }
                 }
             }
@@ -86,7 +86,7 @@ private extension TypeDetail {
     }
     
     var damageRelationGrid: some View {
-        Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: Constants.gridVerticalSpacing) {
+        Grid(alignment: .topLeading, verticalSpacing: Constants.gridVerticalSpacing) {
             ForEach(TypeDetailViewModel.TypeRelationKey.allCases) { typeRelationKey in
                 GridRow {
                     Text(typeRelationKey.title)
@@ -147,18 +147,16 @@ private extension TypeDetail {
         }
     }
     
+    @ViewBuilder
     var gameIndicesRow: some View {
-        HStack {
-            Text(viewModel.typeInfo[.gameIndices, default: "Error"])
-            
-            Spacer()
-            if !type.gameIndices.isEmpty {
-                NavigationLink {
-                    Text("Game indices")
-                } label: {
-                    ShowMoreButton()
+        if !type.gameIndices.isEmpty {
+            WrappingHStack {
+                ForEach(type.gameIndices, id: \.self) { gameIndex in
+                    GenerationTag(name: gameIndex.generation.name)
                 }
             }
+        } else {
+            Text("0")
         }
     }
 }
