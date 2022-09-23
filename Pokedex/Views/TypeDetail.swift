@@ -59,7 +59,6 @@ private extension TypeDetail {
     var typeInfoGrid: some View {
         Grid(alignment: .leading, verticalSpacing: Constants.gridVerticalSpacing) {
             ForEach(TypeDetailViewModel.TypeInfoKey.allCases) { typeInfoKey in
-                let keyValue = viewModel.typeInfo[typeInfoKey, default: "Error"]
                 GridRow {
                     Text(typeInfoKey.title)
                         .gridRowTitleStyle()
@@ -67,12 +66,22 @@ private extension TypeDetail {
                     switch typeInfoKey {
                     case .gameIndices: gameIndicesRow
                     case .generation: GenerationTag(name: type.generation.name)
-                    case .moveDamageClass: DamageClassTag(name: keyValue)
+                    case .moveDamageClass: moveDamageClassRow
                     case .pokemon: pokemonRow
                     case .moves: movesRow
                     }
                 }
             }
+        }
+    }
+    
+    @ViewBuilder
+    var moveDamageClassRow: some View {
+        if type.moveDamageClass != nil {
+            DamageClassTag(name: viewModel.typeInfo[.moveDamageClass, default: "Error"])
+        } else {
+            Text("N/A")
+                .foregroundColor(.gray)
         }
     }
     
@@ -103,16 +112,17 @@ private extension TypeDetail {
             Text(viewModel.typeInfo[.pokemon, default: "Error"])
             
             Spacer()
-            
-            NavigationLink {
-                PokemonListView(
-                    title: viewModel.localizedTypeName,
-                    id: type.id,
-                    description: "Pokemon with this type.",
-                    pokemonURLS: type.pokemon.map { $0.pokemon.url }
-                )
-            } label: {
-                ShowMoreButton()
+            if !type.pokemon.isEmpty {
+                NavigationLink {
+                    PokemonListView(
+                        title: viewModel.localizedTypeName,
+                        id: type.id,
+                        description: "Pokemon with this type.",
+                        pokemonURLS: type.pokemon.map { $0.pokemon.url }
+                    )
+                } label: {
+                    ShowMoreButton()
+                }
             }
         }
     }
@@ -122,16 +132,17 @@ private extension TypeDetail {
             Text(viewModel.typeInfo[.moves, default: "Error"])
             
             Spacer()
-            
-            NavigationLink {
-                MovesListView(
-                    title: viewModel.localizedTypeName,
-                    id: type.id,
-                    description: "Moves with this type.",
-                    moveURLS: type.moves.map { $0.url }
-                )
-            } label: {
-                ShowMoreButton()
+            if !type.moves.isEmpty {
+                NavigationLink {
+                    MovesListView(
+                        title: viewModel.localizedTypeName,
+                        id: type.id,
+                        description: "Moves with this type.",
+                        moveURLS: type.moves.map { $0.url }
+                    )
+                } label: {
+                    ShowMoreButton()
+                }
             }
         }
     }
@@ -141,11 +152,12 @@ private extension TypeDetail {
             Text(viewModel.typeInfo[.gameIndices, default: "Error"])
             
             Spacer()
-            
-            NavigationLink {
-                Text("Game indices")
-            } label: {
-                ShowMoreButton()
+            if !type.gameIndices.isEmpty {
+                NavigationLink {
+                    Text("Game indices")
+                } label: {
+                    ShowMoreButton()
+                }
             }
         }
     }
