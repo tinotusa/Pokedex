@@ -11,6 +11,9 @@ struct GenerationDetail: View {
     let generation: Generation
     @StateObject private var viewModel = GenerationDetailViewModel()
     @EnvironmentObject private var settingsManager: SettingsManager
+    private let typesColumns: [GridItem] = [
+        .init(.adaptive(minimum: 80))
+    ]
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -45,7 +48,7 @@ struct GenerationDetail: View {
 private extension GenerationDetail {
     var generationInfoGrid: some View {
         ScrollView(showsIndicators: false) {
-            Grid(alignment: .leadingFirstTextBaseline, verticalSpacing: 10) {
+            Grid(alignment: .topLeading, verticalSpacing: 10) {
                 ForEach(GenerationDetailViewModel.GenerationInfo.allCases) { generationInfoKey in
                     GridRow {
                         Text(generationInfoKey.title)
@@ -107,9 +110,16 @@ private extension GenerationDetail {
         if generation.types.isEmpty {
             Text("No new types introduced.")
         } else {
-            WrappingHStack {
-                ForEach(generation.types, id: \.self) { type in
-                    PokemonTypeTag(namedAPIResource: type)
+            ViewThatFits {
+                HStack {
+                    ForEach(generation.types, id: \.self) { type in
+                        PokemonTypeTag(namedAPIResource: type)
+                    }
+                }
+                LazyVGrid(columns: typesColumns, alignment: .leading) {
+                    ForEach(generation.types, id: \.self) { type in
+                        PokemonTypeTag(namedAPIResource: type)
+                    }
                 }
             }
         }
@@ -142,9 +152,19 @@ private extension GenerationDetail {
             VStack(alignment: .leading) {
                 ForEach(viewModel.versionGroups) { versionGroup in
                     let versions = viewModel.versions(withName: versionGroup.name)
-                    HStack {
-                        ForEach(versions) { version in
-                            VersionTag(version: version)
+                    ViewThatFits(in: .horizontal) {
+                        HStack {
+                            ForEach(versions) { version in
+                                VersionTag(version: version)
+                                if version != versions[versions.count - 1] {
+                                    Divider()
+                                }
+                            }
+                        }
+                        VStack(alignment: .leading) {
+                            ForEach(versions) { version in
+                                VersionTag(version: version)
+                            }
                         }
                     }
                 }
@@ -157,7 +177,7 @@ private extension GenerationDetail {
 // MARK: - Previews
 struct GenerationDetail_Previews: PreviewProvider {
     static var previews: some View {
-        GenerationDetail(generation: .example)
+        GenerationDetail(generation: .exampleGeneration1)
             .environmentObject(SettingsManager())
     }
 }

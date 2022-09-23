@@ -14,7 +14,7 @@ final class GenerationDetailViewModel: ObservableObject {
     @Published private(set) var generationInfo = [GenerationInfo: String]()
     
     @Published private(set) var versionGroups = [VersionGroup]()
-    @Published private(set) var versions = [Version]()
+    @Published private var versions = [Version]()
     
     private var settings: Settings?
     private var generation: Generation?
@@ -46,7 +46,7 @@ extension GenerationDetailViewModel {
         } catch {
             logger.debug("Failed to get region from generation with id: \(generation.id)")
         }
-        let versionGroups = await getVersionGroups()
+        let versionGroups = await getVersionGroups().sorted()
         let versions = await getVersions(from: versionGroups)
         
         self.versionGroups = versionGroups

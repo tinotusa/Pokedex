@@ -28,17 +28,6 @@ struct Generation: Codable, Hashable, Identifiable {
     let versionGroups: [NamedAPIResource]
 }
 
-// MARK: - Example Generation
-extension Generation {
-    static var example: Generation {
-        do {
-            return try Bundle.main.loadJSON(ofType: Generation.self, filename: "generation", extension: "json")
-        } catch {
-            fatalError("Error in \(#function).\n\(error)")
-        }
-    }
-}
-
 // MARK: - SearchByNameOrID conformance
 extension Generation: SearchByNameOrID {
     static func from(name: String) async throws -> Generation {
